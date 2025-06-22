@@ -1,0 +1,158 @@
+'use client'
+
+export default function Contact() {
+  return (
+    <main className="min-h-screen bg-neutral-900 dark:bg-neutral-900">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">            <h1 className="text-4xl font-bold text-white mb-4">
+              Contact <span className="text-red-600">Us</span>
+            </h1>
+            <p className="text-lg text-neutral-300">
+              Get in touch with us for any questions or to schedule a service. 
+              We'd love to hear from you!
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Form */}            <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
+              <h2 className="text-2xl font-semibold text-white mb-6">
+                Send us a Message
+              </h2>
+              <p className="text-neutral-300 mb-6">
+                Fill out the form below and we'll get back to you as soon as possible. 
+                You can also attach an image if needed.
+              </p>
+              
+              <form className="space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    placeholder="Your full name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-neutral-300 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    placeholder="Tell us how we can help you..."
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label htmlFor="image" className="block text-sm font-medium text-neutral-300 mb-2">
+                    Attach Image (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <div className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  Get in Touch
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-neutral-300">Mobile Service - We Come To You!</span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <a href="tel:+12082060531" className="text-neutral-300 hover:text-red-600 transition-colors">(208) 206-0531</a>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <a href="mailto:info@quickspitshine.com" className="text-neutral-300 hover:text-red-600 transition-colors">info@quickspitshine.com</a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  Business Hours
+                </h3>
+                <div className="space-y-2 text-neutral-300">
+                  <div className="flex justify-between">
+                    <span>Monday - Friday</span>
+                    <span className="text-red-600 font-medium">8:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Saturday</span>
+                    <span className="text-red-600 font-medium">9:00 AM - 5:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Sunday</span>
+                    <span className="text-red-600 font-medium">10:00 AM - 4:00 PM</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-red-600 p-6 rounded-xl shadow-lg">
+                <h3 className="text-xl font-semibold text-white mb-4">
+                  Ready to Book?
+                </h3>
+                <p className="text-red-100 mb-4">
+                  Call us now to schedule your mobile detailing service!
+                </p>
+                <a
+                  href="tel:+12082060531"
+                  className="inline-block bg-white text-red-600 hover:bg-red-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  Call (208) 206-0531
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
