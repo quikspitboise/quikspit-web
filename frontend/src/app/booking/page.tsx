@@ -19,136 +19,91 @@ export default function Booking() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
             {/* Service Packages */}            <div className="space-y-6">
               <h2 className="text-2xl font-semibold text-white mb-6">
-                Our Services
+                Packages & Pricing
               </h2>
-              
-              {/* Main Service Packages */}
+
+              {/* Silver Package */}
               <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-all duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  Interior Detail
+                  Silver Package – "The Essentials"
                 </h3>
+                <p className="text-neutral-300 mb-2 text-sm italic">A sleek entry level option that still feels exclusive, starting at <span className='text-red-600 font-bold'>$130</span></p>
                 <ul className="text-neutral-300 mb-6 space-y-2">
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Deep Vacuum
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Clean all plastics/vinyls/leathers
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Light shampoo of upholstery (if equipped)
-                  </li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Deep agitation vacuum</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Scrub all vinyls/plastics/leathers</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Streak-free glass clean</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Odor Eliminator</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Superficial Stain Removal</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Thorough hand wash/dry</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Tire Shine</li>
                 </ul>
                 <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-red-600">$80</span>
+                  <span className="text-3xl font-bold text-red-600">$130+</span>
                 </div>
               </div>
 
-              <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-all duration-300">
+              {/* Gold Package */}
+              <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-yellow-400 hover:shadow-xl transition-all duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  Exterior Detail
+                  Gold Package – "The Prestige Clean"
                 </h3>
+                <p className="text-neutral-300 mb-2 text-sm italic">Mid-tier with enhanced services and deeper care, starting at <span className='text-red-600 font-bold'>$180</span></p>
                 <ul className="text-neutral-300 mb-6 space-y-2">
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Handwash of all exterior portions
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Wheel/Tire clean & shine
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-red-600 mr-2">•</span>
-                    Iron Decontamination
-                  </li>
+                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Everything in Silver Package, plus:</li>
+                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Full interior shampoo (seats/carpet)</li>
+                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Dashboard and trim conditioning</li>
+                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Headliner spot clean</li>
+                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Ceramic sealant applied (enhances paint gloss and adds protection)</li>
                 </ul>
                 <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-red-600">$60</span>
+                  <span className="text-3xl font-bold text-yellow-400">$180+</span>
                 </div>
               </div>
 
+              {/* Platinum Package */}
               <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-red-600 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center mb-3">
-                  <h3 className="text-xl font-semibold text-white">
-                    Interior + Exterior
-                  </h3>
-                  <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    BEST VALUE
-                  </span>
-                </div>
-                <p className="text-neutral-300 mb-6">
-                  Complete interior and exterior detail package - save $20!
-                </p>
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Platinum Package – "Executive Treatment"
+                </h3>
+                <p className="text-neutral-300 mb-2 text-sm italic">The ultimate package for those who want it all, starting at <span className='text-red-600 font-bold'>$220</span></p>
+                <ul className="text-neutral-300 mb-6 space-y-2">
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Everything in Gold Package, plus:</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Premium leather conditioning</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Engine bay detail</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Iron decontamination</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Headlight restoration</li>
+                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Complimentary air freshener</li>
+                </ul>
                 <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-red-600">$120</span>
-                  <span className="text-lg text-neutral-400 line-through">$140</span>
+                  <span className="text-3xl font-bold text-red-600">$220+</span>
                 </div>
               </div>
 
-              {/* Vehicle Size Adjustments */}
-              <div className="bg-neutral-800 p-8 rounded-xl border border-neutral-700">
+              {/* Enhance the experience */}
+              <div className="bg-neutral-800 p-8 rounded-xl border border-neutral-700 mt-6">
                 <h4 className="text-lg font-semibold text-white mb-4">
-                  Vehicle Size Adjustments
+                  Enhance the experience:
                 </h4>
                 <div className="space-y-3 text-neutral-300">
                   <div className="flex justify-between items-center">
-                    <span>Small/Midsize SUV</span>
-                    <span className="font-semibold text-red-600">+$30</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Large SUV/Trucks/Vans</span>
-                    <span className="font-semibold text-red-600">+$60</span>
-                  </div>
-                  <div className="flex justify-between items-center">
                     <span>Pet Hair Removal</span>
-                    <span className="font-semibold text-red-600">+$35</span>
+                    <span className="font-semibold text-red-600">$35</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Optional Add-Ons */}
-              <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
-                <h4 className="text-lg font-semibold text-white mb-6">
-                  Optional Add-Ons
-                </h4>
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between items-start p-4 bg-neutral-700 rounded-lg">
-                    <div className="flex-1">
-                      <span className="font-medium text-white">Leather Conditioner</span>
-                      <p className="text-neutral-300 text-xs mt-1">Softens leather and protects against harmful UV rays</p>
-                    </div>
-                    <span className="font-semibold text-red-600 ml-4">+$45</span>
+                  <div className="flex justify-between items-center">
+                    <span>Water Spot Removal</span>
+                    <span className="font-semibold text-red-600">$25</span>
                   </div>
-                  <div className="flex justify-between items-start p-4 bg-neutral-700 rounded-lg">
-                    <div className="flex-1">
-                      <span className="font-medium text-white">Hybrid Ceramic Sealant</span>
-                      <p className="text-neutral-300 text-xs mt-1">Enhances gloss & adds temporary protection to paint from harmful UV rays</p>
-                    </div>
-                    <span className="font-semibold text-red-600 ml-4">+$35</span>
-                  </div>
-                  <div className="flex justify-between items-start p-4 bg-neutral-700 rounded-lg">
-                    <div className="flex-1">
-                      <span className="font-medium text-white">Deep Clean/Extract Seats & Carpet</span>
-                      <p className="text-neutral-300 text-xs mt-1">Removes unwanted stains that a light shampoo cannot remove</p>
-                    </div>
-                    <span className="font-semibold text-red-600 ml-4">+$55</span>
-                  </div>
-                  <div className="flex justify-between items-start p-4 bg-neutral-700 rounded-lg">
-                    <div className="flex-1">
-                      <span className="font-medium text-white">Headlight Restore</span>
-                      <p className="text-neutral-300 text-xs mt-1">Provides clarity to oxidized headlights</p>
-                    </div>
-                    <span className="font-semibold text-red-600 ml-4">+$25 each</span>
+                  <div className="flex justify-between items-center">
+                    <span>Windshield Rain Repellent</span>
+                    <span className="font-semibold text-red-600">$25</span>
                   </div>
                 </div>
               </div>
 
               {/* Pricing Note */}
-              <div className="bg-orange-900/20 border-l-4 border-orange-400 p-6 rounded-r-lg">
+              <div className="bg-orange-900/20 border-l-4 border-orange-400 p-6 rounded-r-lg mt-4">
                 <p className="text-sm text-orange-200">
-                  <strong>Note:</strong> Pricing based on sedans only & varies based on size of vehicle and presence of excessive dirt.
+                  <strong>Note:</strong> All pricing subject to change based on vehicle size and presence of excessive dirt.
                 </p>
               </div>
             </div>

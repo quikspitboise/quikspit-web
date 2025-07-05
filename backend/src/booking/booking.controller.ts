@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { BookingService } from './booking.service';
+import { BookingService, Booking } from './booking.service';
 
 interface CreateBookingDto {
   customerName: string;
@@ -22,7 +22,7 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Get()
-  async getBookings() {
+  async getBookings(): Promise<{ success: boolean; message: string; data: Booking[] }> {
     console.log('Getting all bookings...');
     const bookings = await this.bookingService.getAllBookings();
     
@@ -35,7 +35,7 @@ export class BookingController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createBooking(@Body() bookingData: CreateBookingDto) {
+  async createBooking(@Body() bookingData: CreateBookingDto): Promise<{ success: boolean; message: string; data: { booking: Booking; payment: any } }> {
     console.log('=== New Booking Request ===');
     console.log('Booking Data:', bookingData);
 

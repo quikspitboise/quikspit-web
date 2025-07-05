@@ -16,7 +16,7 @@ interface CreateBookingDto {
   specialRequests?: string;
 }
 
-interface Booking {
+export interface Booking {
   id: string;
   customerName: string;
   customerEmail: string;
