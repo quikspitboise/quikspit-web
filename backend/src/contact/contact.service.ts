@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { EmailService } from './email.service';
+import { ConfigService } from '@nestjs/config';
 
 interface ContactFormDto {
   name: string;
@@ -8,6 +10,11 @@ interface ContactFormDto {
 
 @Injectable()
 export class ContactService {
+  constructor(
+    private readonly emailService: EmailService, 
+    private readonly configService: ConfigService
+  ) {}
+
   async saveContactForm(
     contactData: ContactFormDto,
     file?: Express.Multer.File,
@@ -37,33 +44,6 @@ export class ContactService {
     contactData: ContactFormDto,
     file?: Express.Multer.File,
   ): Promise<void> {
-    // TODO: Implement email sending logic using nodemailer
-    console.log('Sending contact email notification...');
-    
-    const emailData = {
-      to: 'admin@quickspitshine.com', // Replace with actual admin email
-      from: contactData.email,
-      subject: `New Contact Form Submission from ${contactData.name}`,
-      text: `
-Name: ${contactData.name}
-Email: ${contactData.email}
-Message: ${contactData.message}
-${file ? `Image attached: ${file.originalname}` : 'No image attached'}
-      `,
-      attachments: file ? [
-        {
-          filename: file.originalname,
-          path: file.path,
-        }
-      ] : [],
-    };
-
-    console.log('Email would be sent with data:', emailData);
-    
-    // In a real implementation, you would use nodemailer here:
-    // const transporter = nodemailer.createTransporter({ ... });
-    // await transporter.sendMail(emailData);
-    
-    console.log('Email notification sent successfully (placeholder)');
+    await this.emailService.sendContactNotification(contactData, file);
   }
 }
