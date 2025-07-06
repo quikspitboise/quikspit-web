@@ -39,8 +39,9 @@ export default function Contact() {
       setSuccess(true);
       setForm({ name: '', email: '', message: '' });
       setImage(null);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ export default function Contact() {
             </h1>
             <p className="text-lg text-neutral-300">
               Get in touch with us for any questions or to schedule a service. 
-              We'd love to hear from you!
+              We&apos;d love to hear from you!
             </p>
           </div>
 
@@ -67,7 +68,7 @@ export default function Contact() {
                 Send us a Message
               </h2>
               <p className="text-neutral-300 mb-6">
-                Fill out the form below and we'll get back to you as soon as possible. 
+                Fill out the form below and we&apos;ll get back to you as soon as possible. 
                 You can also attach an image if needed.
               </p>
               {success && (

@@ -25,7 +25,7 @@ export default function Booking() {
               {/* Silver Package */}
               <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-all duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  Silver Package – "The Essentials"
+                  Silver Package – &quot;The Essentials&quot;
                 </h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">A sleek entry level option that still feels exclusive, starting at <span className='text-red-600 font-bold'>$130</span></p>
                 <ul className="text-neutral-300 mb-6 space-y-2">
@@ -45,7 +45,7 @@ export default function Booking() {
               {/* Gold Package */}
               <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-yellow-400 hover:shadow-xl transition-all duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  Gold Package – "The Prestige Clean"
+                  Gold Package – &quot;The Prestige Clean&quot;
                 </h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">Mid-tier with enhanced services and deeper care, starting at <span className='text-red-600 font-bold'>$180</span></p>
                 <ul className="text-neutral-300 mb-6 space-y-2">
@@ -63,7 +63,7 @@ export default function Booking() {
               {/* Platinum Package */}
               <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-red-600 hover:shadow-xl transition-all duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  Platinum Package – "Executive Treatment"
+                  Platinum Package – &quot;Executive Treatment&quot;
                 </h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">The ultimate package for those who want it all, starting at <span className='text-red-600 font-bold'>$220</span></p>
                 <ul className="text-neutral-300 mb-6 space-y-2">
@@ -124,7 +124,7 @@ export default function Booking() {
                   Booking System Coming Soon!
                 </h3>
                 <p className="text-neutral-300 mb-8">
-                  We're working on an advanced booking system that will allow you to:
+                  We&apos;re working on an advanced booking system that will allow you to:
                 </p>
                 <ul className="text-left text-neutral-300 space-y-3 mb-10 max-w-sm mx-auto">
                   <li className="flex items-center">
