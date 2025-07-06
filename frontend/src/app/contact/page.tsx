@@ -1,11 +1,57 @@
-'use client'
+"use client";
+import React, { useState } from 'react';
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [image, setImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    } else {
+      setImage(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('email', form.email);
+      formData.append('message', form.message);
+      if (image) formData.append('image', image);
+      const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/contact', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Failed to send message');
+      setSuccess(true);
+      setForm({ name: '', email: '', message: '' });
+      setImage(null);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-neutral-900 dark:bg-neutral-900">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">            <h1 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-white mb-4">
               Contact <span className="text-red-600">Us</span>
             </h1>
             <p className="text-lg text-neutral-300">
@@ -15,7 +61,8 @@ export default function Contact() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Form */}            <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
+            {/* Contact Form */}
+            <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
               <h2 className="text-2xl font-semibold text-white mb-6">
                 Send us a Message
               </h2>
@@ -23,8 +70,13 @@ export default function Contact() {
                 Fill out the form below and we'll get back to you as soon as possible. 
                 You can also attach an image if needed.
               </p>
-              
-              <form className="space-y-6">
+              {success && (
+                <div className="mb-4 p-4 rounded-lg bg-green-700 text-white">Message sent successfully!</div>
+              )}
+              {error && (
+                <div className="mb-4 p-4 rounded-lg bg-red-700 text-white">{error}</div>
+              )}
+              <form className="space-y-6" onSubmit={handleSubmit} encType="multipart/form-data">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
                     Full Name
@@ -33,11 +85,13 @@ export default function Contact() {
                     type="text"
                     id="name"
                     name="name"
+                    value={form.name}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
                     placeholder="Your full name"
+                    required
                   />
                 </div>
-
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
                     Email Address
@@ -46,11 +100,13 @@ export default function Contact() {
                     type="email"
                     id="email"
                     name="email"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
                     placeholder="your.email@example.com"
+                    required
                   />
                 </div>
-
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-neutral-300 mb-2">
                     Message
@@ -59,11 +115,13 @@ export default function Contact() {
                     id="message"
                     name="message"
                     rows={5}
+                    value={form.message}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
                     placeholder="Tell us how we can help you..."
+                    required
                   ></textarea>
                 </div>
-
                 <div>
                   <label htmlFor="image" className="block text-sm font-medium text-neutral-300 mb-2">
                     Attach Image (Optional)
@@ -73,15 +131,16 @@ export default function Contact() {
                     id="image"
                     name="image"
                     accept="image/*"
+                    onChange={handleFileChange}
                     className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
                   />
                 </div>
-
                 <button
                   type="submit"
                   className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
+                  disabled={loading}
                 >
-                  Send Message
+                  {loading ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>
