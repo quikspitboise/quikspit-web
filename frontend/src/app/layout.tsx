@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QuickSpit Shine - Professional Car Detailing",
+  title: "QuikSpit Shine - Professional Car Detailing",
   description: "Professional car detailing services that make your vehicle shine like new. Experience the difference with our premium cleaning and protection services.",
 };
 
