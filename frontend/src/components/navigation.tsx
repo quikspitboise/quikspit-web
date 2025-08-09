@@ -3,10 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion'
+import { useContext } from 'react'
+import { TransitionContext } from './page-transition'
 
 export function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isTransitioning } = useContext(TransitionContext)
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -14,7 +18,7 @@ export function Navigation() {
     { href: '/contact', label: 'Contact' },
   ];
   return (
-    <nav className="bg-brand-charcoal/95 backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm">
+    <nav className={`bg-brand-charcoal/95 backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link 
@@ -61,23 +65,39 @@ export function Navigation() {
           </div>
         </div>
         {/* Mobile menu */}
-        {menuOpen && (
-          <div id="mobile-menu" className="md:hidden border-t border-neutral-600 py-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}              className={`block px-3 py-2 text-base font-medium transition-colors duration-200 ${
-                  pathname === item.href
-                    ? 'text-red-600 bg-red-600/5'
-                    : 'text-neutral-300 hover:text-red-600 hover:bg-red-600/5'
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {menuOpen && (
+            <motion.div
+              id="mobile-menu"
+              className="md:hidden border-t border-neutral-600 py-4 space-y-2"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {navItems.map((item, index) => (
+                <motion.div
+                  key={item.href}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.04 * index, duration: 0.2 }}
+                >
+                  <Link
+                    href={item.href}
+                    className={`block px-3 py-2 text-base font-medium transition-colors duration-200 ${
+                      pathname === item.href
+                        ? 'text-red-600 bg-red-600/5'
+                        : 'text-neutral-300 hover:text-red-600 hover:bg-red-600/5'
+                    }`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

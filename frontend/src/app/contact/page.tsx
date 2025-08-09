@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { Reveal } from '@/components/reveal'
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -52,25 +53,33 @@ export default function Contact() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Contact <span className="text-red-600">Us</span>
-            </h1>
-            <p className="text-lg text-neutral-300">
-              Get in touch with us for any questions or to schedule a service. 
-              We&apos;d love to hear from you!
-            </p>
+            <Reveal>
+              <h1 className="text-4xl font-bold text-white mb-4">
+                Contact <span className="text-red-600">Us</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <p className="text-lg text-neutral-300">
+                Get in touch with us for any questions or to schedule a service. 
+                We&apos;d love to hear from you!
+              </p>
+            </Reveal>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
-              <h2 className="text-2xl font-semibold text-white mb-6">
-                Send us a Message
-              </h2>
-              <p className="text-neutral-300 mb-6">
-                Fill out the form below and we&apos;ll get back to you as soon as possible. 
-                You can also attach an image if needed.
-              </p>
+              <Reveal>
+                <h2 className="text-2xl font-semibold text-white mb-6">
+                  Send us a Message
+                </h2>
+              </Reveal>
+              <Reveal delay={0.05}>
+                <p className="text-neutral-300 mb-6">
+                  Fill out the form below and we&apos;ll get back to you as soon as possible. 
+                  You can also attach an image if needed.
+                </p>
+              </Reveal>
               {success && (
                 <div className="mb-4 p-4 rounded-lg bg-green-700 text-white">Message sent successfully!</div>
               )}
@@ -136,19 +145,21 @@ export default function Contact() {
                     className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
-                  disabled={loading}
-                >
-                  {loading ? 'Sending...' : 'Send Message'}
-                </button>
+                <Reveal delay={0.1}>
+                  <button
+                    type="submit"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
+                    disabled={loading}
+                  >
+                    {loading ? 'Sending...' : 'Send Message'}
+                  </button>
+                </Reveal>
               </form>
             </div>
 
             {/* Contact Information */}
             <div className="space-y-8">
-              <div className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
+              <Reveal className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
                 <h3 className="text-xl font-semibold text-white mb-4">
                   Get in Touch
                 </h3>
@@ -173,9 +184,9 @@ export default function Contact() {
                     <a href="mailto:quikspitboise@gmail.com" className="text-neutral-300 hover:text-red-600 transition-colors">quikspitboise@gmail.com</a>
                   </div>
                 </div>
-              </div>
+              </Reveal>
 
-              <div className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
+              <Reveal delay={0.05} className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
                 <h3 className="text-xl font-semibold text-white mb-4">
                   Business Hours
                 </h3>
@@ -193,9 +204,9 @@ export default function Contact() {
                     <span className="text-red-600 font-medium">10:00 AM - 4:00 PM</span>
                   </div>
                 </div>
-              </div>
+              </Reveal>
 
-              <div className="bg-red-600 p-6 rounded-xl shadow-lg">
+              <Reveal delay={0.1} className="bg-red-600 p-6 rounded-xl shadow-lg">
                 <h3 className="text-xl font-semibold text-white mb-4">
                   Ready to Book?
                 </h3>
@@ -208,7 +219,7 @@ export default function Contact() {
                 >
                   Call (208) 206-0531
                 </a>
-              </div>
+              </Reveal>
             </div>
           </div>
         </div>
