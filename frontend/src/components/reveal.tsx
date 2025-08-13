@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useInView, useReducedMotion } from 'framer-motion'
-import { PropsWithChildren, useRef, useContext, useMemo } from 'react'
+import { PropsWithChildren, useRef, useContext, useMemo, useEffect, useState } from 'react'
 import { TransitionContext } from './page-transition'
 
 type RevealProps = PropsWithChildren<{
@@ -16,17 +16,28 @@ export function Reveal({ children, delay = 0, className, y = 16, skipOnRouteTran
   const isInView = useInView(ref, { margin: '0px 0px -10% 0px', once: true })
   const prefersReducedMotion = useReducedMotion()
   const { isTransitioning } = useContext(TransitionContext)
-  const skipOnMount = isTransitioning && skipOnRouteTransition
-  const effectiveDelay = useMemo(() => (skipOnMount ? 0 : delay), [delay, skipOnMount])
-  const duration = useMemo(() => (skipOnMount ? 0 : 0.35), [skipOnMount])
+  const suppressed = isTransitioning && skipOnRouteTransition
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const effectiveDelay = useMemo(() => (suppressed ? 0 : delay), [delay, suppressed])
+  const duration = 0.35
+
+  useEffect(() => {
+    if (!prefersReducedMotion && isInView && !isTransitioning && !hasAnimated) {
+      setHasAnimated(true)
+    }
+  }, [isInView, isTransitioning, prefersReducedMotion, hasAnimated])
+
+  const hidden = useMemo(() => ({ opacity: 0, y }), [y])
+  const visible = { opacity: 1, y: 0 }
 
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={prefersReducedMotion ? { opacity: 1 } : (skipOnMount ? { opacity: 1, y: 0 } : { opacity: 0, y })}
-      animate={isInView ? (prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }) : undefined}
+      initial={prefersReducedMotion ? visible : hidden}
+      animate={prefersReducedMotion ? visible : (hasAnimated ? visible : undefined)}
       transition={{ duration, delay: effectiveDelay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ willChange: prefersReducedMotion ? undefined : 'opacity, transform' }}
     >
       {children}
     </motion.div>

@@ -1,0 +1,28 @@
+---
+description: This project runs on NixOS. All commands should be run inside a nix-shell from the repository root.
+alwaysApply: true
+---
+
+Environment and command rules (NixOS):
+
+- Always assume a Nix-managed dev environment.
+  - Enter with: `nix-shell` (from repo root, which loads `shell.nix`).
+  - For one-off commands, prefer `nix-shell --run "<command>"`.
+
+- When suggesting or running commands, wrap them to ensure nix-shell context:
+  - Example dev: `nix-shell --run "npm run dev"`
+  - Example install: `nix-shell --run "npm install"`
+  - Workspace scripts: `nix-shell --run "npm run dev:frontend"`
+
+- Tooling available in nix-shell:
+  - Node.js 20.x, npm
+  - Postgres client/server (psql)
+  - pkg-config, gcc, make, openssl, python3 (for native module builds)
+  - vips (for image processing if required by Next.js or loaders)
+
+- Do not instruct installing global tools outside nix. If extra tools are required, add them to `shell.nix`.
+
+References:
+- [`shell.nix`](mdc:../../shell.nix)
+- [.github/copilot-instructions.md](mdc:../../.github/copilot-instructions.md)
+

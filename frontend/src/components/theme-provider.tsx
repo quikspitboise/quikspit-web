@@ -29,10 +29,8 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     try {
       const storedTheme = localStorage.getItem(storageKey) as Theme
       if (storedTheme && ['dark', 'light', 'system'].includes(storedTheme)) {
@@ -45,8 +43,6 @@ export function ThemeProvider({
   }, [storageKey])
 
   useEffect(() => {
-    if (!mounted) return
-
     const root = window.document.documentElement
 
     root.classList.remove('light', 'dark')
@@ -58,11 +54,13 @@ export function ThemeProvider({
         : 'light'
 
       root.classList.add(systemTheme)
+      root.style.colorScheme = systemTheme
       return
     }
 
     root.classList.add(theme)
-  }, [theme, mounted])
+    root.style.colorScheme = theme
+  }, [theme])
 
   const value = {
     theme,
@@ -75,11 +73,6 @@ export function ThemeProvider({
         setTheme(theme)
       }
     },
-  }
-
-  // Prevent hydration mismatch by not rendering dynamic content until mounted
-  if (!mounted) {
-    return <div suppressHydrationWarning>{children}</div>
   }
 
   return (

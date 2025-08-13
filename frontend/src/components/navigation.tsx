@@ -18,7 +18,7 @@ export function Navigation() {
     { href: '/contact', label: 'Contact' },
   ];
   return (
-    <nav className={`bg-brand-charcoal/95 backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
+    <nav className={`bg-brand-charcoal/90 md:bg-brand-charcoal/95 ${'backdrop-blur'} md:backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link 

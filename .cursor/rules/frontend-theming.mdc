@@ -1,0 +1,33 @@
+---
+description: Frontend theming and component styling for QuikSpit Shine. Use dark backgrounds, red accents, and consistent spacing/typography.
+globs: frontend/**/*.tsx,frontend/**/*.ts,frontend/**/*.css,frontend/**/*.mdx
+---
+
+Follow these theming rules across the frontend:
+
+- Use dark backgrounds with neutral borders and high-contrast text
+  - Backgrounds: bg-brand-charcoal, bg-brand-charcoal-light
+  - Text: text-white for headings, text-neutral-300 for body, text-neutral-400 for muted
+  - Borders: border-neutral-600
+
+- Use brand red for accents and primary actions
+  - Accents: text-red-600, bg-red-600, hover:bg-red-700
+  - Focus rings: focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800
+
+- Buttons
+  - Primary: bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200
+  - Secondary: border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white
+
+- Forms
+  - Inputs: bg-neutral-800 border border-neutral-600 rounded-lg text-white placeholder-neutral-400
+  - Labels: text-neutral-300 text-sm font-medium
+
+- Layout and spacing
+  - Cards: p-6 or p-8 with rounded-xl and shadow-lg + border
+  - Grid: gap-6 or gap-8, grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+
+References:
+- [.github/copilot-instructions.md](mdc:.github/copilot-instructions.md)
+- [frontend/tailwind.config.ts](mdc:frontend/tailwind.config.ts)
+- [frontend/src/app/globals.css](mdc:frontend/src/app/globals.css)
+

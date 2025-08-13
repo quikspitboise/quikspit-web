@@ -1,0 +1,29 @@
+---
+description: Backend architecture conventions for NestJS modules, controllers, and services in QuikSpit Shine.
+globs: backend/**/*.ts
+---
+
+Structure and conventions:
+
+- Use NestJS module boundaries per domain
+  - Modules: ContactModule, BookingModule
+  - Controllers expose REST endpoints under /api
+  - Services contain business logic; keep controllers thin
+
+- Placeholder endpoints and logic
+  - Contact: POST /api/contact to handle form submissions and image uploads
+  - Booking: GET /api/bookings, POST /api/bookings (Stripe integration placeholder)
+
+- Integrations (placeholders allowed)
+  - Uploads: multer (local uploads folder in development)
+  - Payments: Stripe keys via env; service stub
+  - Email: nodemailer service with host/user/pass from env
+
+- Configuration
+  - Use TypeScript throughout
+  - Read environment from .env with typed config where possible
+
+References:
+- [.github/copilot-instructions.md](mdc:.github/copilot-instructions.md)
+- [backend/src](mdc:backend/src)
+

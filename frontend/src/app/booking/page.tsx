@@ -9,12 +9,12 @@ export default function Booking() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <Reveal>
+            <Reveal skipOnRouteTransition>
               <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
                 Book Your <span className="text-red-600">Service</span>
               </h1>
             </Reveal>
-            <Reveal delay={0.05}>
+            <Reveal delay={0.05} skipOnRouteTransition>
               <p className="text-lg text-neutral-300 max-w-3xl mx-auto">
                 Choose from our premium mobile detailing services and schedule your appointment.
                 Professional car care delivered to your location.
@@ -24,11 +24,11 @@ export default function Booking() {
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
             <div className="space-y-6">
-              <Reveal>
+              <Reveal skipOnRouteTransition>
                 <h2 className="text-2xl font-semibold text-white mb-6">Packages & Pricing</h2>
               </Reveal>
 
-              <Reveal className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-all duration-300">
+              <Reveal skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">Silver Package – &quot;The Essentials&quot;</h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">
                   A sleek entry level option that still feels exclusive, starting at <span className='text-red-600 font-bold'>$130</span>
@@ -47,7 +47,7 @@ export default function Booking() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.05} className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-yellow-400 hover:shadow-xl transition-all duration-300">
+              <Reveal delay={0.05} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-yellow-400 hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">Gold Package – &quot;The Prestige Clean&quot;</h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">
                   Mid-tier with enhanced services and deeper care, starting at <span className='text-red-600 font-bold'>$180</span>
@@ -64,7 +64,7 @@ export default function Booking() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.1} className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-red-600 hover:shadow-xl transition-all duration-300">
+              <Reveal delay={0.1} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-red-600 hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-xl font-semibold text-white mb-3">Platinum Package – &quot;Executive Treatment&quot;</h3>
                 <p className="text-neutral-300 mb-2 text-sm italic">
                   The ultimate package for those who want it all, starting at <span className='text-red-600 font-bold'>$220</span>
@@ -82,7 +82,7 @@ export default function Booking() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.15} className="bg-neutral-800 p-8 rounded-xl border border-neutral-700 mt-6">
+              <Reveal delay={0.15} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl border border-neutral-700 mt-6">
                 <h4 className="text-lg font-semibold text-white mb-4">Enhance the experience:</h4>
                 <div className="space-y-3 text-neutral-300">
                   <div className="flex justify-between items-center"><span>Pet Hair Removal</span><span className="font-semibold text-red-600">$35</span></div>
@@ -91,12 +91,12 @@ export default function Booking() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.2} className="bg-orange-900/20 border-l-4 border-orange-400 p-6 rounded-r-lg mt-4">
+              <Reveal delay={0.2} skipOnRouteTransition className="bg-orange-900/20 border-l-4 border-orange-400 p-6 rounded-r-lg mt-4">
                 <p className="text-sm text-orange-200"><strong>Note:</strong> All pricing subject to change based on vehicle size and presence of excessive dirt.</p>
               </Reveal>
             </div>
 
-            <Reveal className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
+            <Reveal skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
               <h2 className="text-2xl font-semibold text-white mb-6">Schedule Your Service</h2>
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -120,25 +120,25 @@ export default function Booking() {
           </div>
 
           <div className="mt-16 bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-600">
-            <Reveal>
+            <Reveal skipOnRouteTransition>
               <h2 className="text-2xl font-semibold text-white mb-8 text-center">What to Expect</h2>
             </Reveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Reveal className="text-center">
+              <Reveal skipOnRouteTransition className="text-center">
                 <div className="bg-brand-red/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h3 className="font-semibold text-white mb-3">Quick & Efficient</h3>
                 <p className="text-neutral-300">Fast service without compromising quality</p>
               </Reveal>
-              <Reveal delay={0.05} className="text-center">
+              <Reveal delay={0.05} skipOnRouteTransition className="text-center">
                 <div className="bg-brand-red/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h3 className="font-semibold text-white mb-3">Professional Results</h3>
                 <p className="text-neutral-300">Expert care for your vehicle</p>
               </Reveal>
-              <Reveal delay={0.1} className="text-center">
+              <Reveal delay={0.1} skipOnRouteTransition className="text-center">
                 <div className="bg-brand-red/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                 </div>

@@ -27,6 +27,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Prevent theme flash on first paint */}
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{
+            __html: `(() => { try {
+  const storageKey = 'quickspit-theme';
+  const stored = localStorage.getItem(storageKey);
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const desired = stored || 'system';
+  const applied = desired === 'dark' || (desired === 'system' && systemPrefersDark) ? 'dark' : 'light';
+  const root = document.documentElement;
+  root.classList.remove('light','dark');
+  root.classList.add(applied);
+  root.style.colorScheme = applied;
+} catch (_) {} })();`,
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         <ThemeProvider
           defaultTheme="system"

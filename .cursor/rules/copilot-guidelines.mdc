@@ -1,0 +1,9 @@
+---
+description: QuikSpit Shine Copilot guidelines adapted for Cursor. Applies across the project to enforce theming, accessibility, and architecture guidelines.
+alwaysApply: true
+---
+
+The following rules are sourced from the project's Copilot instructions to keep AI output consistent across tools.
+
+[.github/copilot-instructions.md](mdc:.github/copilot-instructions.md)
+

@@ -25,11 +25,13 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
   const content = (
     <motion.div
       key={keyByPath ? pathname : undefined}
-      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      // Avoid initial fade on first mount; rely on child reveals
+      initial={false}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      // Remove exit fade to avoid re-triggering child reveals during route changes
+      exit={false}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-      style={{ position: 'absolute', inset: 0, width: '100%', willChange: 'opacity' }}
+      style={{ width: '100%', willChange: 'opacity' }}
     >
       {children}
     </motion.div>
@@ -39,7 +41,7 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
 
   return (
     <TransitionContext.Provider value={contextValue}>
-      <div style={{ position: 'relative', minHeight: '100dvh' }}>
+      <div>
         <AnimatePresence mode="sync" initial={false}>
           {content}
         </AnimatePresence>

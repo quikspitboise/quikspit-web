@@ -1,0 +1,25 @@
+---
+description: Accessibility requirements for UI components (contrast, focus, motion) across the frontend.
+globs: frontend/**/*.tsx,frontend/**/*.css
+---
+
+Accessibility rules:
+
+- Focus states are mandatory for interactive elements
+  - Use focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800
+  - Ensure :focus-visible is respected to avoid excessive outlines
+
+- Contrast
+  - Primary text on dark backgrounds must meet WCAG contrast guidelines
+  - Prefer text-neutral-300 for body text to reduce eye strain
+
+- Motion
+  - Respect prefers-reduced-motion; avoid unnecessary animations
+
+- Hit targets and responsive behavior
+  - Ensure adequate tap targets on mobile and consistent responsive grid spacing
+
+References:
+- [.github/copilot-instructions.md](mdc:.github/copilot-instructions.md)
+- [frontend/src/app/globals.css](mdc:frontend/src/app/globals.css)
+
