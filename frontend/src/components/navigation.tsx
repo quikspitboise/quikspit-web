@@ -15,6 +15,8 @@ export function Navigation() {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/booking', label: 'Book Service' },
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
   ];
   return (
