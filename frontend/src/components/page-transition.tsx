@@ -28,8 +28,6 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
       // Avoid initial fade on first mount; rely on child reveals
       initial={false}
       animate={{ opacity: 1 }}
-      // Remove exit fade to avoid re-triggering child reveals during route changes
-      exit={false}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       style={{ width: '100%', willChange: 'opacity' }}
     >
