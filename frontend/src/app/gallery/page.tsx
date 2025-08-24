@@ -1,6 +1,4 @@
 'use server'
-
-import Image from 'next/image'
 import { ComparisonSlider } from '@/components/comparison-slider'
 import { Reveal } from '@/components/reveal'
 
