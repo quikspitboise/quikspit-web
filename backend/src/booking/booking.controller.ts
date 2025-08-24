@@ -17,7 +17,8 @@ interface CreateBookingDto {
   specialRequests?: string;
 }
 
-@Controller('api/bookings')
+// Route becomes /api/bookings due to global prefix configured in main.ts
+@Controller('bookings')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 

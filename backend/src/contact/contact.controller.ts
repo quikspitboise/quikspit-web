@@ -18,7 +18,8 @@ interface ContactFormDto {
   message: string;
 }
 
-@Controller('api/contact')
+// Route becomes /api/contact due to global prefix configured in main.ts
+@Controller('contact')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 

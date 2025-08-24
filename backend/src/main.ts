@@ -5,6 +5,9 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Set a global prefix so all routes become /api/... while keeping
+  // controller decorators clean (e.g., @Controller('contact')).
+  app.setGlobalPrefix('api');
   
   // Enable CORS for frontend communication
   app.enableCors({

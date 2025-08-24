@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { GalleryItemDto, GalleryService } from './gallery.service';
 
-@Controller('api/gallery')
+// Route becomes /api/gallery due to global prefix configured in main.ts
+@Controller('gallery')
 export class GalleryController {
   constructor(private readonly galleryService: GalleryService) {}
 
