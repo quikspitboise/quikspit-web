@@ -6,6 +6,16 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/resources/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

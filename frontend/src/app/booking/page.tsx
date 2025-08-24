@@ -22,80 +22,7 @@ export default function Booking() {
             </Reveal>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-            <div className="space-y-6">
-              <Reveal skipOnRouteTransition>
-                <h2 className="text-2xl font-semibold text-white mb-6">Packages & Pricing</h2>
-              </Reveal>
-
-              <Reveal skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700 hover:shadow-xl transition-shadow duration-300">
-                <h3 className="text-xl font-semibold text-white mb-3">Silver Package – &quot;The Essentials&quot;</h3>
-                <p className="text-neutral-300 mb-2 text-sm italic">
-                  A sleek entry level option that still feels exclusive, starting at <span className='text-red-600 font-bold'>$130</span>
-                </p>
-                <ul className="text-neutral-300 mb-6 space-y-2">
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Deep agitation vacuum</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Scrub all vinyls/plastics/leathers</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Streak-free glass clean</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Odor Eliminator</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Superficial Stain Removal</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Thorough hand wash/dry</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Tire Shine</li>
-                </ul>
-                <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-red-600">$130+</span>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.05} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-yellow-400 hover:shadow-xl transition-shadow duration-300">
-                <h3 className="text-xl font-semibold text-white mb-3">Gold Package – &quot;The Prestige Clean&quot;</h3>
-                <p className="text-neutral-300 mb-2 text-sm italic">
-                  Mid-tier with enhanced services and deeper care, starting at <span className='text-red-600 font-bold'>$180</span>
-                </p>
-                <ul className="text-neutral-300 mb-6 space-y-2">
-                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Everything in Silver Package, plus:</li>
-                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Full interior shampoo (seats/carpet)</li>
-                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Dashboard and trim conditioning</li>
-                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Headliner spot clean</li>
-                  <li className="flex items-start"><span className="text-yellow-400 mr-2">•</span>Ceramic sealant applied (enhances paint gloss and adds protection)</li>
-                </ul>
-                <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-yellow-400">$180+</span>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.1} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border-2 border-red-600 hover:shadow-xl transition-shadow duration-300">
-                <h3 className="text-xl font-semibold text-white mb-3">Platinum Package – &quot;Executive Treatment&quot;</h3>
-                <p className="text-neutral-300 mb-2 text-sm italic">
-                  The ultimate package for those who want it all, starting at <span className='text-red-600 font-bold'>$220</span>
-                </p>
-                <ul className="text-neutral-300 mb-6 space-y-2">
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Everything in Gold Package, plus:</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Premium leather conditioning</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Engine bay detail</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Iron decontamination</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Headlight restoration</li>
-                  <li className="flex items-start"><span className="text-red-600 mr-2">•</span>Complimentary air freshener</li>
-                </ul>
-                <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-red-600">$220+</span>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.15} skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl border border-neutral-700 mt-6">
-                <h4 className="text-lg font-semibold text-white mb-4">Enhance the experience:</h4>
-                <div className="space-y-3 text-neutral-300">
-                  <div className="flex justify-between items-center"><span>Pet Hair Removal</span><span className="font-semibold text-red-600">$35</span></div>
-                  <div className="flex justify-between items-center"><span>Water Spot Removal</span><span className="font-semibold text-red-600">$25</span></div>
-                  <div className="flex justify-between items-center"><span>Windshield Rain Repellent</span><span className="font-semibold text-red-600">$25</span></div>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.2} skipOnRouteTransition className="bg-orange-900/20 border-l-4 border-orange-400 p-6 rounded-r-lg mt-4">
-                <p className="text-sm text-orange-200"><strong>Note:</strong> All pricing subject to change based on vehicle size and presence of excessive dirt.</p>
-              </Reveal>
-            </div>
-
+          <div className="max-w-3xl mx-auto">
             <Reveal skipOnRouteTransition className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
               <h2 className="text-2xl font-semibold text-white mb-6">Schedule Your Service</h2>
               <div className="text-center py-12">
@@ -113,12 +40,12 @@ export default function Booking() {
                 <div className="space-y-4">
                   <p className="text-neutral-300">For now, please call us to schedule your appointment:</p>
                   <a href="tel:+12082060531" className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800">Call (208) 206-0531</a>
+                  <p className="text-sm text-neutral-400">Need package details? Visit our <Link href="/pricing" className="text-red-600 hover:underline font-medium">pricing page</Link>.</p>
                   <p className="text-sm text-neutral-400">Or visit our <Link href="/contact" className="text-red-600 hover:underline font-medium">contact page</Link> to send us a message.</p>
                 </div>
               </div>
             </Reveal>
           </div>
-
           <div className="mt-16 bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-600">
             <Reveal skipOnRouteTransition>
               <h2 className="text-2xl font-semibold text-white mb-8 text-center">What to Expect</h2>

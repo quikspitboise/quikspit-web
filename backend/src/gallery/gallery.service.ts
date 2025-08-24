@@ -1,0 +1,48 @@
+import { Injectable } from '@nestjs/common';
+
+export interface GalleryItemDto {
+  id: string;
+  title: string;
+  description?: string;
+  tags?: string[];
+  beforeUrl: string;
+  afterUrl: string;
+  createdAt: string;
+}
+
+@Injectable()
+export class GalleryService {
+  private readonly baseUrl: string;
+
+  constructor() {
+    const backendUrl = process.env.BACKEND_PUBLIC_URL || `http://localhost:${process.env.PORT || 3001}`;
+    this.baseUrl = backendUrl;
+  }
+
+  async list(): Promise<GalleryItemDto[]> {
+    // Static seed to unblock frontend integration; replace with file/DB later
+    const asset = (name: string) => `${this.baseUrl}/resources/sample/${name}`;
+    return [
+      {
+        id: 'sample-1',
+        title: 'Sample Vehicle 1',
+        description: 'Placeholder comparison',
+        tags: ['sample'],
+        beforeUrl: asset('vehicle1-before.jpg'),
+        afterUrl: asset('vehicle1-after.jpg'),
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'sample-2',
+        title: 'Sample Vehicle 2',
+        description: 'Placeholder comparison',
+        tags: ['sample'],
+        beforeUrl: asset('vehicle2-before.jpg'),
+        afterUrl: asset('vehicle2-after.jpg'),
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  }
+}
+
+

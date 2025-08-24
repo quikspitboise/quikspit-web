@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContext } from 'react'
 import { TransitionContext } from './page-transition'
+import { Logo } from './logo'
 
 export function Navigation() {
   const pathname = usePathname();
@@ -14,6 +15,7 @@ export function Navigation() {
 
   const navItems = [
     { href: '/', label: 'Home' },
+    { href: '/pricing', label: 'Pricing' },
     { href: '/booking', label: 'Book Service' },
     { href: '/gallery', label: 'Gallery' },
     { href: '/about', label: 'About' },
@@ -22,13 +24,13 @@ export function Navigation() {
   return (
     <nav className={`bg-brand-charcoal/90 md:bg-brand-charcoal/95 ${'backdrop-blur'} md:backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link 
-            href="/" 
-            className="text-xl font-bold text-white hover:text-red-600 transition-colors duration-200"
+  <div className="flex items-center justify-between h-[70px]">
+          <Link
+            href="/"
+            className="group relative flex items-center"
             aria-label="QuikSpit Shine - Home"
-          >            <span className="text-white">QuikSpit</span>
-            <span className="text-red-600 ml-1">Shine</span>
+          >
+            <Logo responsive className="transition-transform duration-300 group-hover:scale-[1.04] active:scale-95" />
           </Link>
           {/* Desktop nav */}
           <div className="hidden md:flex items-center space-x-8">
