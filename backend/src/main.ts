@@ -10,11 +10,14 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   
   // Enable CORS for frontend communication
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
+    app.enableCors({
+      origin: [
+        'https://quikspit-frontend.vercel.app',
+        'http://localhost:3000',
+      ],
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+    });
 
   // Serve static assets for gallery/resources
   // Example: files under backend/resources/** will be available at /resources/**
