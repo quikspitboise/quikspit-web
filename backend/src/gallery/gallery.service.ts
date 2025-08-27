@@ -15,12 +15,16 @@ export class GalleryService {
   private readonly baseUrl: string;
 
   constructor() {
-    const backendUrl = process.env.BACKEND_PUBLIC_URL || `http://localhost:${process.env.PORT || 3001}`;
+    // Use BASE_URL from env, fallback to Render public URL, fallback to localhost
+    const backendUrl =
+      process.env.BASE_URL ||
+      process.env.BACKEND_PUBLIC_URL ||
+      'https://quickspit.onrender.com';
     this.baseUrl = backendUrl;
   }
 
   async list(): Promise<GalleryItemDto[]> {
-    // Static seed to unblock frontend integration; replace with file/DB later
+    // Always return public URLs for images
     const asset = (name: string) => `${this.baseUrl}/resources/sample/${name}`;
     return [
       {
@@ -44,5 +48,3 @@ export class GalleryService {
     ];
   }
 }
-
-
