@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
@@ -14,7 +13,13 @@ const nextConfig: NextConfig = {
         port: '3001',
         pathname: '/resources/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'quickspit.onrender.com',
+        pathname: '/resources/**',
+      },
     ],
+    domains: ['quickspit.onrender.com'],
   },
 };
 
