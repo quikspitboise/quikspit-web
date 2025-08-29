@@ -2,6 +2,9 @@
 
 import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
+import InstagramEmbedWithSkeleton from '../components/InstagramEmbedWithSkeleton';
+import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
+import InstagramProfileCard from '../components/InstagramProfileCard';
 
 export default function Home() {
   return (
@@ -38,6 +41,7 @@ export default function Home() {
                 Get Quote
               </Link>
             </div>
+              {/* Removed stray import statement */}
           </Reveal>
         </div>
       </section>
@@ -104,30 +108,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-neutral-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Reveal skipOnRouteTransition>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Ready to Make Your Car 
-              <span className="text-red-600 block sm:inline sm:ml-2">Shine?</span>
-            </h2>
-          </Reveal>
-          <Reveal delay={0.05} skipOnRouteTransition>
-            <p className="text-lg text-neutral-300 mb-8 max-w-2xl mx-auto">
-              Book your mobile detailing service today and experience the convenience of professional car care at your location.
-            </p>
-          </Reveal>
-          <Reveal delay={0.1} skipOnRouteTransition>
-            <Link
-              href="/booking"
-              className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-900"
-            >
-              Schedule Service
-            </Link>
-          </Reveal>
-        </div>
-      </section>
-    </main>
+            {/* CTA Section with Instagram Embed */}
+            <section className="py-16 lg:py-24 bg-neutral-900">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-stretch justify-between gap-12 lg:gap-24">
+                {/* Instagram Embed - far left */}
+                <div className="w-full max-w-md flex-shrink-0 mb-8 lg:mb-0 flex justify-end items-center lg:justify-start">
+                  <InstagramEmbedWithSkeleton />
+                </div>
+                {/* CTA Content - center */}
+                <div className="flex-1 flex flex-col justify-center items-center lg:items-center text-center">
+                  <Reveal skipOnRouteTransition>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                      Ready to Make Your Car 
+                      <span className="text-red-600 block sm:inline sm:ml-2">Shine?</span>
+                    </h2>
+                  </Reveal>
+                  <Reveal delay={0.05} skipOnRouteTransition>
+                    <p className="text-lg text-neutral-300 mb-8 max-w-2xl mx-auto lg:mx-0">
+                      Book your mobile detailing service today and experience the convenience of professional car care at your location.
+                    </p>
+                  </Reveal>
+                  <Reveal delay={0.1} skipOnRouteTransition>
+                    <Link
+                      href="/booking"
+                      className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                    >
+                      Schedule Service
+                    </Link>
+                  </Reveal>
+                </div>
+                {/* TikTok Embed - far right */}
+                <div className="w-full max-w-md flex-shrink-0 mb-8 lg:mb-0 flex justify-start items-center lg:justify-end">
+                  <TikTokEmbedWithSkeleton />
+                </div>
+              </div>
+            </section>
+  </main>
   );
 }
