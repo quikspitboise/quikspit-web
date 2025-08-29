@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
 import InstagramEmbedWithSkeleton from '../components/InstagramEmbedWithSkeleton';
 import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
-import InstagramProfileCard from '../components/InstagramProfileCard';
 
 export default function Home() {
   return (
@@ -115,8 +114,8 @@ export default function Home() {
                 <div className="w-full max-w-md flex-shrink-0 mb-8 lg:mb-0 flex justify-end items-center lg:justify-start">
                   <InstagramEmbedWithSkeleton />
                 </div>
-                {/* CTA Content - center */}
-                <div className="flex-1 flex flex-col justify-center items-center lg:items-center text-center">
+                {/* CTA Content - center, stacked above on mobile */}
+                <div className="flex-1 flex flex-col justify-center items-center lg:items-center text-center order-first lg:order-none mb-8 lg:mb-0">
                   <Reveal skipOnRouteTransition>
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                       Ready to Make Your Car 

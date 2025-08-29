@@ -22,9 +22,10 @@ export default function InstagramEmbedWithSkeleton() {
     // Instagram requires window.instgrm to reprocess embeds
     script.onload = () => {
       setLoaded(true);
-      // @ts-ignore
-      if ((window as any).instgrm) {
-        (window as any).instgrm.Embeds.process();
+      // @ts-expect-error: Instagram embed script attaches instgrm to window
+      if (window.instgrm) {
+        // @ts-expect-error: Instagram embed script attaches instgrm to window
+        window.instgrm.Embeds.process();
       }
     };
     // Clean up script on unmount
