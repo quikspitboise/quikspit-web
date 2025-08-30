@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function TikTokEmbedWithSkeleton() {
+interface TikTokEmbedWithSkeletonProps {
+  className?: string;
+}
+
+export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSkeletonProps) {
   const [loaded, setLoaded] = useState(false);
   const embedRef = useRef<HTMLDivElement>(null);
 
@@ -17,7 +21,7 @@ export default function TikTokEmbedWithSkeleton() {
   }, [loaded]);
 
   return (
-    <div className="relative w-full max-w-md min-h-[400px]">
+    <div className={`relative w-full max-w-md min-h-[400px] ${className ?? ''}`}> 
       {!loaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 rounded-xl border border-neutral-600 animate-pulse z-10">
           <div className="bg-neutral-700 rounded-full w-16 h-16 mb-4" />

@@ -111,8 +111,8 @@ export default function Home() {
             <section className="py-16 lg:py-24 bg-neutral-900">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-stretch justify-between gap-12 lg:gap-24">
                 {/* Instagram Embed - far left */}
-                <div className="w-full max-w-md flex-shrink-0 mb-8 lg:mb-0 flex justify-end items-center lg:justify-start">
-                  <InstagramEmbedWithSkeleton />
+                <div className="w-[440px] h-[490px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 mb-8 lg:mb-0">
+                  <InstagramEmbedWithSkeleton className="w-full h-full" />
                 </div>
                 {/* CTA Content - center, stacked above on mobile */}
                 <div className="flex-1 flex flex-col justify-center items-center lg:items-center text-center order-first lg:order-none mb-8 lg:mb-0">
@@ -137,8 +137,8 @@ export default function Home() {
                   </Reveal>
                 </div>
                 {/* TikTok Embed - far right */}
-                <div className="w-full max-w-md flex-shrink-0 mb-8 lg:mb-0 flex justify-start items-center lg:justify-end">
-                  <TikTokEmbedWithSkeleton />
+                <div className="w-[440px] h-[490px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 mb-8 lg:mb-0">
+                  <TikTokEmbedWithSkeleton className="w-full h-full" />
                 </div>
               </div>
             </section>
