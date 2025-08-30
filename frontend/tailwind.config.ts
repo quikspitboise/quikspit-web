@@ -52,9 +52,9 @@ const config: Config = {
           900: "#171717",
         },
       },
+      // Only use Raleway for sans font family
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        'sans': ['Raleway', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Enhanced typography scale for better readability
