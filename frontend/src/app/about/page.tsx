@@ -10,19 +10,17 @@ export default function About() {
           <div className="text-center mb-12">
             <Reveal skipOnRouteTransition>
               <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                About <span className="text-red-600">QuikSpit Shine</span>
+                About Quik<span className="text-red-600">Spit</span> Auto Detailing
               </h1>
             </Reveal>
             <Reveal delay={0.05} skipOnRouteTransition>
-              <p className="text-lg text-neutral-300 max-w-3xl mx-auto">
-                At QuikSpit Auto Detailing, we believe a great detail is about more than just a clean car—it’s about the experience behind it. Our mission is to deliver efficient, high-quality services that save you time while providing results you can count on.
-              </p>
             </Reveal>
           </div>
 
           <Reveal skipOnRouteTransition className="bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-600 mb-10">
-            <h2 className="text-2xl font-semibold text-white mb-4">Our Story</h2>
+            <h2 className="text-2xl font-semibold text-white mb-4">Our Goals</h2>
             <p className="text-neutral-300 leading-relaxed mb-4">
+              At QuikSpit Auto Detailing, we believe a great detail is about more than just a clean car—it’s about the experience behind it. Our mission is to deliver efficient, high-quality services that save you time while providing results you can count on.
               We take pride in combining efficiency with efficacy, ensuring every vehicle is done right the first time. By focusing on value, we aim to give clients not only spotless vehicles at a great price, but also peace of mind that comes from knowing their investment is in safe hands.
             </p>
             <p className="text-neutral-300 leading-relaxed mb-4">
