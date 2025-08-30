@@ -28,6 +28,8 @@
     --foreground: #ffffff;
     --brand-primary: #ef4444;
     --brand-secondary: #3a3a3a;
+  @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
     --accent: #dc2626;
     --muted: #262626;
     --border: #404040;
@@ -84,6 +86,9 @@ html {
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
+  body {
+    font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+  }
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
