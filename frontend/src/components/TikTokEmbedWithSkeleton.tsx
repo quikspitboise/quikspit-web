@@ -34,13 +34,13 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
       <div ref={embedRef} className="w-full">
         <blockquote
           className="tiktok-embed"
-          cite="https://www.tiktok.com/@quikspitshine"
-          data-unique-id="quikspitshine"
+          cite="https://www.tiktok.com/@quikspitboise"
+          data-unique-id="quikspitboise"
           data-embed-type="creator"
           style={{ maxWidth: "780px", minWidth: "288px" }}
         >
           <section>
-            <a target="_blank" href="https://www.tiktok.com/@quikspitshine?refer=creator_embed">@quikspitshine</a>
+            <a target="_blank" href="https://www.tiktok.com/@quikspitboise?refer=creator_embed">@quikspitboise</a>
           </section>
         </blockquote>
       </div>
