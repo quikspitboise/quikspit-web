@@ -5,7 +5,7 @@ import { Reveal } from '@/components/reveal'
 
 export default function Booking() {
   return (
-    <main className="min-h-screen bg-neutral-900 dark:bg-neutral-900">
+  <main id="main-content" className="min-h-screen bg-transparent">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -39,7 +39,7 @@ export default function Booking() {
                 </ul>
                 <div className="space-y-4">
                   <p className="text-neutral-300">For now, please call us to schedule your appointment:</p>
-                  <a href="tel:+12082060531" className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800">Call (208) 206-0531</a>
+                  <a href="tel:+12089604970" className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800">Call (208) 960-4970</a>
                   <p className="text-sm text-neutral-400">Need package details? Visit our <Link href="/pricing" className="text-red-600 hover:underline font-medium">pricing page</Link>.</p>
                   <p className="text-sm text-neutral-400">Or visit our <Link href="/contact" className="text-red-600 hover:underline font-medium">contact page</Link> to send us a message.</p>
                 </div>

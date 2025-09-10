@@ -3,97 +3,98 @@
 @import "tailwindcss";
 
 :root {
-  /* Light theme - QuikSpit Shine inspired */
-  --background: #171717;
+  --background: #0f0f0f;
   --foreground: #ffffff;
-  --brand-primary: #dc2626;
-  --brand-secondary: #3a3a3a;
-  --accent: #ef4444;
-  --muted: #262626;
+  --brand-primary: #ef4444; /* brand-red */
+  --brand-secondary: #2a2a2a; /* brand-charcoal-light */
+  --accent: #dc2626;
+  --muted: #1a1a1a; /* brand-charcoal */
   --border: #404040;
 }
 
 .dark {
-  /* Dark theme - QuikSpit Shine brand colors */
-  --background: #171717;
+  --background: #0f0f0f;
   --foreground: #ffffff;
   --brand-primary: #ef4444;
-  --brand-secondary: #3a3a3a;
+  --brand-secondary: #2a2a2a;
   --accent: #dc2626;
-  --muted: #262626;
+  --muted: #1a1a1a;
   --border: #404040;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #171717;
-    --foreground: #ffffff;
-    --brand-primary: #ef4444;
-    --brand-secondary: #3a3a3a;
-  @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
-
-    --accent: #dc2626;
-    --muted: #262626;
-    --border: #404040;
-  }
-}
+html { color-scheme: light dark; }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(239,68,68,0.12), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(239,68,68,0.10), transparent 60%),
+    linear-gradient(180deg, #0b0b0b, #0f0f0f 30%, #111 100%);
   color: var(--foreground);
   font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Avoid layout jumps during cross-fades */
   overflow-x: hidden;
 }
 
-/* Prevent flash of unstyled content */
-html {
-  color-scheme: light dark;
-}
-
-/* Enhanced focus styles for accessibility */
-*:focus {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
-}
-
-*:focus:not(:focus-visible) {
+/* Focus styles honoring prefers-reduced-motion and visibility */
+:where(a, button, input, select, textarea, [role="button"]) {
   outline: none;
 }
-
-/* Ensure sufficient contrast for text */
-.text-high-contrast {
-  color: var(--foreground);
+:where(a, button, input, select, textarea, [role="button"])::focus-visible {
+  outline: none;
+}
+:where(a, button, input, select, textarea, [role="button"]):focus-visible {
+  box-shadow: 0 0 0 2px var(--brand-primary), 0 0 0 4px color-mix(in srgb, var(--foreground) 20%, transparent);
+  border-radius: 0.5rem;
 }
 
-.text-medium-contrast {
-  color: color-mix(in srgb, var(--foreground) 75%, transparent);
-}
+.text-high-contrast { color: var(--foreground); }
+.text-medium-contrast { color: color-mix(in srgb, var(--foreground) 75%, transparent); }
+.text-low-contrast { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
 
-.text-low-contrast {
-  color: color-mix(in srgb, var(--foreground) 60%, transparent);
-}
-
-/* Smooth scrolling */
 @media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+  html { scroll-behavior: smooth; }
+}
+
+/* Desktop gradient refinement */
+@media (min-width: 1024px) {
+  body {
+    background:
+      radial-gradient(1200px 700px at 20% -15%, rgba(239,68,68,0.09), transparent 62%),
+      radial-gradient(1400px 900px at 85% -5%, rgba(239,68,68,0.06), transparent 65%),
+      linear-gradient(180deg, #0b0b0b, #0f0f0f 28%, #111 100%);
   }
 }
 
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
+@media (min-width: 1536px) {
   body {
-    font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+    background:
+      radial-gradient(1400px 800px at 22% -20%, rgba(239,68,68,0.07), transparent 64%),
+      radial-gradient(1600px 1000px at 82% -10%, rgba(239,68,68,0.05), transparent 66%),
+      linear-gradient(180deg, #0b0b0b, #0f0f0f 26%, #111 100%);
   }
-  *::after {
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Container utility to maintain consistent widths */
+.container { max-width: 1280px; }
+
+/* Card and glass utilities */
+.card {
+  background-color: color-mix(in srgb, var(--brand-secondary) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+.glass {
+  background: color-mix(in srgb, var(--muted) 65%, transparent);
+  backdrop-filter: saturate(120%) blur(8px);
 }

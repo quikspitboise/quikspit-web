@@ -39,7 +39,7 @@ export default function InstagramEmbedWithSkeleton({ className }: InstagramEmbed
   }, []);
 
   return (
-    <div className={`relative w-full max-w-md min-h-[400px] ${className ?? ''}`}> 
+    <div className={`relative w-full min-h-[360px] overflow-hidden rounded-lg ${className ?? ''}`}> 
       {!loaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 rounded-xl border border-neutral-600 animate-pulse z-10">
           <div className="bg-neutral-700 rounded-full w-16 h-16 mb-4" />
@@ -49,12 +49,12 @@ export default function InstagramEmbedWithSkeleton({ className }: InstagramEmbed
           <div className="bg-neutral-700 h-4 w-32 rounded" />
         </div>
       )}
-      <div ref={embedRef} className="w-full">
+    <div ref={embedRef} className="w-full">
         <blockquote
           className="instagram-media"
-          data-instgrm-permalink="https://www.instagram.com/quikspitboise/?utm_source=ig_embed&amp;utm_campaign=loading"
+      data-instgrm-permalink="https://www.instagram.com/quikspitboise/?utm_source=ig_embed&amp;utm_campaign=loading"
           data-instgrm-version="14"
-          style={{ background: "#FFF", border: 0, borderRadius: "3px", boxShadow: "0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)", margin: "0", maxWidth: "540px", minWidth: "326px", padding: 0, width: "100%" }}
+      style={{ background: "#FFF", border: 0, borderRadius: "8px", boxShadow: "0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)", margin: "0 auto", maxWidth: "100%", minWidth: 0, padding: 0, width: "100%" }}
         >
           {/* Instagram embed will load here */}
         </blockquote>

@@ -20,16 +20,16 @@ export function Logo({ className, size = 56, responsive = true, showText = false
   if (responsive) {
     return (
       <span
-        className={`relative inline-flex items-center ${className ?? ''}`}
+        className={`relative inline-flex items-center shrink-0 ${className ?? ''}`}
         style={{ lineHeight: 0 }}
       >
-  <span className="relative block w-27 h-27 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-32 lg:h-32 xl:w-41 xl:h-41">
+        <span className="relative block h-[64px] w-[200px] sm:h-[64px] sm:w-[220px] md:h-[64px] md:w-[240px] lg:h-[64px] lg:w-[240px] xl:h-[68px] xl:w-[260px]">
           <Image
             src="/logo.svg"
             alt="QuikSpit Shine"
             fill
             priority
-            sizes="(max-width:640px) 3rem, (max-width:768px) 4rem, (max-width:1024px) 4rem, (max-width:1280px) 5rem, 6rem"
+            sizes="(max-width:640px) 200px, (max-width:768px) 220px, (max-width:1024px) 240px, (max-width:1280px) 240px, 260px"
             className="object-contain select-none"
           />
         </span>

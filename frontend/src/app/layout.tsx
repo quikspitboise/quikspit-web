@@ -35,7 +35,14 @@ export default function RootLayout({
           }}
         />
       </head>
-  <body className="antialiased" suppressHydrationWarning>
+      <body className="antialiased min-h-screen selection:bg-red-600/30" suppressHydrationWarning>
+        {/* Skip to content for keyboard users */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 bg-red-600 text-white px-4 py-2 rounded-lg shadow z-[100]"
+        >
+          Skip to content
+        </a>
         <ThemeProvider
           defaultTheme="system"
           storageKey="quickspit-theme"

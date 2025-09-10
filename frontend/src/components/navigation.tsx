@@ -22,9 +22,9 @@ export function Navigation() {
     { href: '/contact', label: 'Contact' },
   ];
   return (
-    <nav className={`bg-brand-charcoal/90 md:bg-brand-charcoal/95 ${'backdrop-blur'} md:backdrop-blur-md border-b border-neutral-600 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-  <div className="flex items-center justify-between h-[70px]">
+    <nav className={`bg-brand-charcoal/80 md:bg-brand-charcoal/85 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md border-b border-neutral-700 sticky top-0 z-50 shadow-sm ${isTransitioning ? 'pointer-events-none' : ''}`}>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+  <div className="flex items-center justify-between h-[76px]">
           <Link
             href="/"
             className="group relative flex items-center"
@@ -52,7 +52,7 @@ export function Navigation() {
           <div className="md:hidden flex items-center">
             <button
               type="button"
-              className="text-neutral-300 hover:text-red-600 focus:text-red-600 p-2"
+              className="text-neutral-300 hover:text-red-600 focus:text-red-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal"
               aria-label="Open navigation menu"
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
@@ -73,7 +73,7 @@ export function Navigation() {
           {menuOpen && (
             <motion.div
               id="mobile-menu"
-              className="md:hidden border-t border-neutral-600 py-4 space-y-2"
+              className="md:hidden border-t border-neutral-700 py-4 space-y-2"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -88,10 +88,10 @@ export function Navigation() {
                 >
                   <Link
                     href={item.href}
-                    className={`block px-3 py-2 text-base font-medium transition-colors duration-200 ${
+          className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
                       pathname === item.href
-                        ? 'text-red-600 bg-red-600/5'
-                        : 'text-neutral-300 hover:text-red-600 hover:bg-red-600/5'
+            ? 'text-white bg-red-600/20 ring-1 ring-red-600/30'
+            : 'text-neutral-300 hover:text-white hover:bg-red-600/10'
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >

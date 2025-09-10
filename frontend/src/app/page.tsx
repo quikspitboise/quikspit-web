@@ -7,7 +7,7 @@ import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-neutral-900 dark:bg-neutral-900">
+  <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="text-center max-w-4xl mx-auto">
@@ -46,7 +46,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 lg:py-24 bg-neutral-800">
+  <section className="py-16 lg:py-24 bg-brand-charcoal-light/60 border-y border-neutral-700/80">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Reveal skipOnRouteTransition>
@@ -108,10 +108,10 @@ export default function Home() {
       </section>
 
             {/* CTA Section with Instagram Embed */}
-            <section className="py-16 lg:py-24 bg-neutral-900">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-stretch justify-between gap-12 lg:gap-24">
+            <section className="py-16 lg:py-24">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-stretch justify-between gap-8 lg:gap-12">
                 {/* Instagram Embed - far left */}
-                <div className="w-[440px] h-[490px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 mb-8 lg:mb-0">
+                <div className="w-full max-w-md h-[460px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 overflow-hidden mb-8 lg:mb-0 self-center mx-auto">
                   <InstagramEmbedWithSkeleton className="w-full h-full" />
                 </div>
                 {/* CTA Content - center, stacked above on mobile */}
@@ -137,7 +137,7 @@ export default function Home() {
                   </Reveal>
                 </div>
                 {/* TikTok Embed - far right */}
-                <div className="w-[440px] h-[490px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 mb-8 lg:mb-0">
+                <div className="w-full max-w-md h-[460px] p-4 flex items-center justify-center bg-white rounded-xl shadow-lg border border-neutral-200 overflow-hidden mb-8 lg:mb-0 self-center mx-auto">
                   <TikTokEmbedWithSkeleton className="w-full h-full" />
                 </div>
               </div>

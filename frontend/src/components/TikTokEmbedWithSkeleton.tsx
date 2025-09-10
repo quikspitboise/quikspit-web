@@ -21,7 +21,7 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
   }, [loaded]);
 
   return (
-    <div className={`relative w-full max-w-md min-h-[400px] ${className ?? ''}`}> 
+    <div className={`relative w-full min-h-[360px] overflow-hidden rounded-lg ${className ?? ''}`}> 
       {!loaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 rounded-xl border border-neutral-600 animate-pulse z-10">
           <div className="bg-neutral-700 rounded-full w-16 h-16 mb-4" />
@@ -31,13 +31,13 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
           <div className="bg-neutral-700 h-4 w-32 rounded" />
         </div>
       )}
-      <div ref={embedRef} className="w-full">
+    <div ref={embedRef} className="w-full">
         <blockquote
           className="tiktok-embed"
           cite="https://www.tiktok.com/@quikspitboise"
           data-unique-id="quikspitboise"
           data-embed-type="creator"
-          style={{ maxWidth: "780px", minWidth: "288px" }}
+      style={{ maxWidth: "100%", minWidth: 0, width: "100%", margin: "0 auto" }}
         >
           <section>
             <a target="_blank" href="https://www.tiktok.com/@quikspitboise?refer=creator_embed">@quikspitboise</a>

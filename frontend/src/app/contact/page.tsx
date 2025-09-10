@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
 
 export default function Contact() {
@@ -49,7 +50,7 @@ export default function Contact() {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-900 dark:bg-neutral-900">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -66,9 +67,9 @@ export default function Contact() {
             </Reveal>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
             {/* Contact Form */}
-            <div className="bg-neutral-800 p-8 rounded-xl shadow-lg border border-neutral-700">
+            <div className="bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-700 h-full">
               <Reveal>
                 <h2 className="text-2xl font-semibold text-white mb-6">
                   Send us a Message
@@ -97,7 +98,7 @@ export default function Contact() {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400"
                     placeholder="Your full name"
                     required
                   />
@@ -112,7 +113,7 @@ export default function Contact() {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400"
                     placeholder="your.email@example.com"
                     required
                   />
@@ -127,7 +128,7 @@ export default function Contact() {
                     rows={5}
                     value={form.message}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white placeholder-neutral-400"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400"
                     placeholder="Tell us how we can help you..."
                     required
                   ></textarea>
@@ -142,7 +143,7 @@ export default function Contact() {
                     name="image"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-700 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
+                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700"
                   />
                 </div>
                 <Reveal delay={0.1}>
@@ -158,11 +159,9 @@ export default function Contact() {
             </div>
 
             {/* Contact Information */}
-            <div className="space-y-8">
-              <Reveal className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
-                <h3 className="text-xl font-semibold text-white mb-4">
-                  Get in Touch
-                </h3>
+            <div className="space-y-8 h-full flex flex-col">
+              <Reveal className="bg-brand-charcoal-light p-6 rounded-xl shadow-lg border border-neutral-700">
+                <h3 className="text-xl font-semibold text-white mb-4">Get in Touch</h3>
                 <div className="space-y-4">
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +174,7 @@ export default function Contact() {
                     <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <a href="tel:+12082060531" className="text-neutral-300 hover:text-red-600 transition-colors">(208) 206-0531</a>
+                    <a href="tel:+12089604970" className="text-neutral-300 hover:text-red-600 transition-colors">(208) 960-4970</a>
                   </div>
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,39 +185,25 @@ export default function Contact() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.05} className="bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700">
-                <h3 className="text-xl font-semibold text-white mb-4">
-                  Business Hours
-                </h3>
-                <div className="space-y-2 text-neutral-300">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span className="text-red-600 font-medium">8:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span className="text-red-600 font-medium">9:00 AM - 5:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span className="text-red-600 font-medium">10:00 AM - 4:00 PM</span>
-                  </div>
+              <Reveal className="bg-red-600 p-6 rounded-xl shadow-lg flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Ready to Book?</h3>
+                  <p className="text-red-100 mb-4">Call or book online to schedule your mobile detailing service!</p>
                 </div>
-              </Reveal>
-
-              <Reveal delay={0.1} className="bg-red-600 p-6 rounded-xl shadow-lg">
-                <h3 className="text-xl font-semibold text-white mb-4">
-                  Ready to Book?
-                </h3>
-                <p className="text-red-100 mb-4">
-                  Call us now to schedule your mobile detailing service!
-                </p>
-                <a
-                  href="tel:+12082060531"
-                  className="inline-block bg-white text-red-600 hover:bg-red-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  Call (208) 206-0531
-                </a>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 gap-3">
+                  <a
+                    href="tel:+12089604970"
+                    className="inline-block bg-white text-red-600 hover:bg-red-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Call (208) 960-4970
+                  </a>
+                  <Link
+                    href="/booking"
+                    className="inline-block bg-white text-red-600 hover:bg-red-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center"
+                  >
+                    Book Online
+                  </Link>
+                </div>
               </Reveal>
             </div>
           </div>
