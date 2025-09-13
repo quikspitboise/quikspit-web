@@ -36,6 +36,7 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
+    "chokidar": "^3.5.3",
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
