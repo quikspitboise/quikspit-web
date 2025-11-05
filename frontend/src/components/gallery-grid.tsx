@@ -66,9 +66,9 @@ export function GalleryGrid({ items }: GalleryGridProps) {
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-white font-semibold">{item.title}</h3>
               {item.description ? (
-                <span className="text-neutral-400 text-sm">{item.description}</span>
+                <span className="text-neutral-300 text-sm">{item.description}</span>
               ) : (
-                <span className="text-neutral-400 text-sm">Before / After</span>
+                <span className="text-neutral-300 text-sm">Before / After</span>
               )}
             </div>
 
@@ -88,24 +88,24 @@ export function GalleryGrid({ items }: GalleryGridProps) {
               <ComparisonSlider
                 beforeUrl={item.beforeUrl}
                 afterUrl={item.afterUrl}
-                altBefore={`${item.title} before`}
-                altAfter={`${item.title} after`}
+                altBefore={`${item.title} - before detailing`}
+                altAfter={`${item.title} - after detailing`}
               />
 
               {/* Hover affordance to open lightbox */}
               <motion.button
                 type="button"
                 onClick={() => onOpen(idx)}
-                className="absolute top-3 right-3 inline-flex items-center gap-2 bg-red-600/90 hover:bg-red-700 text-white text-sm font-semibold py-2 px-3 rounded-lg shadow-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light"
+                className="absolute top-3 right-3 inline-flex items-center gap-2 bg-red-600/90 hover:bg-red-700 text-white text-sm font-semibold py-3 px-4 rounded-lg shadow-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light min-h-[44px] min-w-[44px]"
                 aria-label={`Enlarge ${item.title}`}
                 whileTap={{ scale: prefersReducedMotion ? 1 : 0.96 }}
                 whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                View
+                <span className="hidden sm:inline">View</span>
               </motion.button>
             </div>
           </div>
@@ -211,8 +211,8 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                   <ComparisonSlider
                     beforeUrl={activeItem.beforeUrl}
                     afterUrl={activeItem.afterUrl}
-                    altBefore={`${activeItem.title} before`}
-                    altAfter={`${activeItem.title} after`}
+                    altBefore={`${activeItem.title} - before detailing`}
+                    altAfter={`${activeItem.title} - after detailing`}
                     initialPosition={50}
                   />
                 </div>

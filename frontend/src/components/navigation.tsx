@@ -88,12 +88,13 @@ export function Navigation() {
                 >
                   <Link
                     href={item.href}
-          className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
+                    className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
                       pathname === item.href
-            ? 'text-white bg-red-600/20 ring-1 ring-red-600/30'
-            : 'text-neutral-300 hover:text-white hover:bg-red-600/10'
+                        ? 'text-red-600 bg-red-600/10 border-l-2 border-red-600'
+                        : 'text-neutral-300 hover:text-white hover:bg-red-600/10'
                     }`}
                     onClick={() => setMenuOpen(false)}
+                    aria-current={pathname === item.href ? 'page' : undefined}
                   >
                     {item.label}
                   </Link>

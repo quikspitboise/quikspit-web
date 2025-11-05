@@ -109,7 +109,7 @@ export default function NotFound() {
         </div>
 
         {/* Help Text */}
-        <p className="mt-12 text-sm text-neutral-400">
+        <p className="mt-12 text-sm text-neutral-300">
           If you believe this is a mistake, please{' '}
           <Link href="/contact" className="text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-600 rounded">
             let us know

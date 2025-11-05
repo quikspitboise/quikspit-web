@@ -239,7 +239,7 @@ export default function Pricing() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <h2 className="text-white font-semibold text-lg mb-1">Vehicle Size Adjustment</h2>
-                  <p className="text-neutral-400 text-sm">Select your vehicle size to preview adjusted starting prices.</p>
+                  <p className="text-neutral-300 text-sm">Select your vehicle size to preview adjusted starting prices.</p>
                 </div>
                 <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Vehicle size">
                   {sizeAdjustments.map(size => {
@@ -281,7 +281,7 @@ export default function Pricing() {
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold text-white mb-1">{pkg.name}</h3>
                       {pkg.tagline && <p className="text-red-600 text-sm font-medium italic mb-2">{pkg.tagline}</p>}
-                      {pkg.description && <p className="text-neutral-400 text-sm leading-relaxed">{pkg.description}</p>}
+                      {pkg.description && <p className="text-neutral-300 text-sm leading-relaxed">{pkg.description}</p>}
                     </div>
                     <ul className="text-neutral-300 text-sm space-y-2 mb-6 flex-1">
                       {pkg.features.map(f => (

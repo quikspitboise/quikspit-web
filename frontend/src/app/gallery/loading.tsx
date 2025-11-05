@@ -58,7 +58,7 @@ export default function GalleryLoading() {
         </Reveal>
 
         <div className="mt-12 text-center">
-          <p className="text-neutral-400 text-sm">
+          <p className="text-neutral-300 text-sm">
             Loading gallery images...
           </p>
         </div>

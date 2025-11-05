@@ -39,7 +39,7 @@ export default async function Gallery() {
 
         <Reveal delay={0.05} skipOnRouteTransition>
           <div className="mt-12 text-center">
-            <p className="text-neutral-400 text-sm">
+            <p className="text-neutral-300 text-sm">
               Want your car to be the next feature?&nbsp;
               <a href="/booking" className="text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-900 rounded">Book a service</a>.
             </p>
