@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navigation } from "@/components/navigation";
 import PageTransition from "@/components/page-transition";
+import ErrorBoundary from "@/components/error-boundary";
 
 export const metadata: Metadata = {
   title: "QuikSpit Shine - Professional Car Detailing",
@@ -47,10 +48,12 @@ export default function RootLayout({
           defaultTheme="system"
           storageKey="quickspit-theme"
         >
-          <Navigation />
-          <PageTransition>
-            {children}
-          </PageTransition>
+          <ErrorBoundary>
+            <Navigation />
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

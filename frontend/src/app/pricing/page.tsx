@@ -77,7 +77,7 @@ const interiorPackages: Package[] = [
     id: 'int-basic',
     name: 'Basic Interior',
     tagline: 'The Essentials Reset',
-    basePrice: 75,
+    basePrice: 125,
     description: 'A simple, but effective reset.',
     features: [
       'Full interior vacuum including trunk',
@@ -90,7 +90,7 @@ const interiorPackages: Package[] = [
     id: 'int-value',
     name: 'Value Interior',
     tagline: 'Refined & Restored',
-    basePrice: 90,
+    basePrice: 140,
     description: 'Added shampoo & conditioning for a deeper clean.',
     includesFrom: 'int-basic',
     features: [
@@ -105,7 +105,7 @@ const interiorPackages: Package[] = [
     id: 'int-prestige',
     name: 'Prestige Interior',
     tagline: 'Showroom Ready',
-    basePrice: 120,
+    basePrice: 170,
     description: 'The ultimate interior transformation.',
     includesFrom: 'int-value',
     features: [
@@ -121,7 +121,7 @@ const exteriorPackages: Package[] = [
     id: 'ext-basic',
     name: 'Basic Exterior',
     tagline: 'Fresh & Clean',
-    basePrice: 50,
+    basePrice: 100,
     description: 'Entry-level but sharp and fresh.',
     features: [
       'Professional hand wash/dry',
@@ -134,7 +134,7 @@ const exteriorPackages: Package[] = [
     id: 'ext-value',
     name: 'Value Exterior',
     tagline: 'Head-Turning Refresh',
-    basePrice: 75,
+    basePrice: 125,
     description: 'Adds enhancement & plastics revival.',
     includesFrom: 'ext-basic',
     features: [
@@ -148,7 +148,7 @@ const exteriorPackages: Package[] = [
     id: 'ext-prestige',
     name: 'Prestige Exterior',
     tagline: 'Show-Car Status',
-    basePrice: 100,
+    basePrice: 150,
     description: 'Maximum exterior pop & protection.',
     includesFrom: 'ext-value',
     features: [
@@ -305,6 +305,11 @@ export default function Pricing() {
             <Reveal skipOnRouteTransition className="lg:col-span-2 space-y-8">
               <div className="bg-brand-charcoal-light p-8 rounded-xl border border-neutral-600">
                 <h2 className="text-2xl font-bold text-white mb-6">Ceramic Coating & Polish</h2>
+                <div className="bg-red-600/10 border border-red-600/30 rounded-lg p-4 mb-6">
+                  <p className="text-neutral-300 text-sm">
+                    <span className="font-semibold text-red-600">Note:</span> All ceramic coating and paint correction services require a full exterior detail and paint decontamination. This service starts at $150.
+                  </p>
+                </div>
                 <div className="space-y-8">
                   <div>
                     <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
@@ -312,13 +317,23 @@ export default function Pricing() {
                       <span className="text-2xl font-bold text-red-600">$400</span>
                     </div>
                     <p className="text-neutral-300 text-sm">A deep, mirror-like shine that lasts years, not weeks.</p>
+                    <p className="text-neutral-400 text-xs mt-2 italic">
+                      While not required, a 1-step paint correction is strongly recommended for the best results of a ceramic coating.
+                    </p>
                   </div>
                   <div className="border-t border-neutral-700 pt-6">
                     <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-white">1-Step Paint Correction & Polish</h3>
                       <span className="text-2xl font-bold text-red-600">$450</span>
                     </div>
-                    <p className="text-neutral-300 text-sm">Years of swirls & scratches erased in a single session (≈80% correction).</p>
+                    <p className="text-neutral-300 text-sm">Years of swirls & scratches erased in a single session (≈65% correction or more).</p>
+                  </div>
+                  <div className="border-t border-neutral-700 pt-6">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                      <h3 className="text-lg font-semibold text-white">2-Step Paint Correction</h3>
+                      <span className="text-2xl font-bold text-red-600">$650+</span>
+                    </div>
+                    <p className="text-neutral-300 text-sm">Maximum defect removal with multi-stage compounding and polishing for a flawless finish.</p>
                   </div>
                 </div>
               </div>
