@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { BookingService, Booking } from './booking.service';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
+import { Throttle } from '@nestjs/throttler';
 
 interface CreateBookingDto {
   customerName: string;
@@ -35,6 +36,8 @@ export class BookingController {
     };
   }
 
+  // Stricter rate limit: 5 bookings per 10 minutes per IP
+  @Throttle({ default: { limit: 5, ttl: 600000 } })
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBooking(@Body() bookingData: CreateBookingDto): Promise<{ success: boolean; message: string; data: { booking: Booking; payment: any } }> {
