@@ -38,7 +38,7 @@ const comboPackages: Package[] = [
     id: 'silver',
     name: 'Silver Package',
     tagline: 'The Essentials',
-    basePrice: 150,
+    basePrice: 200,
     description: 'A sleek entry level option that still feels exclusive.',
     features: [
       'Full interior vacuum including trunk',
@@ -55,7 +55,7 @@ const comboPackages: Package[] = [
     id: 'gold',
     name: 'Gold Package',
     tagline: 'The Prestige Clean',
-    basePrice: 190,
+    basePrice: 240,
     description: 'Mid-tier with enhanced services and deeper care.',
     includesFrom: 'silver',
     features: [
@@ -71,7 +71,7 @@ const comboPackages: Package[] = [
     id: 'platinum',
     name: 'Platinum Package',
     tagline: 'Executive Treatment',
-    basePrice: 250,
+    basePrice: 300,
     description: 'For those who want it all, and then some.',
     includesFrom: 'gold',
     features: [

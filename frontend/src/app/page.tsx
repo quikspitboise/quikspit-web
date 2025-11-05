@@ -161,10 +161,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-4 text-white">
-                Exterior Detailing
+                Exterior/Interior Detailing
               </h3>
               <p className="text-neutral-300 leading-relaxed">
-                Complete exterior wash, clay bar treatment, polishing, and premium wax protection for a showroom finish.
+                Full auto reset bringing your car back to a factory look.
               </p>
             </Reveal>
             
@@ -175,10 +175,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-4 text-white">
-                Interior Cleaning
+                Ceramic Coatings
               </h3>
               <p className="text-neutral-300 leading-relaxed">
-                Deep vacuum, steam cleaning, leather conditioning, and sanitization for a fresh, clean interior.
+                Unparalleled hydrophobics, UV protection, and gloss lasting years, not months.
               </p>
             </Reveal>
             

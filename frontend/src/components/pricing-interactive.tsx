@@ -103,7 +103,7 @@ export function PricingInteractive({ categories, sizeAdjustments }: PricingInter
             const accent = pkg.highlight ? 'border-red-600 shadow-red-600/20' : 'border-neutral-600'
             const metalClass = pkg.id === 'silver' ? 'metal-base metal-silver' : pkg.id === 'gold' ? 'metal-base metal-gold' : pkg.id === 'platinum' ? 'metal-base metal-platinum' : ''
             return (
-              <Reveal key={pkg.id} delay={i * 0.05} skipOnRouteTransition className={`relative ${metalClass || ''} bg-brand-charcoal-light p-6 rounded-xl border ${accent} shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col`}> 
+              <Reveal key={pkg.id} delay={i * 0.05} skipOnRouteTransition className={`relative ${metalClass || ''} bg-brand-charcoal-light p-6 rounded-xl border ${accent} shadow-lg hover:shadow-xl flex flex-col`}> 
                 {pkg.highlight && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs tracking-wide px-3 py-1 rounded-full shadow">Popular</span>
                 )}
