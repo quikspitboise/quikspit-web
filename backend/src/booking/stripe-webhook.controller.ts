@@ -26,16 +26,26 @@ import { LoggerService } from '../common/logger.service';
  */
 @Controller('webhooks/stripe')
 export class StripeWebhookController {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
+  private isStripeConfigured: boolean = false;
 
   constructor(private readonly logger: LoggerService) {
-    // Initialize Stripe with secret key from environment
+    // Initialize Stripe with secret key from environment (optional for now)
     if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY is not configured');
+      this.logger.warn('STRIPE_SECRET_KEY is not configured - Stripe webhooks will not be available');
+      this.isStripeConfigured = false;
+    } else {
+      try {
+        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2023-10-16',
+        });
+        this.isStripeConfigured = true;
+        this.logger.log('Stripe webhook controller initialized successfully');
+      } catch (error) {
+        this.logger.error('Failed to initialize Stripe', error instanceof Error ? error.message : '');
+        this.isStripeConfigured = false;
+      }
     }
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2023-10-16',
-    });
   }
 
   @Post()
@@ -43,6 +53,12 @@ export class StripeWebhookController {
     @Req() request: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
+    // Check if Stripe is configured
+    if (!this.isStripeConfigured || !this.stripe) {
+      this.logger.warn('Webhook received but Stripe is not configured');
+      throw new BadRequestException('Stripe webhooks are not configured');
+    }
+
     if (!signature) {
       throw new BadRequestException('Missing stripe-signature header');
     }
