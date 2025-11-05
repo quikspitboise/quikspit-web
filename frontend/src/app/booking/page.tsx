@@ -2,6 +2,20 @@
 
 import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Book Your Service',
+  description: 'Schedule your professional mobile detailing service with QuikSpit Shine. Choose your package and preferred time. Call (208) 960-4970 to book today.',
+  alternates: {
+    canonical: '/booking',
+  },
+  openGraph: {
+    title: 'Book Your Mobile Detailing Service - QuikSpit Shine',
+    description: 'Schedule your professional mobile detailing service. Choose from our premium packages and get your vehicle looking like new.',
+    url: '/booking',
+  },
+}
 
 export default function Booking() {
   return (

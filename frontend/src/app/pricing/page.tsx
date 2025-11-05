@@ -2,6 +2,20 @@
 
 import { Reveal } from '@/components/reveal'
 import { useState, useMemo } from 'react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Pricing & Packages',
+  description: 'Explore our mobile detailing packages - Silver, Gold, and Platinum options. From essential detailing to premium protection with ceramic coating. Transparent pricing for cars, trucks, and SUVs.',
+  alternates: {
+    canonical: '/pricing',
+  },
+  openGraph: {
+    title: 'Pricing & Packages - QuikSpit Auto Detailing',
+    description: 'Choose from our Silver, Gold, and Platinum detailing packages. Professional mobile car care with transparent pricing.',
+    url: '/pricing',
+  },
+}
 
 type Package = {
   id: string

@@ -1,0 +1,10 @@
+# robots.txt for QuikSpit Auto Detailing
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any in future)
+# Disallow: /admin
+# Disallow: /api
+
+# Sitemap
+Sitemap: https://quikspitboise.com/sitemap.xml

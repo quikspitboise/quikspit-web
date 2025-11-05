@@ -1,5 +1,5 @@
 ---
-description: Backend architecture conventions for NestJS modules, controllers, and services in QuikSpit Shine.
+description: Backend architecture conventions for NestJS modules, controllers, and services in QuikSpit Auto Detailing.
 globs: backend/**/*.ts
 ---
 

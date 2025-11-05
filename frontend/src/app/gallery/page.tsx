@@ -1,6 +1,20 @@
 "use server"
 import { Reveal } from '@/components/reveal'
 import { GalleryGrid } from '@/components/gallery-grid'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Gallery - Before & After',
+  description: 'See the amazing transformations from QuikSpit Auto Detailing mobile detailing. Browse our before and after gallery showcasing our professional car detailing results.',
+  alternates: {
+    canonical: '/gallery',
+  },
+  openGraph: {
+    title: 'Gallery - Before & After Detailing Results',
+    description: 'See the amazing transformations from our professional mobile detailing services. Browse our before and after gallery.',
+    url: '/gallery',
+  },
+}
 
 type GalleryItem = {
   id: string

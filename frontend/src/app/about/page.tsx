@@ -1,6 +1,20 @@
 'use client'
 
 import { Reveal } from '@/components/reveal'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn about QuikSpit Auto Detailing - our mission, values, and commitment to delivering efficient, high-quality mobile detailing services. Proud members of the Idaho community.',
+  alternates: {
+    canonical: '/about',
+  },
+  openGraph: {
+    title: 'About QuikSpit Shine - Professional Mobile Detailing',
+    description: 'Learn about our mission to deliver efficient, high-quality mobile detailing services that save you time while providing results you can count on.',
+    url: '/about',
+  },
+}
 
 export default function About() {
   return (

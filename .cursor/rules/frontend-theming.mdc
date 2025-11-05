@@ -1,5 +1,5 @@
 ---
-description: Frontend theming and component styling for QuikSpit Shine. Use dark backgrounds, red accents, and consistent spacing/typography.
+description: Frontend theming and component styling for QuikSpit Auto Detailing. Use dark backgrounds, red accents, and consistent spacing/typography.
 globs: frontend/**/*.tsx,frontend/**/*.ts,frontend/**/*.css,frontend/**/*.mdx
 ---
 

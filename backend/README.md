@@ -1,6 +1,6 @@
-# QuikSpit Shine - Backend API
+# QuikSpit Auto Detailing - Backend API
 
-NestJS-based backend API for QuikSpit Shine car detailing service.
+NestJS-based backend API for QuikSpit Auto Detailing car detailing service.
 
 ## 🔒 Security Features
 

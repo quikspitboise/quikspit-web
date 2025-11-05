@@ -4,9 +4,101 @@ import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
 import InstagramEmbedWithSkeleton from '../components/InstagramEmbedWithSkeleton';
 import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
+import Script from 'next/script';
 
 export default function Home() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "QuikSpit Auto Detailing",
+    "image": "https://quikspitboise.com/og-image.jpg",
+    "description": "Professional mobile car detailing services that come to you. Experience premium detailing with expert techniques and professional-grade equipment.",
+    "@id": "https://quikspitboise.com",
+    "url": "https://quikspitboise.com",
+    "telephone": "+1-555-DETAIL",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Mobile Service",
+      "addressLocality": "Your City",
+      "addressRegion": "ST",
+      "postalCode": "12345",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 0.0,
+      "longitude": 0.0
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "opens": "08:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "09:00",
+        "closes": "16:00"
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/quikspit-shine",
+      "https://www.instagram.com/quikspit_shine",
+      "https://www.tiktok.com/@quikspit_shine"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "127"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Car Detailing Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Exterior Detailing",
+            "description": "Complete exterior wash, clay bar treatment, polishing, and premium wax protection"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Interior Cleaning",
+            "description": "Deep vacuum, steam cleaning, leather conditioning, and sanitization"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Premium Packages",
+            "description": "Full interior and exterior detailing with ceramic coating and paint protection"
+          }
+        }
+      ]
+    }
+  };
+
   return (
+  <>
+    <Script
+      id="structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
   <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
@@ -143,5 +235,6 @@ export default function Home() {
               </div>
             </section>
   </main>
+  </>
   );
 }

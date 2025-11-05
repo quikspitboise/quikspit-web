@@ -1,11 +1,11 @@
-# QuickSpit Shine
+# QuikSpit Auto Detailing
 
-A full-stack web application for QuickSpit Shine services, built with Next.js frontend and NestJS backend in a monorepo structure. The project now uses **pnpm** for dependency management and workspace scripts.
+A full-stack web application for QuikSpit Auto Detailing services, built with Next.js frontend and NestJS backend in a monorepo structure. The project now uses **pnpm** for dependency management and workspace scripts.
 
 ## Project Structure
 
 ```
-quickspit-shine/
+quickspit/
 ├── frontend/          # Next.js frontend application
 ├── backend/           # NestJS backend application
 ├── package.json       # Root package.json with workspace scripts
@@ -155,7 +155,7 @@ pnpm dev:backend
 - Follow Next.js and NestJS conventions
 
 ### Accessibility & Theming
-- Follows QuikSpit Shine dark theme guidelines (see `.github/copilot-instructions.md`)
+- Follows QuikSpit Auto Detailing dark theme guidelines (see `.github/copilot-instructions.md`)
 - Custom Tailwind configuration for brand colors
 
 ## Troubleshooting

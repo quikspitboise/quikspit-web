@@ -6,8 +6,65 @@ import PageTransition from "@/components/page-transition";
 import ErrorBoundary from "@/components/error-boundary";
 
 export const metadata: Metadata = {
-  title: "QuikSpit Shine - Professional Car Detailing",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://quikspitboise.com'),
+  title: {
+    default: "QuikSpit Auto Detailing - Professional Car Detailing",
+    template: "%s | QuikSpit Auto Detailing",
+  },
   description: "Professional car detailing services that make your vehicle shine like new. Experience the difference with our premium cleaning and protection services.",
+  keywords: ["car detailing", "auto detailing", "car wash", "vehicle cleaning", "paint protection", "ceramic coating", "mobile detailing"],
+  authors: [{ name: "QuikSpit Auto Detailing" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "QuikSpit Auto Detailing",
+    title: "QuikSpit Auto Detailing - Professional Car Detailing",
+    description: "Professional car detailing services that make your vehicle shine like new. Experience the difference with our premium cleaning and protection services.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "QuikSpit Auto Detailing - Professional Car Detailing Services",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "QuikSpit Auto Detailing - Professional Car Detailing",
+    description: "Professional car detailing services that make your vehicle shine like new.",
+    images: ["/og-image.jpg"],
+    creator: "@quikspit_shine",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "QuikSpit Auto Detailing",
+  },
+  formatDetection: {
+    telephone: true,
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({

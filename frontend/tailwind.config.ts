@@ -13,7 +13,7 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // QuikSpit Shine brand colors
+        // QuikSpit Auto Detailing brand colors
         "brand-charcoal": "#1a1a1a",
         "brand-charcoal-light": "#2a2a2a",
         "brand-red": "#ef4444",

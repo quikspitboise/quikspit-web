@@ -5,7 +5,7 @@ import Image from "next/image";
 
 /**
  * Brand Logo SVG
- * Accessible, scalable vector icon replacing the textual QuikSpit Shine wordmark in nav.
+ * Accessible, scalable vector icon replacing the textual QuikSpit Auto Detailing wordmark in nav.
  */
 export interface LogoProps {
   className?: string;
@@ -26,7 +26,7 @@ export function Logo({ className, size = 56, responsive = true, showText = false
         <span className="relative block h-[64px] w-[200px] sm:h-[64px] sm:w-[220px] md:h-[64px] md:w-[240px] lg:h-[64px] lg:w-[240px] xl:h-[68px] xl:w-[260px]">
           <Image
             src="/logo.svg"
-            alt="QuikSpit Shine"
+            alt="QuikSpit Auto Detailing Professional Mobile Car Detailing Logo"
             fill
             priority
             sizes="(max-width:640px) 200px, (max-width:768px) 220px, (max-width:1024px) 240px, (max-width:1280px) 240px, 260px"
@@ -36,10 +36,10 @@ export function Logo({ className, size = 56, responsive = true, showText = false
         {showText && (
           <span className="hidden md:inline ml-3 font-semibold text-xl tracking-tight">
             <span className="text-white">QuikSpit</span>
-            <span className="text-red-600">Shine</span>
+            <span className="text-red-600">Auto Detailing</span>
           </span>
         )}
-        <span className="sr-only">QuikSpit Shine Home</span>
+        <span className="sr-only">QuikSpit Auto Detailing Home</span>
       </span>
     );
   }
@@ -49,7 +49,7 @@ export function Logo({ className, size = 56, responsive = true, showText = false
     <span className={`inline-flex items-center ${className ?? ''}`} style={{ lineHeight: 0 }}>
       <Image
         src="/logo.svg"
-        alt="QuikSpit Shine"
+        alt="QuikSpit Auto Detailing Professional Mobile Car Detailing Logo"
         width={size}
         height={size}
         priority
@@ -58,10 +58,10 @@ export function Logo({ className, size = 56, responsive = true, showText = false
       {showText && (
         <span className="ml-2 font-semibold text-lg tracking-tight">
           <span className="text-white">QuikSpit</span>
-          <span className="text-red-600">Shine</span>
+          <span className="text-red-600">Auto Detailing</span>
         </span>
       )}
-      <span className="sr-only">QuikSpit Shine Home</span>
+      <span className="sr-only">QuikSpit Auto Detailing Home</span>
     </span>
   );
 }

@@ -1,7 +1,7 @@
 {
-  "name": "quikspit-shine",
+  "name": "quikspit-auto-detailing",
   "version": "1.0.0",
-  "description": "A full-stack web application for QuickSpit Shine services",
+  "description": "A full-stack web application for QuikSpit Auto Detailing services",
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",

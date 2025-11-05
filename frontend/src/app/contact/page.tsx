@@ -2,6 +2,20 @@
 import React, { useState } from 'react';
 import Link from 'next/link'
 import { Reveal } from '@/components/reveal'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Contact Us',
+  description: 'Get in touch with QuikSpit Auto Detailing for quotes, questions, or to schedule your mobile detailing service. Call (208) 960-4970 or send us a message with photos of your vehicle.',
+  alternates: {
+    canonical: '/contact',
+  },
+  openGraph: {
+    title: 'Contact QuikSpit Auto Detailing - Mobile Detailing',
+    description: 'Get in touch for quotes, questions, or to schedule your mobile detailing service. We\'re here to help!',
+    url: '/contact',
+  },
+}
 
 interface ValidationErrors {
   name?: string;
