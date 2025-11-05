@@ -8,10 +8,12 @@ import { BookingModule } from './booking/booking.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { LoggerModule } from './common/logger.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    LoggerModule, // Global logger module
     // Rate limiting: 10 requests per minute per IP by default
     ThrottlerModule.forRoot([{
       ttl: 60000, // 60 seconds

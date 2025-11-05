@@ -1,20 +1,6 @@
 import { Injectable } from '@nestjs/common';
-
-interface CreateBookingDto {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  serviceType: string;
-  preferredDate: string;
-  preferredTime: string;
-  vehicleInfo: {
-    make: string;
-    model: string;
-    year: number;
-    color: string;
-  };
-  specialRequests?: string;
-}
+import { LoggerService } from '../common/logger.service';
+import { CreateBookingDto } from './dto/create-booking.dto';
 
 export interface Booking {
   id: string;
@@ -38,6 +24,8 @@ export interface Booking {
 
 @Injectable()
 export class BookingService {
+  constructor(private readonly logger: LoggerService) {}
+
   // Mock database - in real implementation, use TypeORM entities
   private bookings: Booking[] = [
     {
@@ -80,7 +68,7 @@ export class BookingService {
   ];
 
   async getAllBookings(): Promise<Booking[]> {
-    console.log('Fetching all bookings from database...');
+    this.logger.log('Fetching all bookings from database');
     
     // In a real implementation, this would be:
     // return await this.bookingRepository.find();
@@ -89,7 +77,7 @@ export class BookingService {
   }
 
   async getBooking(id: string): Promise<Booking | null> {
-    console.log(`Fetching booking with ID: ${id}`);
+    this.logger.log(`Fetching booking with ID: ${id}`);
     
     // In a real implementation, this would be:
     // return await this.bookingRepository.findOne({ where: { id } });
@@ -99,7 +87,7 @@ export class BookingService {
   }
 
   async createBooking(bookingData: CreateBookingDto): Promise<Booking> {
-    console.log('Creating new booking...');
+    this.logger.log('Creating new booking');
     
     // Calculate price based on service type (placeholder logic)
     const servicePrice = this.calculateServicePrice(bookingData.serviceType);
@@ -117,25 +105,27 @@ export class BookingService {
     // return await this.bookingRepository.save(booking);
     
     this.bookings.push(newBooking);
-    console.log('Booking created:', newBooking);
+    this.logger.log('Booking created successfully', { bookingId: newBooking.id });
     
     return newBooking;
   }
 
   async processStripePayment(booking: Booking): Promise<any> {
-    console.log('Processing Stripe payment...');
+    this.logger.log('Processing payment via Stripe webhook');
     
-    // TODO: Implement actual Stripe payment processing
-    // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    // const paymentIntent = await stripe.paymentIntents.create({
-    //   amount: Math.round(booking.totalAmount * 100), // Convert to cents
-    //   currency: 'usd',
-    //   metadata: {
-    //     bookingId: booking.id,
-    //   },
-    // });
+    // SECURITY: Payment processing should be handled via Stripe webhooks
+    // 1. Frontend creates a Stripe Checkout session or PaymentIntent
+    // 2. Customer completes payment on Stripe-hosted page
+    // 3. Stripe sends webhook event to your backend
+    // 4. Backend verifies webhook signature and updates booking status
+    //
+    // See: https://stripe.com/docs/webhooks
+    // Example webhook endpoint: POST /api/webhooks/stripe
+    //
+    // NEVER expose STRIPE_SECRET_KEY in client code or comments
+    // Key rotation plan: Use Stripe Dashboard to roll keys quarterly
     
-    // Placeholder payment result
+    // Placeholder payment result for development
     const paymentResult = {
       paymentId: `pi_${Date.now()}`,
       status: 'succeeded',
@@ -145,14 +135,17 @@ export class BookingService {
       processedAt: new Date().toISOString(),
     };
 
-    console.log('Payment processed (placeholder):', paymentResult);
+    this.logger.log('Payment processed (placeholder)', { 
+      paymentId: paymentResult.paymentId,
+      bookingId: booking.id,
+    });
     
     return paymentResult;
   }
 
   private calculateServicePrice(serviceType: string): number {
-    // Simple price calculation based on service type
-    const prices = {
+    // Placeholder pricing logic
+    const prices: Record<string, number> = {
       'Basic Wash Package': 29.99,
       'Premium Detail Package': 79.99,
       'Ultimate Shine Package': 149.99,

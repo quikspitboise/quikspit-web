@@ -14,19 +14,18 @@ import { extname } from 'path';
 import { ContactService } from './contact.service';
 import { Throttle } from '@nestjs/throttler';
 import { FileValidationService } from '../common/file-validation.service';
+import { CreateContactDto } from './dto/create-contact.dto';
+import { LoggerService } from '../common/logger.service';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-
-interface ContactFormDto {
-  name: string;
-  email: string;
-  message: string;
-}
 
 // Route becomes /api/contact due to global prefix configured in main.ts
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    private readonly logger: LoggerService,
+  ) {}
 
   // Stricter rate limit: 3 submissions per 5 minutes per IP
   @Throttle({ default: { limit: 3, ttl: 300000 } })
@@ -48,11 +47,10 @@ export class ContactController {
     }),
   )
   async submitContactForm(
-    @Body() contactData: ContactFormDto,
+    @Body() contactData: CreateContactDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    console.log('=== Contact Form Submission ===');
-    console.log('Form Data:', contactData);
+    this.logger.log('Contact form submission received');
     
     let savedFile: Express.Multer.File | undefined;
     
@@ -84,21 +82,19 @@ export class ContactController {
           path: filePath,
         };
         
-        console.log('✓ Image File Validated and Saved:', {
-          originalName: file.originalname,
+        this.logger.log('Image file validated and saved', {
           filename,
           mimetype: file.mimetype,
           size: file.size,
-          path: filePath,
         });
       } catch (error) {
-        console.error('File validation error:', error);
+        this.logger.error('File validation error', error instanceof Error ? error.stack : '');
         throw new BadRequestException(
           error instanceof Error ? error.message : 'File validation failed',
         );
       }
     } else {
-      console.log('No image file uploaded');
+      this.logger.log('No image file uploaded');
     }
 
     // Process the contact form

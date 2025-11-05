@@ -1,32 +1,92 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# QuikSpit Shine - Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS-based backend API for QuikSpit Shine car detailing service.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🔒 Security Features
 
-## Description
+✅ **Production-Ready Security** (Audit Completed: Nov 2025)
+- Winston logging with automatic PII sanitization
+- Class-validator input validation on all endpoints
+- Stripe webhook-based payment verification
+- Content Security Policy (CSP) headers
+- HTTPS enforcement for production
+- Rate limiting (global + endpoint-specific)
+- CSRF protection support
+- No default database credentials
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+📖 **Security Documentation:**
+- [Security Audit Resolution](./SECURITY_AUDIT_RESOLUTION.md) - Full audit details
+- [Quick Reference](./SECURITY_AUDIT_QUICK_REFERENCE.md) - Quick setup guide
+- [Security Policy](./SECURITY.md) - Ongoing security practices
 
-## Project setup
+## 📋 Prerequisites
+
+- Node.js 18+ and pnpm
+- PostgreSQL database
+- Stripe account (for payments)
+- SMTP server (for emails)
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
+```bash
+pnpm install
+```
+
+### 2. Configure Environment
+Copy `.env.example` to `.env` and configure:
+
+```bash
+# Required (no defaults)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=your_user
+DB_PASSWORD=your_password
+DB_NAME=quickspit_shine
+
+# Stripe (for payments)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=your_email
+SMTP_PASS=your_password
+
+# Security (production)
+NODE_ENV=production
+ENFORCE_HTTPS=true
+LOG_LEVEL=info
+```
+
+### 3. Run Development Server
+```bash
+pnpm run start:dev
+```
+
+API available at: `http://localhost:3001/api`
+
+## 📡 API Endpoints
+
+### Health Check
+- `GET /api/health` - Health check endpoint
+
+### Contact
+- `POST /api/contact` - Submit contact form (with optional image)
+  - Rate limit: 3 requests per 5 minutes
+
+### Bookings
+- `GET /api/bookings` - Get all bookings
+- `POST /api/bookings` - Create new booking
+  - Rate limit: 5 requests per 10 minutes
+
+### Webhooks
+- `POST /api/webhooks/stripe` - Stripe payment webhook
+
+### Gallery
+- `GET /api/gallery/list` - Get gallery images
+
+## 🔧 Project Setup
 
 ```bash
 $ npm install

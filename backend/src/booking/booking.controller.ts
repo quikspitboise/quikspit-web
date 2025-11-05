@@ -2,31 +2,20 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, BadRequestException 
 import { BookingService, Booking } from './booking.service';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { Throttle } from '@nestjs/throttler';
-
-interface CreateBookingDto {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  serviceType: string;
-  preferredDate: string;
-  preferredTime: string;
-  vehicleInfo: {
-    make: string;
-    model: string;
-    year: number;
-    color: string;
-  };
-  specialRequests?: string;
-}
+import { CreateBookingDto } from './dto/create-booking.dto';
+import { LoggerService } from '../common/logger.service';
 
 // Route becomes /api/bookings due to global prefix configured in main.ts
 @Controller('bookings')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(
+    private readonly bookingService: BookingService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Get()
   async getBookings(): Promise<{ success: boolean; message: string; data: Booking[] }> {
-    console.log('Getting all bookings...');
+    this.logger.log('Fetching all bookings');
     const bookings = await this.bookingService.getAllBookings();
     
     return {
@@ -41,8 +30,8 @@ export class BookingController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBooking(@Body() bookingData: CreateBookingDto): Promise<{ success: boolean; message: string; data: { booking: Booking; payment: any } }> {
-    console.log('=== New Booking Request ===');
-    console.log('Booking Data:', bookingData);
+    this.logger.log('New booking request received');
+    this.logger.debug('Booking data (sanitized)', { serviceType: bookingData.serviceType, preferredDate: bookingData.preferredDate });
 
     // Validate phone number
     if (!bookingData.customerPhone || bookingData.customerPhone.trim() === '') {
@@ -68,7 +57,7 @@ export class BookingController {
         customerPhone: formattedPhone,
       };
 
-      console.log('Validated phone number:', formattedPhone);
+      this.logger.log('Phone number validated successfully');
 
       // Create the booking record
       const booking = await this.bookingService.createBooking(validatedBookingData);
@@ -85,7 +74,7 @@ export class BookingController {
         },
       };
     } catch (error) {
-      console.error('Phone validation error:', error);
+      this.logger.error('Phone validation error', error instanceof Error ? error.stack : '');
       throw new BadRequestException(
         'Failed to validate phone number. Please check the format and try again.'
       );

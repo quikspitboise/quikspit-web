@@ -29,6 +29,8 @@
     "@nestjs/typeorm": "^10.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/csurf": "^1.11.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "csurf": "^1.11.0",
     "dotenv": "^16.3.0",
@@ -36,12 +38,14 @@
     "helmet": "^8.1.0",
     "libphonenumber-js": "^1.12.25",
     "multer": "^2.0.2",
+    "nest-winston": "^1.10.2",
     "nodemailer": "^6.10.1",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "stripe": "^14.0.0",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "winston": "^3.18.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
