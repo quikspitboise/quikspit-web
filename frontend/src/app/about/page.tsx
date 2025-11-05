@@ -1,5 +1,6 @@
 import { Reveal } from '@/components/reveal'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -49,8 +50,15 @@ export default function About() {
           <Reveal delay={0.05} skipOnRouteTransition className="bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-600">
             <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-8 items-center">
               <div className="flex items-center justify-center">
-                <div className="w-40 h-40 rounded-full bg-red-600/10 border border-red-600 flex items-center justify-center" role="img" aria-label="Owner headshot placeholder">
-                  <span className="text-red-600 text-sm">Owner Image</span>
+                <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-red-600 shadow-lg">
+                  <Image
+                    src="/owner.jpeg"
+                    alt="Garret, Owner of QuikSpit Auto Detailing"
+                    fill
+                    className="object-cover"
+                    sizes="160px"
+                    priority
+                  />
                 </div>
               </div>
               <div>
