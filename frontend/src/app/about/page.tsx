@@ -50,13 +50,13 @@ export default function About() {
           <Reveal delay={0.05} skipOnRouteTransition className="bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-600">
             <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-8 items-center">
               <div className="flex items-center justify-center">
-                <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-red-600 shadow-lg">
+                <div className="relative w-50 h-50 rounded-full overflow-hidden border-2 border-red-600 shadow-lg">
                   <Image
                     src="/owner.jpeg"
                     alt="Garret, Owner of QuikSpit Auto Detailing"
                     fill
                     className="object-cover"
-                    sizes="160px"
+                    sizes="200px"
                     priority
                   />
                 </div>
