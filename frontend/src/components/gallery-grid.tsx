@@ -8,8 +8,11 @@ export type GalleryItem = {
   id: string
   title: string
   description?: string
-  beforeUrl: string
-  afterUrl: string
+  // For comparison images (before/after)
+  beforeUrl?: string
+  afterUrl?: string
+  // For single images
+  imageUrl?: string
 }
 
 type GalleryGridProps = {
@@ -61,55 +64,72 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {items.map((item, idx) => (
-          <div key={item.id} className="bg-brand-charcoal-light p-6 rounded-xl shadow-lg border border-neutral-600 group">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-white font-semibold">{item.title}</h3>
-              {item.description ? (
-                <span className="text-neutral-300 text-sm">{item.description}</span>
-              ) : (
-                <span className="text-neutral-300 text-sm">Before / After</span>
-              )}
-            </div>
+        {items.map((item, idx) => {
+          const isComparison = item.beforeUrl && item.afterUrl
+          const isSingle = item.imageUrl
+          
+          return (
+            <div key={item.id} className="bg-brand-charcoal-light p-6 rounded-xl shadow-lg border border-neutral-600 group">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-white font-semibold">{item.title}</h3>
+                {item.description ? (
+                  <span className="text-neutral-300 text-sm">{item.description}</span>
+                ) : isComparison ? (
+                  <span className="text-neutral-300 text-sm">Before / After</span>
+                ) : null}
+              </div>
 
-            <div
-              className="relative"
-              onDoubleClick={() => onOpen(idx)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  onOpen(idx)
-                }
-              }}
-              title="Double-click to view larger"
-            >
-              <ComparisonSlider
-                beforeUrl={item.beforeUrl}
-                afterUrl={item.afterUrl}
-                altBefore={`${item.title} - before detailing`}
-                altAfter={`${item.title} - after detailing`}
-              />
-
-              {/* Hover affordance to open lightbox */}
-              <motion.button
-                type="button"
-                onClick={() => onOpen(idx)}
-                className="absolute top-3 right-3 inline-flex items-center gap-2 bg-red-600/90 hover:bg-red-700 text-white text-sm font-semibold py-3 px-4 rounded-lg shadow-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light min-h-[44px] min-w-[44px]"
-                aria-label={`Enlarge ${item.title}`}
-                whileTap={{ scale: prefersReducedMotion ? 1 : 0.96 }}
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+              <div
+                className="relative"
+                onDoubleClick={() => onOpen(idx)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onOpen(idx)
+                  }
+                }}
+                title="Double-click to view larger"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <span className="hidden sm:inline">View</span>
-              </motion.button>
+                {isComparison && (
+                  <ComparisonSlider
+                    beforeUrl={item.beforeUrl!}
+                    afterUrl={item.afterUrl!}
+                    altBefore={`${item.title} - before detailing`}
+                    altAfter={`${item.title} - after detailing`}
+                  />
+                )}
+                
+                {isSingle && (
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                )}
+
+                {/* Hover affordance to open lightbox */}
+                <motion.button
+                  type="button"
+                  onClick={() => onOpen(idx)}
+                  className="absolute top-3 right-3 inline-flex items-center gap-2 bg-red-600/90 hover:bg-red-700 text-white text-sm font-semibold py-3 px-4 rounded-lg shadow-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light min-h-[44px] min-w-[44px]"
+                  aria-label={`Enlarge ${item.title}`}
+                  whileTap={{ scale: prefersReducedMotion ? 1 : 0.96 }}
+                  whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <span className="hidden sm:inline">View</span>
+                </motion.button>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Lightbox modal */}
@@ -208,13 +228,23 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                 </div>
 
                 <div className="relative">
-                  <ComparisonSlider
-                    beforeUrl={activeItem.beforeUrl}
-                    afterUrl={activeItem.afterUrl}
-                    altBefore={`${activeItem.title} - before detailing`}
-                    altAfter={`${activeItem.title} - after detailing`}
-                    initialPosition={50}
-                  />
+                  {activeItem.beforeUrl && activeItem.afterUrl ? (
+                    <ComparisonSlider
+                      beforeUrl={activeItem.beforeUrl}
+                      afterUrl={activeItem.afterUrl}
+                      altBefore={`${activeItem.title} - before detailing`}
+                      altAfter={`${activeItem.title} - after detailing`}
+                      initialPosition={50}
+                    />
+                  ) : activeItem.imageUrl ? (
+                    <div className="relative w-full overflow-hidden rounded-lg">
+                      <img
+                        src={activeItem.imageUrl}
+                        alt={activeItem.title}
+                        className="w-full h-auto max-h-[70vh] object-contain"
+                      />
+                    </div>
+                  ) : null}
                 </div>
               </motion.div>
             </motion.div>
