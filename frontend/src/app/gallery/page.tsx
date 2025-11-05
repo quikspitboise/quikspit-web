@@ -1,4 +1,3 @@
-"use server"
 import { Reveal } from '@/components/reveal'
 import { GalleryGrid } from '@/components/gallery-grid'
 import type { Metadata } from 'next'
