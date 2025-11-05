@@ -235,7 +235,7 @@ export default function Pricing() {
                   <div>
                     <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-white">5-7 Year Graphene Ceramic Coating</h3>
-                      <span className="text-2xl font-bold text-red-600">$400</span>
+                      <span className="text-2xl font-bold text-red-600">$400+</span>
                     </div>
                     <p className="text-neutral-300 text-sm">A deep, mirror-like shine that lasts years, not weeks.</p>
                     <p className="text-neutral-400 text-xs mt-2 italic">
@@ -245,7 +245,7 @@ export default function Pricing() {
                   <div className="border-t border-neutral-700 pt-6">
                     <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-white">1-Step Paint Correction & Polish</h3>
-                      <span className="text-2xl font-bold text-red-600">$450</span>
+                      <span className="text-2xl font-bold text-red-600">$450+</span>
                     </div>
                     <p className="text-neutral-300 text-sm">Years of swirls & scratches erased in a single session (≈65% correction or more).</p>
                   </div>
