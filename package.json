@@ -27,4 +27,15 @@
   "dependencies": {
     "react-icons": "^5.5.0"
   }
+  ,
+  "pnpm": {
+    "overrides": {
+      "next": "^15.5.7",
+      "react": "^19.0.2",
+      "react-dom": "^19.0.2",
+      "glob": "^10.5.0",
+      "validator": "^13.15.22",
+      "nodemailer": "^7.0.11"
+    }
+  }
 }

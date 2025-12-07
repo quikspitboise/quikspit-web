@@ -1,3 +1,5 @@
+⚠️ SECURITY NOTICE: This frontend previously targeted React 19 / Next.js with a version that may be vulnerable to a Remote Code Execution vulnerability affecting React Server Components (CVE-2025-55182 / CVE-2025-66478). We have updated the `frontend` dependencies to a patched version; please review `SECURITY-2025-UPDATE.md` for details.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
