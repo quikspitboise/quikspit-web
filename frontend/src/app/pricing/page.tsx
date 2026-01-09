@@ -292,19 +292,19 @@ export default function Pricing() {
             <div className="space-y-4">
               {[
                 {
-                  q: 'Do prices vary by vehicle size?',
+                  q: 'TEMP: Do prices vary by vehicle size?',
                   a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles may have adjusted pricing based on size.',
                 },
                 {
-                  q: 'Is there a travel fee?',
+                  q: 'TEMP: Is there a travel fee?',
                   a: 'We offer free travel within our primary service area (Boise and surrounding communities). Locations outside this area may incur a small travel fee.',
                 },
                 {
-                  q: 'What payment methods do you accept?',
+                  q: 'TEMP: What payment methods do you accept?',
                   a: 'We accept all major credit cards, debit cards, cash, and digital payments including Apple Pay, Google Pay, and Venmo.',
                 },
                 {
-                  q: 'Do you offer any discounts?',
+                  q: 'TEMP: Do you offer any discounts?',
                   a: 'Yes! We offer a 10% discount for first-time customers and special rates for recurring service packages. Ask about our referral program too!',
                 },
               ].map((faq) => (

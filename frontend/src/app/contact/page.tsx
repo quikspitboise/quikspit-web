@@ -152,7 +152,7 @@ export default function Contact() {
                 {/* Social Links */}
                 <div className="flex gap-4">
                   <a
-                    href="https://www.instagram.com/quikspitshine/"
+                    href="https://www.instagram.com/quikspitboise/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"
@@ -163,7 +163,7 @@ export default function Contact() {
                     </svg>
                   </a>
                   <a
-                    href="https://www.tiktok.com/@quikspitshine"
+                    href="https://www.tiktok.com/@quikspitboise"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"
