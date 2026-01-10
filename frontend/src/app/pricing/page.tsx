@@ -174,12 +174,30 @@ const sizeAdjustments = [
 ]
 
 const addons = [
-  { name: 'Pet Hair Removal', price: 25, description: 'Deep extraction of embedded pet hair' },
-  { name: 'Odor Elimination', price: 30, description: 'Professional-grade odor neutralization' },
-  { name: 'Ceramic Coating', price: 150, description: 'Long-lasting paint protection' },
-  { name: 'Headlight Restoration', price: 40, description: 'Crystal clear headlights' },
-  { name: 'Engine Bay Detail', price: 50, description: 'Spotless engine compartment' },
-  { name: 'Leather Conditioning', price: 25, description: 'Premium leather care' },
+  { name: 'Headlight Restoration', price: 60, description: 'Crystal clear headlights' },
+  { name: 'Bio Clean', price: 60, description: 'Cleaning any bodily fluids' },
+  { name: 'Engine Bay Cleaning', price: 50, description: 'Spotless engine compartment' },
+  { name: 'Pet Hair Removal', price: 35, description: 'Deep extraction of embedded pet hair (auto if necessary)' },
+  { name: 'Water Spot Removal', price: 25, description: 'Remove stubborn water spots from paint' },
+]
+
+const ceramicServices = [
+  {
+    name: '5-7 Year Graphene Ceramic Coating',
+    price: '$550+',
+    description: 'A deep, mirror-like shine that lasts years, not weeks.',
+    note: 'While not required, a 1-step paint correction is strongly recommended for the best results of a ceramic coating.',
+  },
+  {
+    name: '1-Step Paint Correction & Polish',
+    price: '$600+',
+    description: 'Years of swirls & scratches erased in a single session (≈65% correction or more).',
+  },
+  {
+    name: '2-Step Paint Correction',
+    price: '$800+',
+    description: 'Maximum defect removal with multi-stage compounding and polishing for a flawless finish.',
+  },
 ]
 
 export default function Pricing() {
@@ -249,6 +267,48 @@ export default function Pricing() {
       </AnimatedSection>
 
       <SectionTransition variant="dots" />
+
+      {/* Ceramic Coating & Paint Correction Section */}
+      <AnimatedSection className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Premium Services</span>
+              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
+                CERAMIC COATING &amp; <span className="text-red-500">POLISH</span>
+              </FadeHeadline>
+            </div>
+
+            {/* Important Note */}
+            <GlassCard className="p-5 mb-8" gradient="subtle">
+              <div className="flex gap-3">
+                <span className="text-red-500 font-semibold">Note:</span>
+                <p className="text-neutral-300">
+                  All ceramic coating and paint correction services include a Prestige Exterior detail with paint decontamination.
+                </p>
+              </div>
+            </GlassCard>
+
+            {/* Ceramic Services List */}
+            <div className="space-y-4">
+              {ceramicServices.map((service) => (
+                <GlassCard key={service.name} className="p-6">
+                  <div className="flex justify-between items-start gap-4 mb-2">
+                    <h3 className="font-semibold text-white text-lg">{service.name}</h3>
+                    <span className="text-red-500 font-display text-xl whitespace-nowrap">{service.price}</span>
+                  </div>
+                  <p className="text-neutral-400">{service.description}</p>
+                  {service.note && (
+                    <p className="text-neutral-500 text-sm italic mt-2">{service.note}</p>
+                  )}
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        </div>
+      </AnimatedSection>
+
+      <SectionTransition variant="line" />
 
       {/* Add-ons Section */}
       <AnimatedSection className="py-16 lg:py-24">
