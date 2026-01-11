@@ -3,7 +3,9 @@ import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headlin
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { PricingInteractive } from '@/components/pricing-interactive'
+import { PricingCalculator } from '@/components/pricing-calculator'
+import { PackagesTabs } from '@/components/packages-tabs'
+import { Reveal } from '@/components/reveal'
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -18,8 +20,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Data for the interactive pricing calculator - matches original design
-const pricingCategories = [
+// All packages organized by category
+const packageCategories = [
   {
     id: 'combo',
     label: 'Exterior + Interior',
@@ -183,22 +185,34 @@ const addons = [
 
 const ceramicServices = [
   {
+    id: 'graphene-coating',
     name: '5-7 Year Graphene Ceramic Coating',
-    price: '$550+',
+    price: 400,
     description: 'A deep, mirror-like shine that lasts years, not weeks.',
     note: 'While not required, a 1-step paint correction is strongly recommended for the best results of a ceramic coating.',
   },
   {
+    id: 'paint-correction-1',
     name: '1-Step Paint Correction & Polish',
-    price: '$600+',
+    price: 450,
     description: 'Years of swirls & scratches erased in a single session (≈65% correction or more).',
   },
   {
+    id: 'paint-correction-2',
     name: '2-Step Paint Correction',
-    price: '$800+',
+    price: 650,
     description: 'Maximum defect removal with multi-stage compounding and polishing for a flawless finish.',
   },
 ]
+
+// Flatten packages for the calculator with category info
+const allPackagesFlat = packageCategories.flatMap((cat) =>
+  cat.packages.map((pkg) => ({
+    ...pkg,
+    categoryId: cat.id,
+    categoryLabel: cat.label,
+  }))
+)
 
 export default function Pricing() {
   return (
@@ -208,7 +222,7 @@ export default function Pricing() {
         {/* Background accents */}
         <div className="absolute top-1/3 left-0 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-red-600/3 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center">
             <AnimatedHeadline
@@ -247,68 +261,30 @@ export default function Pricing() {
         </div>
       </AnimatedSection>
 
-      {/* Packages & Pricing - Main Section */}
+      {/* All Packages Display - Grouped by Category */}
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
-                PACKAGES &amp; <span className="text-red-500">PRICING</span>
+                OUR <span className="text-red-500">PACKAGES</span>
               </FadeHeadline>
+              <p className="text-neutral-400 mt-4 max-w-2xl mx-auto">
+                From quick refreshes to executive treatments, we have a package for every need. Base prices shown for cars/sedans.
+              </p>
             </div>
 
-            <PricingInteractive categories={pricingCategories} sizeAdjustments={sizeAdjustments} />
+            {/* Package Categories with Tabs */}
+            <PackagesTabs categories={packageCategories} />
 
             <p className="text-center text-neutral-500 text-sm mt-8">
-              * Prices may vary based on vehicle condition. Contact us for a custom quote.
+              * Prices shown are for cars/sedans. Larger vehicles have adjusted pricing. Use our calculator below for an accurate estimate.
             </p>
           </div>
         </div>
       </AnimatedSection>
 
       <SectionTransition variant="dots" />
-
-      {/* Ceramic Coating & Paint Correction Section */}
-      <AnimatedSection className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Premium Services</span>
-              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
-                CERAMIC COATING &amp; <span className="text-red-500">POLISH</span>
-              </FadeHeadline>
-            </div>
-
-            {/* Important Note */}
-            <GlassCard className="p-5 mb-8" gradient="subtle">
-              <div className="flex gap-3">
-                <span className="text-red-500 font-semibold">Note:</span>
-                <p className="text-neutral-300">
-                  All ceramic coating and paint correction services include a Prestige Exterior detail with paint decontamination.
-                </p>
-              </div>
-            </GlassCard>
-
-            {/* Ceramic Services List */}
-            <div className="space-y-4">
-              {ceramicServices.map((service) => (
-                <GlassCard key={service.name} className="p-6">
-                  <div className="flex justify-between items-start gap-4 mb-2">
-                    <h3 className="font-semibold text-white text-lg">{service.name}</h3>
-                    <span className="text-red-500 font-display text-xl whitespace-nowrap">{service.price}</span>
-                  </div>
-                  <p className="text-neutral-400">{service.description}</p>
-                  {service.note && (
-                    <p className="text-neutral-500 text-sm italic mt-2">{service.note}</p>
-                  )}
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <SectionTransition variant="line" />
 
       {/* Add-ons Section */}
       <AnimatedSection className="py-16 lg:py-24">
@@ -336,6 +312,74 @@ export default function Pricing() {
         </div>
       </AnimatedSection>
 
+      <SectionTransition variant="line" />
+
+      {/* Ceramic Coating & Paint Correction Info Section */}
+      <AnimatedSection className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Premium Services</span>
+              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
+                CERAMIC COATING &amp; <span className="text-red-500">POLISH</span>
+              </FadeHeadline>
+            </div>
+
+            {/* Important Note */}
+            <GlassCard className="p-5 mb-8" gradient="subtle">
+              <div className="flex gap-3">
+                <span className="text-red-500 font-semibold">Note:</span>
+                <p className="text-neutral-300">
+                  Ceramic coating and paint correction services require a paint decontamination service. This is included with <strong className="text-red-500">Prestige Exterior</strong> or <strong className="text-red-500">Platinum Package</strong>.
+                </p>
+              </div>
+            </GlassCard>
+
+            {/* Ceramic Services List */}
+            <div className="space-y-4">
+              {ceramicServices.map((service) => (
+                <GlassCard key={service.id} className="p-6">
+                  <div className="flex justify-between items-start gap-4 mb-2">
+                    <h3 className="font-semibold text-white text-lg">{service.name}</h3>
+                    <span className="text-red-500 font-display text-xl whitespace-nowrap">${service.price}+</span>
+                  </div>
+                  <p className="text-neutral-400">{service.description}</p>
+                  {service.note && (
+                    <p className="text-neutral-500 text-sm italic mt-2">{service.note}</p>
+                  )}
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        </div>
+      </AnimatedSection>
+
+      <SectionTransition variant="dots" />
+
+      {/* Build Your Detail Calculator */}
+      <AnimatedSection className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Get Your Estimate</span>
+              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
+                BUILD YOUR <span className="text-red-500">DETAIL</span>
+              </FadeHeadline>
+              <p className="text-neutral-400 mt-4 max-w-2xl mx-auto">
+                Use our calculator to build a custom detail package and get an instant estimate.
+              </p>
+            </div>
+
+            <PricingCalculator
+              packages={allPackagesFlat}
+              sizeAdjustments={sizeAdjustments}
+              addons={addons}
+              ceramicServices={ceramicServices}
+            />
+          </div>
+        </div>
+      </AnimatedSection>
+
       {/* FAQ Section */}
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -343,26 +387,26 @@ export default function Pricing() {
             <div className="text-center mb-12">
               <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Common Questions</span>
               <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide">
-                PRICING FAQ
+                PRICING FAQ TEMP
               </FadeHeadline>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  q: 'TEMP: Do prices vary by vehicle size?',
-                  a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles may have adjusted pricing based on size.',
+                  q: 'Do prices vary by vehicle size?',
+                  a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles have adjusted pricing based on size. Use our calculator above for accurate estimates.',
                 },
                 {
-                  q: 'TEMP: Is there a travel fee?',
+                  q: 'Is there a travel fee?',
                   a: 'We offer free travel within our primary service area (Boise and surrounding communities). Locations outside this area may incur a small travel fee.',
                 },
                 {
-                  q: 'TEMP: What payment methods do you accept?',
+                  q: 'What payment methods do you accept?',
                   a: 'We accept all major credit cards, debit cards, cash, and digital payments including Apple Pay, Google Pay, and Venmo.',
                 },
                 {
-                  q: 'TEMP: Do you offer any discounts?',
+                  q: 'Do you offer any discounts?',
                   a: 'Yes! We offer a 10% discount for first-time customers and special rates for recurring service packages. Ask about our referral program too!',
                 },
               ].map((faq) => (
