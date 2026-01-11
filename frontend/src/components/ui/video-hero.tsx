@@ -16,7 +16,7 @@ interface VideoHeroProps {
 export function VideoHero({
   videoSrc = 'https://res.cloudinary.com/demo/video/upload/v1/samples/sea-turtle',
   posterSrc,
-  fallbackImageSrc = '/images/hero-fallback.jpg',
+  fallbackImageSrc = '/hero_fallback.jpg',
   children,
   overlayOpacity = 0.6,
   className = '',
@@ -116,9 +116,8 @@ export function VideoHero({
             )}
             <video
               ref={videoRef}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                isVideoLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
               autoPlay
               muted
               loop

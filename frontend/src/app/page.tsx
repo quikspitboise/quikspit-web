@@ -120,7 +120,7 @@ export default function Home() {
         {/* Hero Section with Video Background */}
         <VideoHero
           videoSrc="https://res.cloudinary.com/demo/video/upload/v1/samples/sea-turtle"
-          fallbackImageSrc="/images/hero-fallback.jpg"
+          fallbackImageSrc="/hero_fallback.jpg"
           overlayOpacity={0.7}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -152,7 +152,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="text-lg sm:text-xl lg:text-2xl text-white/70 mb-10 max-w-3xl mx-auto font-light leading-relaxed"
               >
-                We bring showroom-quality detailing directly to you. 
+                We bring showroom-quality detailing directly to you.
                 Experience the difference of professional-grade care without leaving home.
               </motion.p>
 
@@ -205,7 +205,7 @@ export default function Home() {
         <section className="py-24 lg:py-32 relative overflow-hidden">
           {/* Background accent */}
           <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
-          
+
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
             {/* Section Header */}
             <div className="text-center mb-16 lg:mb-20">
@@ -240,14 +240,14 @@ export default function Home() {
                 description="Complete auto restoration bringing your car back to factory-fresh condition. Thorough cleaning, decontamination, and protection."
                 delay={0}
               />
-              
+
               <FeatureCard
                 icon={<ShieldIcon />}
                 title="CERAMIC COATINGS"
                 description="Unparalleled hydrophobics, UV protection, and gloss lasting years. Professional-grade coatings for ultimate paint protection."
                 delay={0.1}
               />
-              
+
               <FeatureCard
                 icon={<DiamondIcon />}
                 title="PREMIUM PACKAGES"
@@ -341,7 +341,7 @@ export default function Home() {
                   <MagneticButton href="/booking" variant="primary" size="lg">
                     Schedule Service
                   </MagneticButton>
-                  <Link 
+                  <Link
                     href="tel:+12089604970"
                     className="text-white/60 hover:text-white transition-colors text-sm"
                   >
