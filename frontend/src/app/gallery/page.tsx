@@ -20,39 +20,29 @@ export const metadata: Metadata = {
   },
 }
 
-// Sample gallery items - these would typically come from a CMS or API
-const galleryItems: GalleryItem[] = [
-  {
-    id: '1',
-    title: 'Honda Civic Full Detail',
-    description: 'Complete interior and exterior restoration',
-    beforeUrl: '/gallery/civic-before.jpg',
-    afterUrl: '/gallery/civic-after.jpg',
-  },
-  {
-    id: '2', 
-    title: 'Ford F-150 Interior Clean',
-    description: 'Deep interior detailing',
-    beforeUrl: '/gallery/f150-before.jpg',
-    afterUrl: '/gallery/f150-after.jpg',
-  },
-  {
-    id: '3',
-    title: 'Tesla Model 3 Paint Correction',
-    description: 'Premium exterior detail',
-    beforeUrl: '/gallery/tesla-before.jpg',
-    afterUrl: '/gallery/tesla-after.jpg',
-  },
-  {
-    id: '4',
-    title: 'Jeep Wrangler Deep Clean',
-    description: 'Full detail package',
-    beforeUrl: '/gallery/jeep-before.jpg',
-    afterUrl: '/gallery/jeep-after.jpg',
-  },
-]
+// Fetch gallery items from API
+async function getGalleryItems(): Promise<GalleryItem[]> {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+    const res = await fetch(`${backendUrl}/gallery`, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch gallery items:', res.status);
+      return [];
+    }
+    
+    const data = await res.json();
+    return data.items || [];
+  } catch (error) {
+    console.error('Error fetching gallery items:', error);
+    return [];
+  }
+}
 
-export default function Gallery() {
+export default async function Gallery() {
+  const galleryItems = await getGalleryItems();
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}

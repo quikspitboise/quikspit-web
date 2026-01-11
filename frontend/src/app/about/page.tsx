@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
+import { CLOUDINARY_ASSETS } from '@/lib/cloudinary'
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -140,8 +141,8 @@ export default function About() {
                     {/* Decorative ring */}
                     <div className="absolute inset-0 rounded-full border-2 border-red-600/30 animate-pulse" />
                     <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-red-600 shadow-2xl shadow-red-600/20">
-                      <Image
-                        src="/owner.jpeg"
+                      <CldImage
+                        src={CLOUDINARY_ASSETS.static.owner}
                         alt="Garret, Owner of QuikSpit Auto Detailing"
                         fill
                         className="object-cover"

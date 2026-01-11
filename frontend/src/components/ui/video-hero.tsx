@@ -2,27 +2,26 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import Image from 'next/image';
+import { CldImage, CldVideoPlayer } from 'next-cloudinary';
+import 'next-cloudinary/dist/cld-video-player.css';
+import { CLOUDINARY_ASSETS } from '@/lib/cloudinary';
 
 interface VideoHeroProps {
-  videoSrc?: string;
-  posterSrc?: string;
-  fallbackImageSrc?: string;
+  videoPublicId?: string;
+  fallbackPublicId?: string;
   children: React.ReactNode;
   overlayOpacity?: number;
   className?: string;
 }
 
 export function VideoHero({
-  videoSrc = 'https://res.cloudinary.com/demo/video/upload/v1/samples/sea-turtle',
-  posterSrc,
-  fallbackImageSrc = '/hero_fallback.jpg',
+  videoPublicId = CLOUDINARY_ASSETS.videos.hero,
+  fallbackPublicId = CLOUDINARY_ASSETS.static.heroFallback,
   children,
   overlayOpacity = 0.6,
   className = '',
 }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   // Start with null to avoid hydration mismatch, then determine on client
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
@@ -67,47 +66,11 @@ export function VideoHero({
     }
   }, [isMobile, isVideoLoaded]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video && isMobile === false) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              // Handle autoplay promise rejection (browsers may block autoplay)
-              video.play().catch(() => {
-                // Autoplay was blocked, video will remain paused
-                // User can still see the fallback/poster image
-              });
-            } else {
-              video.pause();
-            }
-          });
-        },
-        { threshold: 0.25 }
-      );
-
-      observer.observe(video);
-      return () => observer.disconnect();
-    }
-  }, [isMobile]);
-
-  const handleVideoCanPlay = () => {
-    setIsVideoLoaded(true);
-  };
-
-  const handleVideoError = () => {
-    setHasError(true);
-  };
-
   // Determine what to show - use null check for SSR safety
   const showMobileImage = isMobile === true || hasError;
   const showDesktopVideo = isMobile === false && !hasError;
   // Only show fallback on desktop after delay (or immediately on mobile/error)
   const showLoadingFallback = showDelayedFallback && !isVideoLoaded && !showMobileImage;
-
-  // Use posterSrc if provided, otherwise fallbackImageSrc for video poster
-  const videoPoster = posterSrc || fallbackImageSrc;
 
   return (
     <div
@@ -126,8 +89,8 @@ export function VideoHero({
               isVideoLoaded ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            <Image
-              src={fallbackImageSrc}
+            <CldImage
+              src={fallbackPublicId}
               alt="Hero background"
               fill
               priority
@@ -141,8 +104,8 @@ export function VideoHero({
         {/* Mobile: Static Image (no parallax to prevent Safari jank) */}
         {showMobileImage && (
           <div className="absolute inset-0">
-            <Image
-              src={fallbackImageSrc}
+            <CldImage
+              src={fallbackPublicId}
               alt="Hero background"
               fill
               priority
@@ -155,22 +118,23 @@ export function VideoHero({
 
         {/* Desktop: Video */}
         {showDesktopVideo && (
-          <video
-            ref={videoRef}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+          <div 
+            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
               isVideoLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={videoPoster}
-            onCanPlay={handleVideoCanPlay}
-            onError={handleVideoError}
+            } [&_.vjs-poster]:!bg-cover [&_.vjs-poster]:!bg-center [&_.video-js]:!w-full [&_.video-js]:!h-full [&_video]:!object-cover [&_video]:!w-full [&_video]:!h-full`}
           >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
+            <CldVideoPlayer
+              src={videoPublicId}
+              width="1920"
+              height="1080"
+              autoPlay="always"
+              muted
+              loop
+              controls={false}
+              onPlay={() => setIsVideoLoaded(true)}
+              onError={() => setHasError(true)}
+            />
+          </div>
         )}
       </motion.div>
 
