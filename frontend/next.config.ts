@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
   },
@@ -24,7 +26,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    domains: ['quickspit.onrender.com', 'res.cloudinary.com'],
   },
 };
 

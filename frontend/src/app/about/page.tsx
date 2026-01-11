@@ -140,15 +140,25 @@ export default function About() {
                   <div className="relative w-64 h-64 lg:w-72 lg:h-72">
                     {/* Decorative ring */}
                     <div className="absolute inset-0 rounded-full border-2 border-red-600/30 animate-pulse" />
-                    <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-red-600 shadow-2xl shadow-red-600/20">
-                      <CldImage
-                        src={CLOUDINARY_ASSETS.static.owner}
-                        alt="Garret, Owner of QuikSpit Auto Detailing"
-                        fill
-                        className="object-cover"
-                        sizes="300px"
-                        priority
-                      />
+                    <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-red-600 shadow-2xl shadow-red-600/20 bg-neutral-800">
+                      {CLOUDINARY_ASSETS?.static?.owner && (
+                        <CldImage
+                          src={CLOUDINARY_ASSETS.static.owner}
+                          alt="Garret, Owner of QuikSpit Auto Detailing"
+                          fill
+                          className="object-cover"
+                          sizes="300px"
+                          priority
+                        />
+                      )}
+                      {/* Fallback avatar */}
+                      {!CLOUDINARY_ASSETS?.static?.owner && (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg className="w-24 h-24 text-neutral-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

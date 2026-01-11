@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm build:frontend",
+  "devCommand": "pnpm dev:frontend",
+  "installCommand": "pnpm install",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "functions": {},
+  "regions": ["iad1"],
+  "env": {
+    "PNPM_VERSION": "10"
+  },
+  "buildEnv": {
+    "PNPM_VERSION": "10"
+  }
+}
