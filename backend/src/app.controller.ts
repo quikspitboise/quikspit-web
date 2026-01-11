@@ -14,8 +14,12 @@ export class AppController {
   // Endpoint to get CSRF token for frontend
   @Get('csrf-token')
   getCsrfToken(@Req() req: Request): { csrfToken: string } {
-    // The csurf middleware attaches the token to req.csrfToken()
-    // @ts-ignore - csrfToken is added by csurf middleware
-    return { csrfToken: req.csrfToken ? req.csrfToken() : 'disabled' };
+    // The csrf-csrf middleware attaches generateCsrfToken to app.locals
+    const generateCsrfToken = req.app.locals.generateCsrfToken;
+    if (generateCsrfToken) {
+      const csrfToken = generateCsrfToken(req, req.res);
+      return { csrfToken };
+    }
+    return { csrfToken: 'disabled' };
   }
 }

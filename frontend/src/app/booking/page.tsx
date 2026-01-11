@@ -168,8 +168,8 @@ export default function Booking() {
                   <MagneticButton href="/contact" variant="primary">
                     Contact Us
                   </MagneticButton>
-                  <MagneticButton href="tel:+12089997020" variant="secondary">
-                    Call (208) 999-7020
+                  <MagneticButton href="tel:+12089604970" variant="secondary">
+                    Call (208) 960-4970
                   </MagneticButton>
                 </div>
               </div>
