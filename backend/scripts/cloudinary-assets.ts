@@ -9,7 +9,7 @@
  *   <CldImage src={CLOUDINARY_ASSETS.gallery.vehicle1Before} ... />
  */
 
-export const CLOUDINARY_CLOUD_NAME = 'dgpicy4uv';
+export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME ?? 'dgpicy4uv';
 
 export const CLOUDINARY_ASSETS = {
   gallery: {
@@ -29,7 +29,7 @@ export const CLOUDINARY_ASSETS = {
     owner: 'quikspit/gallery/owner',
   },
   static: {
-    herofallback: 'quikspit/static/hero-fallback',
+    heroFallback: 'quikspit/static/hero-fallback',
     owner: 'quikspit/static/owner',
   },
 } as const;

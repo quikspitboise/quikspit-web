@@ -70,7 +70,7 @@ async function main() {
   await listFolder('quikspit/static', 'video');
 
   console.log('\n=== Gallery Folder (first 10) ===');
-  const gallery = await listFolder('quikspit/gallery', 'image');
+  await listFolder('quikspit/gallery', 'image');
   
   console.log('\n✨ Done!');
 }

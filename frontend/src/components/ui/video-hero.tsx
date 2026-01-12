@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { CldImage, CldVideoPlayer } from 'next-cloudinary';
+import { CldImage } from 'next-cloudinary';
 import 'next-cloudinary/dist/cld-video-player.css';
 import { CLOUDINARY_ASSETS } from '@/lib/cloudinary';
+import { env } from '@/lib/env';
 
 interface VideoHeroProps {
   videoPublicId?: string;
@@ -28,17 +29,6 @@ export function VideoHero({
   const [hasError, setHasError] = useState(false);
   // Delay showing fallback on desktop to prevent flash when video loads quickly
   const [showDelayedFallback, setShowDelayedFallback] = useState(false);
-
-  // Debug logging
-  useEffect(() => {
-    console.log('VideoHero - videoPublicId:', videoPublicId);
-    console.log('VideoHero - CLOUDINARY_ASSETS:', CLOUDINARY_ASSETS);
-    console.log('VideoHero - isMobile:', isMobile);
-    console.log('VideoHero - isVideoLoaded:', isVideoLoaded);
-    console.log('VideoHero - hasError:', hasError);
-    console.log('VideoHero - showDesktopVideo:', isMobile === false && !hasError);
-    console.log('VideoHero - showMobileImage:', isMobile === true || hasError);
-  }, [videoPublicId, isMobile, isVideoLoaded, hasError]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -107,9 +97,7 @@ export function VideoHero({
               priority
               className="object-cover"
               sizes="100vw"
-              version="1768175039"
-              onError={(e) => {
-                console.error('Fallback image error:', e);
+              onError={() => {
                 setHasError(true);
               }}
             />
@@ -126,9 +114,7 @@ export function VideoHero({
               priority
               className="object-cover"
               sizes="100vw"
-              version="1768175039"
-              onError={(e) => {
-                console.error('Mobile fallback image error:', e);
+              onError={() => {
                 setHasError(true);
               }}
             />
@@ -149,28 +135,24 @@ export function VideoHero({
               playsInline
               className="w-full h-full object-cover"
               onPlay={() => {
-                console.log('Video onPlay fired');
                 setIsVideoLoaded(true);
               }}
               onLoadedData={() => {
-                console.log('Video onLoadedData fired');
                 setIsVideoLoaded(true);
               }}
               onCanPlay={() => {
-                console.log('Video onCanPlay fired');
                 setIsVideoLoaded(true);
               }}
-              onError={(e) => {
-                console.error('Video error:', e);
+              onError={() => {
                 setHasError(true);
               }}
             >
               <source 
-                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/f_auto:video/${videoPublicId}.mp4`}
+                src={`https://res.cloudinary.com/${env.cloudinaryCloudName}/video/upload/f_auto:video/${videoPublicId}.mp4`}
                 type="video/mp4"
               />
               <source 
-                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/${videoPublicId}.mov`}
+                src={`https://res.cloudinary.com/${env.cloudinaryCloudName}/video/upload/${videoPublicId}.mov`}
                 type="video/quicktime"
               />
             </video>
