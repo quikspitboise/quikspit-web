@@ -68,7 +68,6 @@ const GALLERY_ASSETS = [
   'ex_7.jpg',
   'ex_8.jpg',
   'ex_9.jpg',
-  'owner.jpeg',
 ];
 
 const STATIC_ASSETS = [
@@ -216,11 +215,18 @@ export const CLOUDINARY_ASSETS = {
 `;
 
   for (const result of staticResults) {
-    const name = path.basename(result.publicId)
-      .replace(/-/g, '')
-      .replace(/_/g, '');
+    const name = path.basename(result.publicId);
     
-    const camelName = name.charAt(0).toLowerCase() + name.slice(1);
+    // Convert kebab-case to camelCase properly
+    const camelName = name
+      .split('-')
+      .map((part, index) => 
+        index === 0 
+          ? part.toLowerCase() 
+          : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+      )
+      .join('');
+    
     output += `    ${camelName}: '${result.publicId}',\n`;
   }
 

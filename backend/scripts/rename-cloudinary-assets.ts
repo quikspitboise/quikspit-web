@@ -31,11 +31,10 @@ const ASSETS_TO_RENAME = [
   // Static assets
   { old: 'quickspit/static/hero-fallback', new: 'quikspit/static/hero-fallback' },
   { old: 'quickspit/static/owner', new: 'quikspit/static/owner' },
-  // Video (if it exists at this path)
-  { old: 'quickspit/static/hero', new: 'quikspit/static/hero' },
+  // Video (already at correct path, no rename needed)
 ];
 
-async function renameAsset(oldPath: string, newPath: string) {
+async function renameAsset(oldPath: string, newPath: string): Promise<'success' | 'skipped' | 'error'> {
   try {
     console.log(`Renaming: ${oldPath} -> ${newPath}`);
     const result = await cloudinary.uploader.rename(oldPath, newPath, { 
@@ -43,14 +42,17 @@ async function renameAsset(oldPath: string, newPath: string) {
       overwrite: false // Don't overwrite if target already exists
     });
     console.log(`✅ Success: ${result.public_id}`);
-    return result;
+    return 'success';
   } catch (error: any) {
     if (error.error?.message?.includes('not found')) {
       console.log(`⚠️  Skipped (not found): ${oldPath}`);
+      return 'skipped';
     } else if (error.error?.message?.includes('already exists')) {
       console.log(`⚠️  Skipped (already exists): ${newPath}`);
+      return 'skipped';
     } else {
       console.error(`❌ Error renaming ${oldPath}:`, error.error?.message || error.message);
+      return 'error';
     }
   }
 }
@@ -65,10 +67,12 @@ async function main() {
 
   for (const asset of ASSETS_TO_RENAME) {
     const result = await renameAsset(asset.old, asset.new);
-    if (result) {
+    if (result === 'success') {
       successCount++;
-    } else {
+    } else if (result === 'skipped') {
       skippedCount++;
+    } else if (result === 'error') {
+      errorCount++;
     }
     // Add small delay to avoid rate limits
     await new Promise(resolve => setTimeout(resolve, 500));

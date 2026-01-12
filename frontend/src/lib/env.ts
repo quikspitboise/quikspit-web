@@ -28,9 +28,15 @@ export function validateEnv() {
     (key) => !process.env[key]
   );
   
-  if (missing.length > 0 && env.isProduction) {
-    console.warn(
-      `Warning: Missing required environment variables: ${missing.join(', ')}`
-    );
+  if (missing.length > 0) {
+    const message = `Missing required environment variables: ${missing.join(', ')}`;
+
+    if (env.isProduction) {
+      throw new Error(message);
+    } else {
+      console.warn(`Warning: ${message}`);
+    }
   }
 }
+
+validateEnv();

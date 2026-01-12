@@ -28,7 +28,7 @@ export class ContactService {
     if (file) {
       try {
         const uploadResult = await this.cloudinaryService.uploadBuffer(file.buffer, {
-          folder: 'quickspit/uploads',
+          folder: 'quikspit/uploads',
           publicId: `contact-${Date.now()}`,
           resourceType: 'image',
         });

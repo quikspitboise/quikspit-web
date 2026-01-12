@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function Gallery() {
+export default function Gallery() {
   const galleryItems = GALLERY_ITEMS;
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
