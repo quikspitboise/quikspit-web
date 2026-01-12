@@ -2,33 +2,43 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import Image from 'next/image';
+import { CldImage, CldVideoPlayer } from 'next-cloudinary';
+import 'next-cloudinary/dist/cld-video-player.css';
+import { CLOUDINARY_ASSETS } from '@/lib/cloudinary';
 
 interface VideoHeroProps {
-  videoSrc?: string;
-  posterSrc?: string;
-  fallbackImageSrc?: string;
+  videoPublicId?: string;
+  fallbackPublicId?: string;
   children: React.ReactNode;
   overlayOpacity?: number;
   className?: string;
 }
 
 export function VideoHero({
-  videoSrc = 'https://res.cloudinary.com/demo/video/upload/v1/samples/sea-turtle',
-  posterSrc,
-  fallbackImageSrc = '/hero_fallback.jpg',
+  videoPublicId = CLOUDINARY_ASSETS.videos.hero,
+  fallbackPublicId = CLOUDINARY_ASSETS.static.heroFallback,
   children,
   overlayOpacity = 0.6,
   className = '',
 }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   // Start with null to avoid hydration mismatch, then determine on client
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [hasError, setHasError] = useState(false);
   // Delay showing fallback on desktop to prevent flash when video loads quickly
   const [showDelayedFallback, setShowDelayedFallback] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('VideoHero - videoPublicId:', videoPublicId);
+    console.log('VideoHero - CLOUDINARY_ASSETS:', CLOUDINARY_ASSETS);
+    console.log('VideoHero - isMobile:', isMobile);
+    console.log('VideoHero - isVideoLoaded:', isVideoLoaded);
+    console.log('VideoHero - hasError:', hasError);
+    console.log('VideoHero - showDesktopVideo:', isMobile === false && !hasError);
+    console.log('VideoHero - showMobileImage:', isMobile === true || hasError);
+  }, [videoPublicId, isMobile, isVideoLoaded, hasError]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -57,57 +67,21 @@ export function VideoHero({
       // Mobile: show fallback immediately
       setShowDelayedFallback(true);
     } else if (isMobile === false && !isVideoLoaded) {
-      // Desktop: wait before showing fallback
+      // Desktop: wait 1.5s before showing fallback to give video time to load
       const timer = setTimeout(() => {
         if (!isVideoLoaded) {
           setShowDelayedFallback(true);
         }
-      }, 800); // Wait 800ms before showing fallback
+      }, 1500); // Wait 1.5s before showing fallback
       return () => clearTimeout(timer);
     }
   }, [isMobile, isVideoLoaded]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video && isMobile === false) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              // Handle autoplay promise rejection (browsers may block autoplay)
-              video.play().catch(() => {
-                // Autoplay was blocked, video will remain paused
-                // User can still see the fallback/poster image
-              });
-            } else {
-              video.pause();
-            }
-          });
-        },
-        { threshold: 0.25 }
-      );
-
-      observer.observe(video);
-      return () => observer.disconnect();
-    }
-  }, [isMobile]);
-
-  const handleVideoCanPlay = () => {
-    setIsVideoLoaded(true);
-  };
-
-  const handleVideoError = () => {
-    setHasError(true);
-  };
 
   // Determine what to show - use null check for SSR safety
   const showMobileImage = isMobile === true || hasError;
   const showDesktopVideo = isMobile === false && !hasError;
   // Only show fallback on desktop after delay (or immediately on mobile/error)
   const showLoadingFallback = showDelayedFallback && !isVideoLoaded && !showMobileImage;
-
-  // Use posterSrc if provided, otherwise fallbackImageSrc for video poster
-  const videoPoster = posterSrc || fallbackImageSrc;
 
   return (
     <div
@@ -126,14 +100,18 @@ export function VideoHero({
               isVideoLoaded ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            <Image
-              src={fallbackImageSrc}
+            <CldImage
+              src={fallbackPublicId}
               alt="Hero background"
               fill
               priority
               className="object-cover"
               sizes="100vw"
-              onError={() => setHasError(true)}
+              version="1768175039"
+              onError={(e) => {
+                console.error('Fallback image error:', e);
+                setHasError(true);
+              }}
             />
           </div>
         )}
@@ -141,36 +119,62 @@ export function VideoHero({
         {/* Mobile: Static Image (no parallax to prevent Safari jank) */}
         {showMobileImage && (
           <div className="absolute inset-0">
-            <Image
-              src={fallbackImageSrc}
+            <CldImage
+              src={fallbackPublicId}
               alt="Hero background"
               fill
               priority
               className="object-cover"
               sizes="100vw"
-              onError={() => setHasError(true)}
+              version="1768175039"
+              onError={(e) => {
+                console.error('Mobile fallback image error:', e);
+                setHasError(true);
+              }}
             />
           </div>
         )}
 
         {/* Desktop: Video */}
         {showDesktopVideo && (
-          <video
-            ref={videoRef}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+          <div 
+            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
               isVideoLoaded ? 'opacity-100' : 'opacity-0'
             }`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={videoPoster}
-            onCanPlay={handleVideoCanPlay}
-            onError={handleVideoError}
           >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+              onPlay={() => {
+                console.log('Video onPlay fired');
+                setIsVideoLoaded(true);
+              }}
+              onLoadedData={() => {
+                console.log('Video onLoadedData fired');
+                setIsVideoLoaded(true);
+              }}
+              onCanPlay={() => {
+                console.log('Video onCanPlay fired');
+                setIsVideoLoaded(true);
+              }}
+              onError={(e) => {
+                console.error('Video error:', e);
+                setHasError(true);
+              }}
+            >
+              <source 
+                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/f_auto:video/${videoPublicId}.mp4`}
+                type="video/mp4"
+              />
+              <source 
+                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/${videoPublicId}.mov`}
+                type="video/quicktime"
+              />
+            </video>
+          </div>
         )}
       </motion.div>
 

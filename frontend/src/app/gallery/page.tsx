@@ -3,9 +3,10 @@ import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headlin
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { GalleryGrid, type GalleryItem } from '@/components/gallery-grid'
+import { GalleryGrid } from '@/components/gallery-grid'
 import InstagramEmbedWithSkeleton from '@/components/InstagramEmbedWithSkeleton'
 import TikTokEmbedWithSkeleton from '@/components/TikTokEmbedWithSkeleton'
+import { GALLERY_ITEMS } from '@/data/gallery'
 
 export const metadata: Metadata = {
   title: 'Gallery',
@@ -20,39 +21,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Sample gallery items - these would typically come from a CMS or API
-const galleryItems: GalleryItem[] = [
-  {
-    id: '1',
-    title: 'Honda Civic Full Detail',
-    description: 'Complete interior and exterior restoration',
-    beforeUrl: '/gallery/civic-before.jpg',
-    afterUrl: '/gallery/civic-after.jpg',
-  },
-  {
-    id: '2', 
-    title: 'Ford F-150 Interior Clean',
-    description: 'Deep interior detailing',
-    beforeUrl: '/gallery/f150-before.jpg',
-    afterUrl: '/gallery/f150-after.jpg',
-  },
-  {
-    id: '3',
-    title: 'Tesla Model 3 Paint Correction',
-    description: 'Premium exterior detail',
-    beforeUrl: '/gallery/tesla-before.jpg',
-    afterUrl: '/gallery/tesla-after.jpg',
-  },
-  {
-    id: '4',
-    title: 'Jeep Wrangler Deep Clean',
-    description: 'Full detail package',
-    beforeUrl: '/gallery/jeep-before.jpg',
-    afterUrl: '/gallery/jeep-after.jpg',
-  },
-]
-
-export default function Gallery() {
+export default async function Gallery() {
+  const galleryItems = GALLERY_ITEMS;
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}

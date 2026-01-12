@@ -119,8 +119,6 @@ export default function Home() {
 
         {/* Hero Section with Video Background */}
         <VideoHero
-          videoSrc="https://res.cloudinary.com/demo/video/upload/v1/samples/sea-turtle"
-          fallbackImageSrc="/hero_fallback.jpg"
           overlayOpacity={0.7}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
