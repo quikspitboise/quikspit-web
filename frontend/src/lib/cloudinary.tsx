@@ -19,28 +19,28 @@ import type { CldImageProps, CldVideoPlayerProps } from 'next-cloudinary';
 export const CLOUDINARY_ASSETS = {
   // Gallery images (before/after comparisons)
   gallery: {
-    vehicle1Before: 'quickspit/gallery/vehicle1-before',
-    vehicle1After: 'quickspit/gallery/vehicle1-after',
-    vehicle2Before: 'quickspit/gallery/vehicle2-before',
-    vehicle2After: 'quickspit/gallery/vehicle2-after',
-    example1: 'quickspit/gallery/ex_1',
-    example2: 'quickspit/gallery/ex_2',
-    example3: 'quickspit/gallery/ex_3',
-    example4: 'quickspit/gallery/ex_4',
-    example5: 'quickspit/gallery/ex_5',
-    example6: 'quickspit/gallery/ex_6',
-    example7: 'quickspit/gallery/ex_7',
-    example8: 'quickspit/gallery/ex_8',
-    example9: 'quickspit/gallery/ex_9',
+    vehicle1Before: 'quikspit/gallery/vehicle1-before',
+    vehicle1After: 'quikspit/gallery/vehicle1-after',
+    vehicle2Before: 'quikspit/gallery/vehicle2-before',
+    vehicle2After: 'quikspit/gallery/vehicle2-after',
+    example1: 'quikspit/gallery/ex_1',
+    example2: 'quikspit/gallery/ex_2',
+    example3: 'quikspit/gallery/ex_3',
+    example4: 'quikspit/gallery/ex_4',
+    example5: 'quikspit/gallery/ex_5',
+    example6: 'quikspit/gallery/ex_6',
+    example7: 'quikspit/gallery/ex_7',
+    example8: 'quikspit/gallery/ex_8',
+    example9: 'quikspit/gallery/ex_9',
   },
   // Static assets
   static: {
-    heroFallback: 'quickspit/static/hero-fallback',
-    owner: 'quickspit/static/owner',
+    heroFallback: 'quikspit/static/hero-fallback',
+    owner: 'quikspit/static/owner',
   },
   // Videos
   videos: {
-    hero: 'quikspit/videos/hero', // Update with your actual hero video public ID
+    hero: 'copy_84B200F5-6F45-4C16-B685-5944D3E2B2CC_fgxfbu',
   },
 } as const;
 

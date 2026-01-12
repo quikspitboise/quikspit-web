@@ -29,6 +29,17 @@ export function VideoHero({
   // Delay showing fallback on desktop to prevent flash when video loads quickly
   const [showDelayedFallback, setShowDelayedFallback] = useState(false);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('VideoHero - videoPublicId:', videoPublicId);
+    console.log('VideoHero - CLOUDINARY_ASSETS:', CLOUDINARY_ASSETS);
+    console.log('VideoHero - isMobile:', isMobile);
+    console.log('VideoHero - isVideoLoaded:', isVideoLoaded);
+    console.log('VideoHero - hasError:', hasError);
+    console.log('VideoHero - showDesktopVideo:', isMobile === false && !hasError);
+    console.log('VideoHero - showMobileImage:', isMobile === true || hasError);
+  }, [videoPublicId, isMobile, isVideoLoaded, hasError]);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start'],
@@ -56,12 +67,12 @@ export function VideoHero({
       // Mobile: show fallback immediately
       setShowDelayedFallback(true);
     } else if (isMobile === false && !isVideoLoaded) {
-      // Desktop: wait before showing fallback
+      // Desktop: wait 1.5s before showing fallback to give video time to load
       const timer = setTimeout(() => {
         if (!isVideoLoaded) {
           setShowDelayedFallback(true);
         }
-      }, 800); // Wait 800ms before showing fallback
+      }, 1500); // Wait 1.5s before showing fallback
       return () => clearTimeout(timer);
     }
   }, [isMobile, isVideoLoaded]);
@@ -96,7 +107,11 @@ export function VideoHero({
               priority
               className="object-cover"
               sizes="100vw"
-              onError={() => setHasError(true)}
+              version="1768175039"
+              onError={(e) => {
+                console.error('Fallback image error:', e);
+                setHasError(true);
+              }}
             />
           </div>
         )}
@@ -111,7 +126,11 @@ export function VideoHero({
               priority
               className="object-cover"
               sizes="100vw"
-              onError={() => setHasError(true)}
+              version="1768175039"
+              onError={(e) => {
+                console.error('Mobile fallback image error:', e);
+                setHasError(true);
+              }}
             />
           </div>
         )}
@@ -121,19 +140,40 @@ export function VideoHero({
           <div 
             className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
               isVideoLoaded ? 'opacity-100' : 'opacity-0'
-            } [&_.vjs-poster]:!bg-cover [&_.vjs-poster]:!bg-center [&_.video-js]:!w-full [&_.video-js]:!h-full [&_video]:!object-cover [&_video]:!w-full [&_video]:!h-full`}
+            }`}
           >
-            <CldVideoPlayer
-              src={videoPublicId}
-              width="1920"
-              height="1080"
-              autoPlay="always"
+            <video
+              autoPlay
               muted
               loop
-              controls={false}
-              onPlay={() => setIsVideoLoaded(true)}
-              onError={() => setHasError(true)}
-            />
+              playsInline
+              className="w-full h-full object-cover"
+              onPlay={() => {
+                console.log('Video onPlay fired');
+                setIsVideoLoaded(true);
+              }}
+              onLoadedData={() => {
+                console.log('Video onLoadedData fired');
+                setIsVideoLoaded(true);
+              }}
+              onCanPlay={() => {
+                console.log('Video onCanPlay fired');
+                setIsVideoLoaded(true);
+              }}
+              onError={(e) => {
+                console.error('Video error:', e);
+                setHasError(true);
+              }}
+            >
+              <source 
+                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/f_auto:video/${videoPublicId}.mp4`}
+                type="video/mp4"
+              />
+              <source 
+                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/${videoPublicId}.mov`}
+                type="video/quicktime"
+              />
+            </video>
           </div>
         )}
       </motion.div>
