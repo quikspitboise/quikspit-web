@@ -30,7 +30,7 @@ export class CloudinaryService {
     buffer: Buffer,
     options: CloudinaryUploadOptions = {},
   ): Promise<CloudinaryUploadResult> {
-    const { folder = 'quickspit/uploads', publicId, resourceType = 'auto', transformation } = options;
+    const { folder = 'quikspit/uploads', publicId, resourceType = 'auto', transformation } = options;
 
     return new Promise((resolve, reject) => {
       const uploadOptions: Record<string, unknown> = {
@@ -85,7 +85,7 @@ export class CloudinaryService {
     filePath: string,
     options: CloudinaryUploadOptions = {},
   ): Promise<CloudinaryUploadResult> {
-    const { folder = 'quickspit/uploads', publicId, resourceType = 'auto', transformation } = options;
+    const { folder = 'quikspit/uploads', publicId, resourceType = 'auto', transformation } = options;
 
     try {
       const uploadOptions: Record<string, unknown> = {

@@ -32,14 +32,14 @@ pnpm ts-node scripts/migrate-to-cloudinary.ts
 ```
 
 This will:
-- Upload all gallery images to `quickspit/gallery/`
-- Upload static assets to `quickspit/static/`
+- Upload all gallery images to `quikspit/gallery/`
+- Upload static assets to `quikspit/static/`
 - Generate a mapping file and TypeScript constants
 
 ## Folder Structure in Cloudinary
 
 ```
-quickspit/
+quikspit/
 ├── gallery/           # Gallery images (before/after)
 │   ├── vehicle1-before
 │   ├── vehicle1-after
@@ -96,7 +96,7 @@ export class ContactService {
 
   async handleUpload(file: Express.Multer.File) {
     const result = await this.cloudinaryService.uploadBuffer(file.buffer, {
-      folder: 'quickspit/uploads',
+      folder: 'quikspit/uploads',
       publicId: `contact-${Date.now()}`,
     });
     return result.secureUrl;
@@ -118,7 +118,7 @@ Apply transformations via props:
 
 ```tsx
 <CldImage
-  src="quickspit/gallery/vehicle1-after"
+  src="quikspit/gallery/vehicle1-after"
   width={800}
   height={600}
   crop="fill"

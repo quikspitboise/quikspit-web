@@ -3,9 +3,9 @@
  * Cloudinary Migration Script
  * 
  * This script uploads existing local assets to Cloudinary with the following folder structure:
- * - quickspit/gallery/ - Gallery images (before/after photos)
- * - quickspit/static/ - Static assets (hero fallback, owner photo)
- * - quickspit/uploads/ - User-uploaded content
+ * - quikspit/gallery/ - Gallery images (before/after photos)
+ * - quikspit/static/ - Static assets (hero fallback, owner photo)
+ * - quikspit/uploads/ - User-uploaded content
  * 
  * Usage:
  *   1. Set environment variables (or create .env file):
@@ -135,7 +135,7 @@ async function migrateGalleryAssets(): Promise<UploadResult[]> {
   for (const asset of GALLERY_ASSETS) {
     const filePath = path.join(BACKEND_GALLERY_PATH, asset);
     const publicId = path.basename(asset, path.extname(asset));
-    const result = await uploadToCloudinary(filePath, 'quickspit/gallery', publicId);
+    const result = await uploadToCloudinary(filePath, 'quikspit/gallery', publicId);
     results.push(result);
   }
 
@@ -149,7 +149,7 @@ async function migrateStaticAssets(): Promise<UploadResult[]> {
 
   for (const asset of STATIC_ASSETS) {
     const filePath = path.join(FRONTEND_PUBLIC_PATH, asset.file);
-    const result = await uploadToCloudinary(filePath, 'quickspit/static', asset.name);
+    const result = await uploadToCloudinary(filePath, 'quikspit/static', asset.name);
     results.push(result);
   }
 
@@ -178,8 +178,8 @@ function generateMappingFile(results: UploadResult[]): void {
 }
 
 function generateTypeScriptConstants(results: UploadResult[]): void {
-  const galleryResults = results.filter(r => r.success && r.folder === 'quickspit/gallery');
-  const staticResults = results.filter(r => r.success && r.folder === 'quickspit/static');
+  const galleryResults = results.filter(r => r.success && r.folder === 'quikspit/gallery');
+  const staticResults = results.filter(r => r.success && r.folder === 'quikspit/static');
 
   let output = `/**
  * Cloudinary Asset Public IDs
