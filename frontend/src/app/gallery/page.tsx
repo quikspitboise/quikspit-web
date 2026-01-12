@@ -3,9 +3,10 @@ import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headlin
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { GalleryGrid, type GalleryItem } from '@/components/gallery-grid'
+import { GalleryGrid } from '@/components/gallery-grid'
 import InstagramEmbedWithSkeleton from '@/components/InstagramEmbedWithSkeleton'
 import TikTokEmbedWithSkeleton from '@/components/TikTokEmbedWithSkeleton'
+import { GALLERY_ITEMS } from '@/data/gallery'
 
 export const metadata: Metadata = {
   title: 'Gallery',
@@ -20,29 +21,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Fetch gallery items from API
-async function getGalleryItems(): Promise<GalleryItem[]> {
-  try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-    const res = await fetch(`${backendUrl}/gallery`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    });
-    
-    if (!res.ok) {
-      console.error('Failed to fetch gallery items:', res.status);
-      return [];
-    }
-    
-    const data = await res.json();
-    return data.items || [];
-  } catch (error) {
-    console.error('Error fetching gallery items:', error);
-    return [];
-  }
-}
-
 export default async function Gallery() {
-  const galleryItems = await getGalleryItems();
+  const galleryItems = GALLERY_ITEMS;
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
