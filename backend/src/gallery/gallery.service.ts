@@ -21,7 +21,7 @@ export class GalleryService {
    * @param name - The image name (e.g., 'vehicle1-before')
    */
   private publicId(name: string): string {
-    return `quickspit/gallery/${name}`;
+    return `quikspit/gallery/${name}`;
   }
 
   async list(): Promise<GalleryItemDto[]> {
