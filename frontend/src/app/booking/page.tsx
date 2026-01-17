@@ -1,9 +1,12 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
+import { CalEmbed, ServiceSummary, parseBookingParams, getDepositAmount } from '@/components/cal-embed'
 
 const steps = [
   {
@@ -56,6 +59,73 @@ const features = [
   { icon: '✨', title: 'Quality Guarantee', description: 'Satisfaction guaranteed' },
 ]
 
+/**
+ * Booking widget content - reads URL params for prefill data
+ * Wrapped in Suspense for useSearchParams
+ */
+function BookingWidget() {
+  const searchParams = useSearchParams()
+  const selection = parseBookingParams(searchParams)
+
+  // If we have a selection from the pricing calculator, show summary + embed
+  if (selection) {
+    const deposit = getDepositAmount(selection.category)
+
+    return (
+      <div className="space-y-6">
+        {/* Service Summary */}
+        <ServiceSummary selection={selection} />
+
+        {/* Deposit notice */}
+        <GlassCard className="p-4" gradient="subtle">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💳</span>
+            <div>
+              <p className="text-white font-medium">
+                Deposit Required: <span className="text-red-500">${deposit}</span>
+              </p>
+              <p className="text-neutral-400 text-sm">
+                The remaining balance of ${selection.total - deposit} will be collected at the time of service.
+              </p>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Cal.com Embed */}
+        <div className="bg-neutral-800/50 rounded-xl border border-neutral-700 p-4 min-h-[600px]">
+          <CalEmbed selection={selection} />
+        </div>
+      </div>
+    )
+  }
+
+  // Default: no selection, show direct booking with default event
+  return (
+    <div className="space-y-6">
+      <GlassCard className="p-4" gradient="subtle">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">💡</span>
+          <div>
+            <p className="text-white font-medium">Want an accurate quote?</p>
+            <p className="text-neutral-400 text-sm">
+              Use our{' '}
+              <a href="/pricing#calculator" className="text-red-500 hover:text-red-400 underline">
+                pricing calculator
+              </a>{' '}
+              to build your custom detail package first.
+            </p>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* Cal.com Embed - default event */}
+      <div className="bg-neutral-800/50 rounded-xl border border-neutral-700 p-4 min-h-[600px]">
+        <CalEmbed />
+      </div>
+    </div>
+  )
+}
+
 export default function Booking() {
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
@@ -64,7 +134,7 @@ export default function Booking() {
         {/* Background accents */}
         <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 left-0 w-[400px] h-[400px] bg-red-600/3 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center">
             <AnimatedHeadline
@@ -103,7 +173,7 @@ export default function Booking() {
                   {index < steps.length - 1 && (
                     <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-red-600/50 to-transparent" />
                   )}
-                  
+
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-600/20">
                       {step.icon}
@@ -153,26 +223,14 @@ export default function Booking() {
                 </p>
               </div>
 
-              {/* Booking Widget Placeholder */}
-              <div className="bg-neutral-800/50 rounded-xl border border-neutral-700 p-8 lg:p-12 text-center">
-                <div className="w-20 h-20 rounded-2xl bg-red-600/10 flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+              {/* Booking Widget with Suspense for searchParams */}
+              <Suspense fallback={
+                <div className="bg-neutral-800/50 rounded-xl border border-neutral-700 p-8 text-center min-h-[400px] flex items-center justify-center">
+                  <div className="animate-pulse text-neutral-400">Loading booking calendar...</div>
                 </div>
-                <h3 className="font-display text-2xl text-white mb-3 tracking-wide">BOOKING COMING SOON</h3>
-                <p className="text-neutral-400 mb-6 max-w-md mx-auto">
-                  Our online booking system is being finalized. In the meantime, contact us directly to schedule your detail.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <MagneticButton href="/contact" variant="primary">
-                    Contact Us
-                  </MagneticButton>
-                  <MagneticButton href="tel:+12089604970" variant="secondary">
-                    Call (208) 960-4970
-                  </MagneticButton>
-                </div>
-              </div>
+              }>
+                <BookingWidget />
+              </Suspense>
             </GlassCard>
           </div>
         </div>
