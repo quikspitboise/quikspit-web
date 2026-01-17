@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Reveal } from '@/components/reveal'
+import { buildBookingParams } from '@/components/cal-embed'
 
 // Types
 type Package = {
@@ -50,6 +52,7 @@ export function PricingCalculator({
     addons,
     ceramicServices,
 }: PricingCalculatorProps) {
+    const router = useRouter()
     const [vehicleSize, setVehicleSize] = useState<string>('car')
     const [selectedPackage, setSelectedPackage] = useState<Package | null>(null)
     const [selectedAddons, setSelectedAddons] = useState<Set<string>>(new Set())
@@ -75,7 +78,9 @@ export function PricingCalculator({
     }, [ceramicEnabled])
 
     // Calculate totals
-    const sizeAdd = sizeAdjustments.find((s) => s.id === vehicleSize)?.add || 0
+    const sizeData = sizeAdjustments.find((s) => s.id === vehicleSize)
+    const sizeAdd = sizeData?.add || 0
+    const sizeLabel = sizeData?.label || 'Car / Sedan'
 
     const packagePrice = selectedPackage ? selectedPackage.basePrice + sizeAdd : 0
 
@@ -130,6 +135,35 @@ export function PricingCalculator({
         } else {
             setSelectedPaintCorrection(id)
         }
+    }
+
+    /**
+     * Navigate to booking page with all selections as URL params
+     */
+    const handleBookNow = () => {
+        if (!selectedPackage) return
+
+        const ceramicName = ceramicCoatingSelected
+            ? ceramicServices.find((s) => s.id === 'graphene-coating')?.name
+            : undefined
+
+        const paintCorrectionName = selectedPaintCorrection
+            ? ceramicServices.find((s) => s.id === selectedPaintCorrection)?.name
+            : undefined
+
+        const params = buildBookingParams({
+            category: selectedPackage.categoryId,
+            tier: selectedPackage.id,
+            size: vehicleSize,
+            sizeLabel: sizeLabel,
+            addons: Array.from(selectedAddons),
+            ceramic: ceramicName,
+            paintCorrection: paintCorrectionName,
+            total: grandTotal,
+            packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
+        })
+
+        router.push(`/booking?${params.toString()}`)
     }
 
     // Group packages by category for display
@@ -394,16 +428,17 @@ export function PricingCalculator({
                                     <span className="text-neutral-500 text-base align-top ml-1">+*</span>
                                 </p>
                             </div>
-                            <a
-                                href="/booking"
+                            <button
+                                type="button"
+                                onClick={handleBookNow}
+                                disabled={!selectedPackage}
                                 className={`px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 shadow-lg ${selectedPackage
-                                    ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30'
+                                    ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30 cursor-pointer'
                                     : 'bg-neutral-600 cursor-not-allowed'
                                     }`}
-                                onClick={(e) => !selectedPackage && e.preventDefault()}
                             >
                                 Book Now
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <p className="text-neutral-500 text-xs mt-4">
