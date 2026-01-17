@@ -45,15 +45,10 @@ export const EVENT_SLUGS = {
 } as const;
 
 /**
- * Deposit amounts per category (in USD)
- * These should match the Stripe prices configured in Cal.com
+ * Flat deposit amount (in USD)
+ * This should match the Stripe price configured in Cal.com
  */
-export const DEPOSIT_AMOUNTS = {
-    combo: 50,
-    interior: 40,
-    exterior: 30,
-    default: 50,
-} as const;
+export const DEPOSIT_AMOUNT = 50;
 
 /**
  * Theme configuration for the Cal.com embed
@@ -115,10 +110,10 @@ export function getEventSlug(category: string): string {
 }
 
 /**
- * Get the deposit amount for a category
+ * Get the deposit amount (flat rate)
  */
-export function getDepositAmount(category: string): number {
-    return DEPOSIT_AMOUNTS[category as keyof typeof DEPOSIT_AMOUNTS] || DEPOSIT_AMOUNTS.default;
+export function getDepositAmount(): number {
+    return DEPOSIT_AMOUNT;
 }
 
 /**
@@ -169,7 +164,7 @@ export function formatBookingNotes(selection: BookingSelection): string {
     lines.push('━━━━━━━━━━━━━━━━━━━');
     lines.push(`💰 ESTIMATED TOTAL: $${selection.total}`);
 
-    const deposit = getDepositAmount(selection.category);
+    const deposit = getDepositAmount();
     const balance = selection.total - deposit;
     lines.push(`💳 Deposit (today): $${deposit}`);
     lines.push(`📅 Balance (at service): $${balance}`);
@@ -338,7 +333,7 @@ interface ServiceSummaryProps {
  * Shows deposit amount and balance due at service
  */
 export function ServiceSummary({ selection, className = '' }: ServiceSummaryProps) {
-    const deposit = getDepositAmount(selection.category);
+    const deposit = getDepositAmount();
     const balance = selection.total - deposit;
     const addonList = selection.addons?.split(',').map(a => a.trim()).filter(Boolean) || [];
 

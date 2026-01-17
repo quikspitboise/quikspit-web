@@ -69,7 +69,7 @@ function BookingWidget() {
 
   // If we have a selection from the pricing calculator, show summary + embed
   if (selection) {
-    const deposit = getDepositAmount(selection.category)
+    const deposit = getDepositAmount()
 
     return (
       <div className="space-y-6">
