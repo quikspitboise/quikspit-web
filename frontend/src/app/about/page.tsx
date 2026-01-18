@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import { CldImage } from 'next-cloudinary'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { CLOUDINARY_ASSETS } from '@/lib/cloudinary'
+import { OwnerImage } from '@/components/owner-image'
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -26,7 +25,7 @@ export default function About() {
       <section className="relative py-24 lg:py-32 overflow-hidden">
         {/* Background accent */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center">
             <AnimatedHeadline
@@ -83,7 +82,7 @@ export default function About() {
                 OUR VALUES
               </FadeHeadline>
             </div>
-            
+
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
@@ -141,24 +140,7 @@ export default function About() {
                     {/* Decorative ring */}
                     <div className="absolute inset-0 rounded-full border-2 border-red-600/30 animate-pulse" />
                     <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-red-600 shadow-2xl shadow-red-600/20 bg-neutral-800">
-                      {CLOUDINARY_ASSETS?.static?.owner && (
-                        <CldImage
-                          src={CLOUDINARY_ASSETS.static.owner}
-                          alt="Garret, Owner of QuikSpit Auto Detailing"
-                          fill
-                          className="object-cover"
-                          sizes="300px"
-                          priority
-                        />
-                      )}
-                      {/* Fallback avatar */}
-                      {!CLOUDINARY_ASSETS?.static?.owner && (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <svg className="w-24 h-24 text-neutral-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                        </div>
-                      )}
+                      <OwnerImage />
                     </div>
                   </div>
                 </div>
