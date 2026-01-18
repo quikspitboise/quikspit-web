@@ -91,16 +91,30 @@ function BookingWidget() {
         <ServiceSummary selection={selection} />
 
         {/* Deposit notice */}
-        <GlassCard className="p-4" gradient="subtle">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">💳</span>
-            <div>
-              <p className="text-white font-medium">
-                Deposit Required: <span className="text-red-500">${deposit}</span>
-              </p>
-              <p className="text-neutral-400 text-sm">
+        <GlassCard className="p-5 border-red-500/30" gradient="red">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-white font-bold text-lg">
+                  Deposit Required: <span className="text-red-500">${deposit}</span>
+                </p>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500 text-white leading-none">
+                  Non-Refundable
+                </span>
+              </div>
+              <p className="text-neutral-300 text-sm mb-2">
                 The remaining balance of ${selection.total - deposit} will be collected at the time of service.
               </p>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                <p className="text-red-400 text-xs font-medium leading-relaxed">
+                  <span className="font-bold underline uppercase mr-1">Important:</span>
+                  This deposit is strictly non-refundable if the appointment is canceled or rescheduled within
+                  <span className="text-white font-bold mx-1">24 hours</span> of your scheduled time.
+                </p>
+              </div>
             </div>
           </div>
         </GlassCard>
@@ -268,8 +282,8 @@ export default function Booking() {
                   a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
                 },
                 {
-                  q: 'What if I need to reschedule?',
-                  a: 'No problem! You can reschedule your appointment with at least 24 hours notice at no additional charge.',
+                  q: 'What if I need to reschedule or cancel?',
+                  a: 'You can reschedule your appointment with at least 24 hours notice at no additional charge. However, please note that deposits are non-refundable for cancellations or rescheduling made within 24 hours of the appointment.',
                 },
                 {
                   q: 'Where do you provide service?',
