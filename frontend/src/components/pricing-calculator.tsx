@@ -163,7 +163,7 @@ export function PricingCalculator({
             packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
         })
 
-        router.push(`/booking?${params.toString()}`)
+        router.push(`/booking?${params.toString()}#booking-widget`)
     }
 
     // Group packages by category for display
