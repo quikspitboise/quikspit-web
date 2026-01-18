@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
@@ -66,6 +66,20 @@ const features = [
 function BookingWidget() {
   const searchParams = useSearchParams()
   const selection = parseBookingParams(searchParams)
+
+  // Auto-scroll to booking widget when coming from pricing calculator
+  useEffect(() => {
+    if (selection) {
+      // Small delay to allow page to render, then scroll to the booking widget
+      const timer = setTimeout(() => {
+        const element = document.getElementById('booking-widget')
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [selection])
 
   // If we have a selection from the pricing calculator, show summary + embed
   if (selection) {
