@@ -96,6 +96,8 @@ export interface CalEmbedProps {
     eventSlug?: string;
     /** Additional CSS classes */
     className?: string;
+    /** Callback fired when the calendar embed is ready */
+    onReady?: () => void;
 }
 
 // ============================================================================
@@ -241,7 +243,7 @@ export function parseBookingParams(searchParams: URLSearchParams): BookingSelect
  * // With pricing calculator selection
  * <CalEmbed selection={bookingSelection} />
  */
-export function CalEmbed({ selection, eventSlug, className = '' }: CalEmbedProps) {
+export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalEmbedProps) {
     const [isReady, setIsReady] = useState(false);
 
     // Determine which Cal.com event to show
@@ -281,10 +283,20 @@ export function CalEmbed({ selection, eventSlug, className = '' }: CalEmbedProps
                 // Only update state if component is still mounted
                 if (isMounted) {
                     setIsReady(true);
+                    // Notify parent after a delay to allow iframe content to render
+                    setTimeout(() => {
+                        if (isMounted && onReady) {
+                            onReady();
+                        }
+                    }, 500);
                 }
             } catch (error) {
                 // Cal.com embed errors are non-fatal, log and continue
                 console.warn('[CalEmbed] Init warning:', error);
+                if (isMounted && onReady) {
+                    // Still call onReady on error so page can proceed
+                    setTimeout(() => onReady(), 500);
+                }
                 if (isMounted) {
                     setIsReady(true); // Still show embed, it may work
                 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useCallback } from 'react'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
@@ -67,19 +67,17 @@ function BookingWidget() {
   const searchParams = useSearchParams()
   const selection = parseBookingParams(searchParams)
 
-  // Auto-scroll to booking widget when coming from pricing calculator
-  useEffect(() => {
-    if (selection) {
-      // Small delay to allow page to render, then scroll to the booking widget
-      const timer = setTimeout(() => {
-        const element = document.getElementById('booking-widget')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-      return () => clearTimeout(timer)
+  // Scroll to booking widget - called when calendar embed is ready
+  const scrollToWidget = useCallback(() => {
+    const element = document.getElementById('booking-widget')
+    if (element) {
+      // Use scrollTo with offset for consistent positioning at top of widget
+      const rect = element.getBoundingClientRect()
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const targetY = rect.top + scrollTop - 24 // 24px padding from top
+      window.scrollTo({ top: targetY, behavior: 'smooth' })
     }
-  }, [selection])
+  }, [])
 
   // If we have a selection from the pricing calculator, show summary + embed
   if (selection) {
@@ -91,28 +89,29 @@ function BookingWidget() {
         <ServiceSummary selection={selection} />
 
         {/* Deposit notice */}
-        <GlassCard className="p-5 border-red-500/30" gradient="red">
+        <GlassCard className="p-5 border-neutral-700/50" gradient="subtle">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
-              <span className="text-2xl">⚠️</span>
+            <div className="w-12 h-12 rounded-full bg-red-500/5 flex items-center justify-center shrink-0">
+              <span className="text-2xl">💳</span>
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-white font-bold text-lg">
                   Deposit Required: <span className="text-red-500">${deposit}</span>
                 </p>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500 text-white leading-none">
-                  Non-Refundable
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-neutral-800 text-neutral-400 border border-neutral-700 leading-none">
+                  24h Refund Policy
                 </span>
               </div>
               <p className="text-neutral-300 text-sm mb-2">
                 The remaining balance of ${selection.total - deposit} will be collected at the time of service.
               </p>
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                <p className="text-red-400 text-xs font-medium leading-relaxed">
-                  <span className="font-bold underline uppercase mr-1">Important:</span>
-                  This deposit is strictly non-refundable if the appointment is canceled or rescheduled within
-                  <span className="text-white font-bold mx-1">24 hours</span> of your scheduled time.
+              <div className="bg-neutral-800/50 border border-neutral-700 rounded-lg p-3">
+                <p className="text-neutral-400 text-xs font-medium leading-relaxed">
+                  <span className="text-white font-bold underline uppercase mr-1">Flexible Booking:</span>
+                  Fully refundable if canceled or rescheduled at least
+                  <span className="text-white font-bold mx-1">24 hours</span> before your appointment.
+                  Within 24 hours, the deposit becomes non-refundable.
                 </p>
               </div>
             </div>
@@ -121,7 +120,7 @@ function BookingWidget() {
 
         {/* Cal.com Embed */}
         <div className="bg-neutral-800/50 rounded-xl border border-neutral-700 p-4 min-h-[600px]">
-          <CalEmbed selection={selection} />
+          <CalEmbed selection={selection} onReady={scrollToWidget} />
         </div>
       </div>
     )
@@ -283,7 +282,7 @@ export default function Booking() {
                 },
                 {
                   q: 'What if I need to reschedule or cancel?',
-                  a: 'You can reschedule your appointment with at least 24 hours notice at no additional charge. However, please note that deposits are non-refundable for cancellations or rescheduling made within 24 hours of the appointment.',
+                  a: 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.',
                 },
                 {
                   q: 'Where do you provide service?',
