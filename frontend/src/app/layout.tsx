@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navigation } from "@/components/navigation";
 import PageTransition from "@/components/page-transition";
 import ErrorBoundary from "@/components/error-boundary";
+import { Footer } from "@/components/footer";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -111,6 +112,7 @@ export default function RootLayout({
             <PageTransition>
               {children}
             </PageTransition>
+            <Footer />
           </ErrorBoundary>
         </ThemeProvider>
       </body>
