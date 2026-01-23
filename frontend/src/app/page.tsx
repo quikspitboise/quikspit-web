@@ -161,11 +161,11 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 1, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               >
-                <MagneticButton href="/booking" variant="primary" size="lg">
+                <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
                   Book Service Now
                 </MagneticButton>
                 <MagneticButton href="/contact" variant="secondary" size="lg">
-                  Get a Quote
+                  Got Questions?
                 </MagneticButton>
               </motion.div>
 
@@ -336,7 +336,7 @@ export default function Home() {
                   Book your mobile detailing service today and experience the QuikSpit difference.
                 </p>
                 <div className="flex flex-col gap-4">
-                  <MagneticButton href="/booking" variant="primary" size="lg">
+                  <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
                     Schedule Service
                   </MagneticButton>
                   <Link
@@ -372,14 +372,14 @@ export default function Home() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <GlassCard className="text-center py-16 lg:py-20" gradient="red" spotlight>
               <FadeHeadline as="h2" className="font-display text-4xl sm:text-5xl lg:text-6xl text-white tracking-wide mb-6">
-                GET YOUR FREE QUOTE
+                QUESTIONS? WE&apos;VE GOT ANSWERS
               </FadeHeadline>
               <p className="text-neutral-400 text-lg max-w-2xl mx-auto mb-10">
-                Ready to give your vehicle the care it deserves? Contact us today for a free, no-obligation quote on our professional detailing services.
+                Curious about something? Whether it&apos;s about our services, your specific vehicle, or anything else—we&apos;re happy to chat.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <MagneticButton href="/contact" variant="primary" size="lg">
-                  Get Your Quote
+                  Let&apos;s Talk
                 </MagneticButton>
                 <MagneticButton href="/gallery" variant="secondary" size="lg">
                   View Gallery

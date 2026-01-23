@@ -182,7 +182,7 @@ export function buildBookingParams(selection: {
     tier: string;
     size: string;
     sizeLabel?: string;
-    addons: string[];
+    addons: string;
     ceramic?: string;
     paintCorrection?: string;
     total: number;
@@ -194,7 +194,7 @@ export function buildBookingParams(selection: {
     params.set('tier', selection.tier);
     params.set('size', selection.size);
     if (selection.sizeLabel) params.set('sizeLabel', selection.sizeLabel);
-    if (selection.addons.length > 0) params.set('addons', selection.addons.join(','));
+    if (selection.addons) params.set('addons', selection.addons);
     if (selection.ceramic) params.set('ceramic', selection.ceramic);
     if (selection.paintCorrection) params.set('paintCorrection', selection.paintCorrection);
     params.set('total', selection.total.toString());

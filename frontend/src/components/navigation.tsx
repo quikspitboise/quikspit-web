@@ -112,7 +112,7 @@ export function Navigation() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Link
-                  href="/booking"
+                  href="/booking#design-your-detail"
                   className="
                     inline-flex items-center gap-2 px-5 py-2.5
                     bg-red-600 hover:bg-red-500
@@ -210,7 +210,7 @@ export function Navigation() {
                   className="pt-4"
                 >
                   <Link
-                    href="/booking"
+                    href="/booking#design-your-detail"
                     className="
                       block w-full text-center px-6 py-4
                       bg-red-600 hover:bg-red-500

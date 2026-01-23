@@ -4,10 +4,10 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Reveal } from '@/components/reveal'
-import { buildBookingParams } from '@/components/cal-embed'
+import { buildBookingParams, type BookingSelection } from '@/components/cal-embed'
 
 // Types
-type Package = {
+export type Package = {
     id: string
     name: string
     tagline?: string
@@ -19,19 +19,19 @@ type Package = {
     categoryLabel: string
 }
 
-type SizeAdjustment = {
+export type SizeAdjustment = {
     id: string
     label: string
     add: number
 }
 
-type Addon = {
+export type Addon = {
     name: string
     price: number
     description: string
 }
 
-type CeramicService = {
+export type CeramicService = {
     id: string
     name: string
     price: number
@@ -44,6 +44,14 @@ type PricingCalculatorProps = {
     sizeAdjustments: SizeAdjustment[]
     addons: Addon[]
     ceramicServices: CeramicService[]
+    /** 
+     * When provided, the calculator runs in "in-page" mode:
+     * clicking Book Now calls this callback with the selection data
+     * instead of navigating to /booking
+     */
+    onComplete?: (selection: BookingSelection) => void
+    /** Custom label for the Book Now button (default: "Book Now") */
+    bookButtonLabel?: string
 }
 
 export function PricingCalculator({
@@ -51,6 +59,8 @@ export function PricingCalculator({
     sizeAdjustments,
     addons,
     ceramicServices,
+    onComplete,
+    bookButtonLabel = 'Book Now',
 }: PricingCalculatorProps) {
     const router = useRouter()
     const [vehicleSize, setVehicleSize] = useState<string>('car')
@@ -138,7 +148,8 @@ export function PricingCalculator({
     }
 
     /**
-     * Navigate to booking page with all selections as URL params
+     * Navigate to booking page with all selections as URL params,
+     * OR call the onComplete callback if in "in-page" mode
      */
     const handleBookNow = () => {
         if (!selectedPackage) return
@@ -151,18 +162,26 @@ export function PricingCalculator({
             ? ceramicServices.find((s) => s.id === selectedPaintCorrection)?.name
             : undefined
 
-        const params = buildBookingParams({
+        const selection: BookingSelection = {
             category: selectedPackage.categoryId,
             tier: selectedPackage.id,
             size: vehicleSize,
             sizeLabel: sizeLabel,
-            addons: Array.from(selectedAddons),
+            addons: Array.from(selectedAddons).join(','),
             ceramic: ceramicName,
             paintCorrection: paintCorrectionName,
             total: grandTotal,
             packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
-        })
+        }
 
+        // In-page mode: call callback instead of navigating
+        if (onComplete) {
+            onComplete(selection)
+            return
+        }
+
+        // Default mode: navigate to booking page with URL params
+        const params = buildBookingParams(selection)
         router.push(`/booking?${params.toString()}#booking-widget`)
     }
 
@@ -437,7 +456,7 @@ export function PricingCalculator({
                                     : 'bg-neutral-600 cursor-not-allowed'
                                     }`}
                             >
-                                Book Now
+                                {bookButtonLabel}
                             </button>
                         </div>
                     </div>

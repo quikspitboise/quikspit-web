@@ -3,7 +3,6 @@ import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headlin
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { PricingCalculator } from '@/components/pricing-calculator'
 import { PackagesTabs } from '@/components/packages-tabs'
 import { Reveal } from '@/components/reveal'
 
@@ -356,26 +355,27 @@ export default function Pricing() {
 
       <SectionTransition variant="dots" />
 
-      {/* Build Your Detail Calculator */}
+      {/* Design Your Detail CTA */}
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+          <div className="max-w-3xl mx-auto">
+            <GlassCard className="p-8 lg:p-12 text-center" gradient="red">
+              <div className="w-20 h-20 mx-auto rounded-full bg-red-600/10 flex items-center justify-center mb-6">
+                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
               <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Get Your Estimate</span>
-              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
-                BUILD YOUR <span className="text-red-500">DETAIL</span>
+              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide mb-4">
+                DESIGN YOUR <span className="text-red-500">DETAIL</span>
               </FadeHeadline>
-              <p className="text-neutral-400 mt-4 max-w-2xl mx-auto">
-                Use our calculator to build a custom detail package and get an instant estimate.
+              <p className="text-neutral-400 max-w-xl mx-auto mb-8">
+                Use our interactive builder to customize your detail package, see pricing for your vehicle size, and add any extras. Get an instant estimate and book your appointment in one seamless flow.
               </p>
-            </div>
-
-            <PricingCalculator
-              packages={allPackagesFlat}
-              sizeAdjustments={sizeAdjustments}
-              addons={addons}
-              ceramicServices={ceramicServices}
-            />
+              <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
+                Build Your Custom Package →
+              </MagneticButton>
+            </GlassCard>
           </div>
         </div>
       </AnimatedSection>
@@ -387,7 +387,7 @@ export default function Pricing() {
             <div className="text-center mb-12">
               <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Common Questions</span>
               <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide">
-                PRICING FAQ TEMP
+                PRICING FAQ
               </FadeHeadline>
             </div>
 
@@ -395,7 +395,7 @@ export default function Pricing() {
               {[
                 {
                   q: 'Do prices vary by vehicle size?',
-                  a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles have adjusted pricing based on size. Use our calculator above for accurate estimates.',
+                  a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles have adjusted pricing based on size. Use our Design Your Detail tool on the booking page for accurate estimates.',
                 },
                 {
                   q: 'Is there a travel fee?',
@@ -428,14 +428,14 @@ export default function Pricing() {
               READY TO BOOK?
             </FadeHeadline>
             <p className="text-neutral-400 text-lg mb-10">
-              Get in touch for a custom quote or book your service online. We can&apos;t wait to make your vehicle shine.
+              Design your custom detail package or reach out if you have any questions. We can&apos;t wait to make your vehicle shine.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <MagneticButton href="/booking" variant="primary" size="lg">
-                Book Your Detail
+              <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
+                Design Your Detail
               </MagneticButton>
               <MagneticButton href="/contact" variant="secondary" size="lg">
-                Get Custom Quote
+                Have Questions?
               </MagneticButton>
             </div>
           </div>

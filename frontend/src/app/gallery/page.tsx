@@ -141,7 +141,7 @@ export default async function Gallery() {
                 Ready to see your vehicle transformed? Book your detail today and experience the QuikSpit difference.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <MagneticButton href="/booking" variant="primary" size="lg">
+                <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
                   Book Now
                 </MagneticButton>
                 <MagneticButton href="/pricing" variant="secondary" size="lg">
