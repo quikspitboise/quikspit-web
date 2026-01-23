@@ -72,7 +72,7 @@ export function Navigation() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -130,7 +130,7 @@ export function Navigation() {
             <motion.button
               type="button"
               className="
-                md:hidden relative w-10 h-10
+                lg:hidden relative w-10 h-10
                 flex items-center justify-center
                 text-white rounded-lg
                 hover:bg-white/5 transition-colors
@@ -168,7 +168,7 @@ export function Navigation() {
           {menuOpen && (
             <motion.div
               id="mobile-menu"
-              className="md:hidden absolute top-full left-0 right-0 bg-[rgba(10,10,10,0.98)] backdrop-blur-xl border-b border-white/5"
+              className="lg:hidden absolute top-full left-0 right-0 bg-[rgba(10,10,10,0.98)] backdrop-blur-xl border-b border-white/5"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
