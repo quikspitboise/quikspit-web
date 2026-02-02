@@ -166,11 +166,11 @@ export function VideoHero({
               }}
             >
               <source 
-                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/f_auto:video/${videoPublicId}.mp4`}
+                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/f_auto:video/${videoPublicId}.mp4`}
                 type="video/mp4"
               />
               <source 
-                src={`https://res.cloudinary.com/dgpicy4uv/video/upload/${videoPublicId}.mov`}
+                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/${videoPublicId}.mov`}
                 type="video/quicktime"
               />
             </video>

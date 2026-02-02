@@ -9,7 +9,7 @@
  *   <CldImage src={CLOUDINARY_ASSETS.gallery.vehicle1Before} ... />
  */
 
-export const CLOUDINARY_CLOUD_NAME = 'dgpicy4uv';
+export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 
 export const CLOUDINARY_ASSETS = {
   gallery: {

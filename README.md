@@ -1,188 +1,176 @@
 # QuikSpit Auto Detailing
-⚠️ Security notice: This repo previously used a React/Next.js combination that was impacted by a remote code execution vulnerability affecting React Server Components (CVE-2025-55182 / CVE-2025-66478). The frontend has been upgraded to a patched Next/React version; see `SECURITY-2025-UPDATE.md` for details and migration steps. Ensure your deployed environments are rebuilt after pulling these changes.
 
+A full-stack web application for QuikSpit Auto Detailing services, featuring appointment booking, pricing calculator, gallery, and invoice management.
 
-A full-stack web application for QuikSpit Auto Detailing services, built with Next.js frontend and NestJS backend in a monorepo structure. The project now uses **pnpm** for dependency management and workspace scripts.
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion |
+| **Backend** | NestJS 11, TypeScript, TypeORM, PostgreSQL |
+| **Integrations** | Cloudinary, Cal.com, Stripe, Nodemailer, Twilio |
+| **Security** | Helmet, Throttler, class-validator, magic-byte file validation |
+
+---
 
 ## Project Structure
 
 ```
 quickspit/
-├── frontend/          # Next.js frontend application
-├── backend/           # NestJS backend application
-├── package.json       # Root package.json with workspace scripts
-├── pnpm-workspace.yaml # pnpm workspace configuration
-├── .gitignore         # Git ignore file
-└── README.md          # This file
+├── frontend/          # Next.js application
+├── backend/           # NestJS API server
+├── docs/              # Integration guides
+│   ├── CLOUDINARY.md
+│   ├── CAL_COM.md
+│   └── STRIPE_INVOICING.md
+├── pnpm-workspace.yaml
+└── AGENTS.md          # AI agent guidelines
 ```
 
-## Technology Stack
+---
 
-### Frontend
-- **Next.js 15** with TypeScript
-- **Tailwind CSS** for styling
-- **React 19** for UI components
-- **Framer Motion** for animations
-- **Custom comparison slider, Instagram/TikTok embeds, and profile card components**
+## Integrations
 
-### Backend
-- **NestJS 10** with TypeScript
-- **TypeORM** for database management
-- **PostgreSQL** as the database
-- **Multer** for file uploads
-- **Stripe** for payment processing
-- **Nodemailer** for email functionality
-- **Modular structure:** Contact, Booking, Gallery modules
+| Service | Purpose | Docs |
+|---------|---------|------|
+| **Cloudinary** | Image/video hosting & optimization | [docs/CLOUDINARY.md](docs/CLOUDINARY.md) |
+| **Cal.com** | Appointment booking with deposits | [docs/CAL_COM.md](docs/CAL_COM.md) |
+| **Stripe** | Invoicing & payment processing | [docs/STRIPE_INVOICING.md](docs/STRIPE_INVOICING.md) |
 
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-- Node.js (v18 or higher)
-- pnpm (v8 or higher)
-- PostgreSQL database (for production)
+---
 
 ## Quick Start
 
-### 1. Clone and Install Dependencies
+### Prerequisites
+
+- Node.js ≥ 18
+- pnpm ≥ 8
+- PostgreSQL (for production)
+
+### 1. Install Dependencies
 
 ```bash
-# Install all dependencies in the monorepo
 pnpm install
 ```
 
-### 2. Environment Setup
+### 2. Configure Environment
 
-#### Frontend Environment
-```bash
-cd frontend
-cp .env.example .env.local
-# Edit .env.local with your configuration
+**Frontend** — `frontend/.env.local`
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3001/api
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+NEXT_PUBLIC_CAL_USERNAME=your-calcom-username
+NEXT_PUBLIC_ENV=development
 ```
 
-#### Backend Environment
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your database and service configurations
+**Backend** — `backend/.env`
+```env
+PORT=3001
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+# Cloudinary (image/video hosting)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Stripe (payments & invoicing)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Email
+EMAIL_SERVICE_HOST=smtp.example.com
+EMAIL_SERVICE_USER=user
+EMAIL_SERVICE_PASS=pass
+
+# Twilio (optional - for SMS invoice delivery)
+TWILIO_ACCOUNT_SID=your-account-sid
+TWILIO_AUTH_TOKEN=your-auth-token
+TWILIO_PHONE_NUMBER=+1234567890
 ```
 
-### 3. Database Setup
+### 3. Run Development Servers
 
-Make sure PostgreSQL is running and create a database for the application. Update the database configuration in `backend/.env`.
-
-### 4. Run the Application
-
-#### Option 1: Use the Start Scripts (Recommended)
-
-**On Windows:**
 ```bash
-# Double-click start-dev.bat or run in terminal:
-start-dev.bat
+pnpm dev              # Both frontend + backend
+pnpm dev:frontend     # Frontend only (port 3000)
+pnpm dev:backend      # Backend only (port 3001)
 ```
 
-**On Linux/Mac:**
-```bash
-# Make executable and run:
-chmod +x start-dev.sh
-./start-dev.sh
-```
+Or use platform-specific scripts: `./start-dev.sh` (Linux/Mac) or `start-dev.bat` (Windows)
 
-#### Option 2: Run Both Frontend and Backend Together
-```bash
-# From the root directory
-pnpm dev
-```
-
-#### Option 3: Run Frontend and Backend Separately
-
-**Frontend:**
-```bash
-pnpm dev:frontend
-```
-
-**Backend:**
-```bash
-pnpm dev:backend
-```
+---
 
 ## Available Scripts
 
-### Root Level Scripts
-- `pnpm dev` - Run both frontend and backend concurrently
-- `pnpm dev:frontend` - Run only the frontend
-- `pnpm dev:backend` - Run only the backend
-- `pnpm build` - Build both frontend and backend
-- `pnpm build:frontend` - Build only the frontend
-- `pnpm build:backend` - Build only the backend
-- `pnpm clean` - Remove all node_modules directories
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Run frontend + backend concurrently |
+| `pnpm dev:frontend` | Start Next.js dev server |
+| `pnpm dev:backend` | Start NestJS with hot reload |
+| `pnpm build` | Build both for production |
+| `pnpm clean` | Remove all `node_modules` |
 
-### Frontend Scripts (cd frontend)
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
+---
 
-### Backend Scripts (cd backend)
-- `pnpm start:dev` - Start development server with hot reload
-- `pnpm build` - Build for production
-- `pnpm start:prod` - Start production server
+## API Reference
 
-## Application URLs
+**Base URL:** `http://localhost:3001/api`
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check & uptime |
+| `POST` | `/contact` | Submit contact form (with optional image) |
+| `GET` | `/bookings` | List all bookings |
+| `POST` | `/bookings` | Create a booking |
+| `GET` | `/gallery` | Get gallery images |
+| `POST` | `/invoices` | Create invoice (draft or immediate) |
+| `POST` | `/invoices/:id/send` | Send a draft invoice |
+| `GET` | `/invoices/:id` | Get invoice details |
 
-## API Endpoints
+---
 
-### Contact Module
-- `POST /api/contact` - Submit contact form with image upload
+## Development
 
-### Booking Module
-- `GET /api/bookings` - Get bookings
-- `POST /api/bookings` - Create new booking
+### Code Standards
+- TypeScript everywhere
+- ESLint + Prettier formatting
+- Follow Next.js App Router and NestJS module conventions
 
-### Gallery Module
-- `GET /api/gallery` - Get gallery images
+### Theming
+Dark theme with red accents — see [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+- Background: `brand-charcoal` (#1a1a1a)
+- Accent: `brand-red` (#ef4444)
 
-## Development Guidelines
+### Security
+- Rate limiting: 10 req/min default (stricter on contact/booking)
+- Helmet security headers
+- File uploads validated via magic bytes
+- Input sanitization with `class-validator`
 
-### Code Style
-- Use TypeScript for all new code
-- Follow ESLint rules
-- Use Prettier for code formatting
-
-### File Structure
-- Keep components in appropriate directories
-- Use descriptive names for files and variables
-- Follow Next.js and NestJS conventions
-
-### Accessibility & Theming
-- Follows QuikSpit Auto Detailing dark theme guidelines (see `.github/copilot-instructions.md`)
-- Custom Tailwind configuration for brand colors
+---
 
 ## Troubleshooting
 
-### Common Issues
+| Issue | Solution |
+|-------|----------|
+| Port conflict | Ensure 3000 and 3001 are free |
+| Database errors | Check PostgreSQL is running and `DATABASE_URL` is correct |
+| Missing modules | Run `pnpm install` |
+| Environment issues | Verify `.env` files exist with correct values |
 
-1. **Port conflicts**: Make sure ports 3000 and 3001 are available
-2. **Database connection**: Verify PostgreSQL is running and credentials are correct
-3. **Dependencies**: Run `pnpm install` if you encounter missing module errors
-
-### Getting Help
-
-If you encounter issues:
-1. Check the console for error messages
-2. Verify environment variables are set correctly
-3. Ensure all dependencies are installed
-4. Check that required services (database) are running
+---
 
 ## Contributing
 
 1. Create a feature branch
-2. Make your changes
+2. Make changes
 3. Test thoroughly
 4. Submit a pull request
 
+---
+
 ## License
 
-This project is private and proprietary.
+Private and proprietary.
