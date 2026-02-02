@@ -64,6 +64,7 @@ const packageCategories = [
         tagline: 'Executive Treatment',
         description: 'For those who want it all, and then some.',
         basePrice: 300,
+        bestValue: true,
         features: [
           'Includes everything in Gold Package, plus:',
           'Enzyme odor eliminator',
@@ -187,7 +188,8 @@ const ceramicServices = [
     id: 'graphene-coating',
     name: '5-7 Year Graphene Ceramic Coating',
     price: 850,
-    description: 'A deep, mirror-like shine that lasts years, not weeks. Includes 1-step paint correction for optimal results—a $450 value built into this package.',
+    description: 'A deep, mirror-like shine that lasts years, not weeks.',
+    includedValue: 'Includes 1-step paint correction for optimal results—a $450 value built into this package!',
     note: 'Want even more perfection? Upgrade to 2-step paint correction for maximum defect removal.',
   },
   {
@@ -343,6 +345,14 @@ export default function Pricing() {
                     <span className="text-red-500 font-display text-xl whitespace-nowrap">${service.price}+</span>
                   </div>
                   <p className="text-neutral-400">{service.description}</p>
+                  {service.includedValue && (
+                    <div className="mt-3 p-3 bg-gradient-to-r from-red-600/20 to-orange-500/10 border border-red-500/40 rounded-lg">
+                      <p className="text-white font-medium flex items-center gap-2">
+                        <span className="text-green-400">✓</span>
+                        {service.includedValue}
+                      </p>
+                    </div>
+                  )}
                   {service.note && (
                     <p className="text-neutral-500 text-sm italic mt-2">{service.note}</p>
                   )}

@@ -10,6 +10,7 @@ interface Package {
     description?: string
     basePrice: number
     highlight?: boolean
+    bestValue?: boolean
     features: string[]
 }
 
@@ -58,7 +59,11 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
             {/* Package Cards */}
             <div className="grid md:grid-cols-3 gap-6">
                 {category.packages.map((pkg) => {
-                    const accent = pkg.highlight ? 'border-red-600 shadow-red-600/20' : 'border-neutral-600'
+                    const accent = pkg.highlight 
+                        ? 'border-red-600 shadow-red-600/20' 
+                        : pkg.bestValue 
+                            ? 'border-red-500 shadow-red-500/30 ring-1 ring-red-500/40' 
+                            : 'border-neutral-600'
                     const metalClass =
                         pkg.id === 'silver'
                             ? 'metal-base metal-silver'
@@ -75,6 +80,11 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
                             {pkg.highlight && (
                                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs tracking-wide px-3 py-1 rounded-full shadow">
                                     Popular
+                                </span>
+                            )}
+                            {pkg.bestValue && (
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white text-xs font-bold tracking-wide px-4 py-1.5 rounded-full shadow-lg shadow-red-600/40 animate-pulse">
+                                    ✨ Best Value!
                                 </span>
                             )}
                             <div className="mb-4">
