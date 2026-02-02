@@ -30,12 +30,12 @@
   ,
   "pnpm": {
     "overrides": {
-      "next": "^16.1.1",
-      "react": "^19.2.3",
-      "react-dom": "^19.2.3",
+      "next": "^16.1.6",
+      "react": "^19.2.4",
+      "react-dom": "^19.2.4",
       "glob": "^10.5.0",
       "validator": "^13.15.22",
-      "nodemailer": "^7.0.12"
+      "nodemailer": "^7.0.13"
     },
     "onlyBuiltDependencies": ["@nestjs/core", "sharp", "unrs-resolver"]
   }

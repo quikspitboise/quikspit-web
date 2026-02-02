@@ -64,9 +64,7 @@ export class InvoiceService {
             this.isStripeConfigured = false;
         } else {
             try {
-                this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-                    apiVersion: '2025-12-15.clover',
-                });
+                this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
                 this.isStripeConfigured = true;
                 this.logger.log('Invoice service initialized with Stripe');
             } catch (error) {
