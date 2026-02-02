@@ -1,8 +1,4 @@
 # QuikSpit Auto Detailing
-⚠️ Security notice: This repo previously used a React/Next.js combination that was impacted by a remote code execution vulnerability affecting React Server Components (CVE-2025-55182 / CVE-2025-66478). The frontend has been upgraded to a patched Next/React version; see `SECURITY-2025-UPDATE.md` for details and migration steps. Ensure your deployed environments are rebuilt after pulling these changes.
-
-
-A full-stack web application for QuikSpit Auto Detailing services, built with Next.js frontend and NestJS backend in a monorepo structure. The project now uses **pnpm** for dependency management and workspace scripts.
 
 ## Project Structure
 
@@ -186,3 +182,4 @@ If you encounter issues:
 ## License
 
 This project is private and proprietary.
+
