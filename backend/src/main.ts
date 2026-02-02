@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as express from 'express';
+import express from 'express';
 import { join } from 'path';
 import helmet from 'helmet';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { doubleCsrf } from 'csrf-csrf';
 import { LoggerService } from './common/logger.service';
 
