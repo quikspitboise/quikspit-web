@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ContactModule } from './contact/contact.module';
 import { BookingModule } from './booking/booking.module';
 import { GalleryModule } from './gallery/gallery.module';
+import { InvoiceModule } from './invoice/invoice.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from './common/logger.module';
@@ -14,6 +16,7 @@ import { LoggerModule } from './common/logger.module';
   imports: [
     ConfigModule.forRoot(),
     LoggerModule, // Global logger module
+    CloudinaryModule, // Global Cloudinary module for image/video uploads
     // Rate limiting: 10 requests per minute per IP by default
     ThrottlerModule.forRoot([{
       ttl: 60000, // 60 seconds
@@ -22,6 +25,7 @@ import { LoggerModule } from './common/logger.module';
     ContactModule,
     BookingModule,
     GalleryModule,
+    InvoiceModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
@@ -33,4 +37,4 @@ import { LoggerModule } from './common/logger.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

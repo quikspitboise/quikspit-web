@@ -37,7 +37,7 @@ export class StripeWebhookController {
     } else {
       try {
         this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: '2023-10-16',
+          apiVersion: '2025-12-15.clover',
         });
         this.isStripeConfigured = true;
         this.logger.log('Stripe webhook controller initialized successfully');
@@ -96,6 +96,14 @@ export class StripeWebhookController {
           await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
           break;
 
+        case 'invoice.paid':
+          await this.handleInvoicePaid(event.data.object as Stripe.Invoice);
+          break;
+
+        case 'invoice.payment_failed':
+          await this.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+          break;
+
         default:
           this.logger.warn(`Unhandled webhook event type: ${event.type}`);
       }
@@ -113,7 +121,7 @@ export class StripeWebhookController {
    */
   private async handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     const bookingId = paymentIntent.metadata.bookingId;
-    
+
     this.logger.log('Payment succeeded', {
       paymentIntentId: paymentIntent.id,
       bookingId,
@@ -131,7 +139,7 @@ export class StripeWebhookController {
    */
   private async handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
     const bookingId = paymentIntent.metadata.bookingId;
-    
+
     this.logger.warn('Payment failed', {
       paymentIntentId: paymentIntent.id,
       bookingId,
@@ -149,7 +157,7 @@ export class StripeWebhookController {
    */
   private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
     const bookingId = session.metadata?.bookingId;
-    
+
     this.logger.log('Checkout session completed', {
       sessionId: session.id,
       bookingId,
@@ -159,5 +167,42 @@ export class StripeWebhookController {
     // TODO: Confirm booking and send confirmation
     // Example:
     // await this.bookingService.confirmBooking(bookingId);
+  }
+
+  /**
+   * Handle paid invoice
+   */
+  private async handleInvoicePaid(invoice: Stripe.Invoice) {
+    const bookingId = invoice.metadata?.bookingId;
+
+    this.logger.log('Invoice paid', {
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.number,
+      bookingId,
+      amountPaid: invoice.amount_paid,
+    });
+
+    // TODO: Update booking status to fully paid
+    // Example:
+    // await this.bookingService.updateBookingStatus(bookingId, 'paid');
+    // await this.emailService.sendPaymentConfirmation(bookingId);
+  }
+
+  /**
+   * Handle failed invoice payment
+   */
+  private async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+    const bookingId = invoice.metadata?.bookingId;
+
+    this.logger.warn('Invoice payment failed', {
+      invoiceId: invoice.id,
+      invoiceNumber: invoice.number,
+      bookingId,
+      amountDue: invoice.amount_due,
+    });
+
+    // TODO: Notify admin and customer about failed payment
+    // Example:
+    // await this.emailService.sendInvoicePaymentFailed(bookingId);
   }
 }

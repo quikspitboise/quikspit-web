@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navigation } from "@/components/navigation";
 import PageTransition from "@/components/page-transition";
 import ErrorBoundary from "@/components/error-boundary";
+import { Footer } from "@/components/footer";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://quikspitboise.com'),
@@ -60,11 +67,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: true,
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
 };
 
 export default function RootLayout({
@@ -110,6 +112,7 @@ export default function RootLayout({
             <PageTransition>
               {children}
             </PageTransition>
+            <Footer />
           </ErrorBoundary>
         </ThemeProvider>
       </body>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ComparisonSlider } from './comparison-slider'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { CldImage } from 'next-cloudinary'
 
 export type GalleryItem = {
   id: string
@@ -103,10 +104,12 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                 
                 {isSingle && (
                   <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                    <img
-                      src={item.imageUrl}
+                    <CldImage
+                      src={item.imageUrl!}
                       alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                 )}
@@ -237,11 +240,13 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                       initialPosition={50}
                     />
                   ) : activeItem.imageUrl ? (
-                    <div className="relative w-full overflow-hidden rounded-lg">
-                      <img
+                    <div className="relative w-full overflow-hidden rounded-lg aspect-[4/3]">
+                      <CldImage
                         src={activeItem.imageUrl}
                         alt={activeItem.title}
-                        className="w-full h-auto max-h-[70vh] object-contain"
+                        fill
+                        sizes="(max-width: 1280px) 100vw, 1280px"
+                        className="object-contain"
                       />
                     </div>
                   ) : null}

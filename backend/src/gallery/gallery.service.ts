@@ -5,30 +5,30 @@ export interface GalleryItemDto {
   title: string;
   description?: string;
   tags?: string[];
-  // For comparison images (before/after)
+  // For comparison images (before/after) - these are Cloudinary public IDs
   beforeUrl?: string;
   afterUrl?: string;
-  // For single images
+  // For single images - this is a Cloudinary public ID
   imageUrl?: string;
   createdAt: string;
 }
 
 @Injectable()
 export class GalleryService {
-  private readonly baseUrl: string;
-
-  constructor() {
-    // Use BASE_URL from env, fallback to Render public URL, fallback to localhost
-    const backendUrl =
-      process.env.BASE_URL ||
-      process.env.BACKEND_PUBLIC_URL ||
-      'https://quickspit.onrender.com';
-    this.baseUrl = backendUrl;
+  /**
+   * Generate a Cloudinary public ID for an image
+   * The frontend uses CldImage which constructs the full URL from the public ID
+   * @param name - The image name (e.g., 'vehicle1-before')
+   */
+  private publicId(name: string): string {
+    return `quikspit/gallery/${name}`;
   }
 
   async list(): Promise<GalleryItemDto[]> {
-    // Return public URLs for gallery images
-    const asset = (name: string) => `${this.baseUrl}/resources/gallery/${name}`;
+    // Return Cloudinary public IDs for gallery images
+    // The frontend CldImage component will construct the full URL
+    const asset = (name: string) => this.publicId(name);
+    
     return [
       // Comparison images (before/after)
       {
@@ -36,8 +36,8 @@ export class GalleryService {
         title: 'Exterior Detail',
         description: 'Full exterior restoration',
         tags: ['exterior', 'detailing', 'comparison'],
-        beforeUrl: asset('vehicle1-before.jpg'),
-        afterUrl: asset('vehicle1-after.jpg'),
+        beforeUrl: asset('vehicle1-before'),
+        afterUrl: asset('vehicle1-after'),
         createdAt: new Date().toISOString(),
       },
       {
@@ -45,8 +45,8 @@ export class GalleryService {
         title: 'Interior Refresh',
         description: 'Complete interior transformation',
         tags: ['interior', 'detailing', 'comparison'],
-        beforeUrl: asset('vehicle2-before.jpg'),
-        afterUrl: asset('vehicle2-after.jpg'),
+        beforeUrl: asset('vehicle2-before'),
+        afterUrl: asset('vehicle2-after'),
         createdAt: new Date().toISOString(),
       },
       // Single showcase images
@@ -54,63 +54,63 @@ export class GalleryService {
         id: 'showcase-1',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_1.jpg'),
+        imageUrl: asset('ex_1'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-2',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_2.jpg'),
+        imageUrl: asset('ex_2'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-3',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_3.jpg'),
+        imageUrl: asset('ex_3'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-4',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_4.jpg'),
+        imageUrl: asset('ex_4'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-5',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_5.jpg'),
+        imageUrl: asset('ex_5'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-6',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_6.jpg'),
+        imageUrl: asset('ex_6'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-7',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_7.jpg'),
+        imageUrl: asset('ex_7'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-8',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_8.jpg'),
+        imageUrl: asset('ex_8'),
         createdAt: new Date().toISOString(),
       },
       {
         id: 'showcase-9',
         title: 'Professional Detailing Results',
         tags: ['showcase'],
-        imageUrl: asset('ex_9.jpg'),
+        imageUrl: asset('ex_9'),
         createdAt: new Date().toISOString(),
       },
     ];

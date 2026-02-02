@@ -1,0 +1,66 @@
+{
+  "/resources/gallery/vehicle1-before.jpg": {
+    "publicId": "quickspit/gallery/vehicle1-before",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175024/quickspit/gallery/vehicle1-before.jpg"
+  },
+  "/resources/gallery/vehicle1-after.jpg": {
+    "publicId": "quickspit/gallery/vehicle1-after",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175025/quickspit/gallery/vehicle1-after.jpg"
+  },
+  "/resources/gallery/vehicle2-before.jpg": {
+    "publicId": "quickspit/gallery/vehicle2-before",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175027/quickspit/gallery/vehicle2-before.jpg"
+  },
+  "/resources/gallery/vehicle2-after.jpg": {
+    "publicId": "quickspit/gallery/vehicle2-after",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175028/quickspit/gallery/vehicle2-after.jpg"
+  },
+  "/resources/gallery/ex_1.jpg": {
+    "publicId": "quickspit/gallery/ex_1",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175029/quickspit/gallery/ex_1.jpg"
+  },
+  "/resources/gallery/ex_2.jpg": {
+    "publicId": "quickspit/gallery/ex_2",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175031/quickspit/gallery/ex_2.jpg"
+  },
+  "/resources/gallery/ex_3.jpg": {
+    "publicId": "quickspit/gallery/ex_3",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175032/quickspit/gallery/ex_3.jpg"
+  },
+  "/resources/gallery/ex_4.jpg": {
+    "publicId": "quickspit/gallery/ex_4",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175033/quickspit/gallery/ex_4.jpg"
+  },
+  "/resources/gallery/ex_5.jpg": {
+    "publicId": "quickspit/gallery/ex_5",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175034/quickspit/gallery/ex_5.jpg"
+  },
+  "/resources/gallery/ex_6.jpg": {
+    "publicId": "quickspit/gallery/ex_6",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175035/quickspit/gallery/ex_6.jpg"
+  },
+  "/resources/gallery/ex_7.jpg": {
+    "publicId": "quickspit/gallery/ex_7",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175036/quickspit/gallery/ex_7.jpg"
+  },
+  "/resources/gallery/ex_8.jpg": {
+    "publicId": "quickspit/gallery/ex_8",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175036/quickspit/gallery/ex_8.jpg"
+  },
+  "/resources/gallery/ex_9.jpg": {
+    "publicId": "quickspit/gallery/ex_9",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175037/quickspit/gallery/ex_9.jpg"
+  },
+  "/resources/gallery/owner.jpeg": {
+    "publicId": "quickspit/gallery/owner",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175039/quickspit/gallery/owner.jpg"
+  },
+  "/hero_fallback.jpg": {
+    "publicId": "quickspit/static/hero-fallback",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175039/quickspit/static/hero-fallback.jpg"
+  },
+  "/owner.jpeg": {
+    "publicId": "quickspit/static/owner",
+    "secureUrl": "https://res.cloudinary.com/dgpicy4uv/image/upload/v1768175040/quickspit/static/owner.jpg"
+  }
+}

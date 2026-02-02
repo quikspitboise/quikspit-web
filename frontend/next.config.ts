@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
   },
@@ -18,8 +20,12 @@ const nextConfig: NextConfig = {
         hostname: 'quickspit.onrender.com',
         pathname: '/resources/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
-    domains: ['quickspit.onrender.com'],
   },
 };
 

@@ -1,0 +1,310 @@
+#!/usr/bin/env node
+/**
+ * Cloudinary Migration Script
+ * 
+ * This script uploads existing local assets to Cloudinary with the following folder structure:
+ * - quikspit/gallery/ - Gallery images (before/after photos)
+ * - quikspit/static/ - Static assets (hero fallback, owner photo)
+ * - quikspit/uploads/ - User-uploaded content
+ * 
+ * Usage:
+ *   1. Set environment variables (or create .env file):
+ *      - CLOUDINARY_CLOUD_NAME
+ *      - CLOUDINARY_API_KEY
+ *      - CLOUDINARY_API_SECRET
+ *   
+ *   2. Run: npx ts-node scripts/migrate-to-cloudinary.ts
+ * 
+ * The script will output a mapping of local paths to Cloudinary public IDs
+ * that you can use to update your code.
+ */
+
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+interface UploadResult {
+  localPath: string;
+  publicId: string;
+  secureUrl: string;
+  folder: string;
+  success: boolean;
+  error?: string;
+}
+
+interface AssetMapping {
+  [localPath: string]: {
+    publicId: string;
+    secureUrl: string;
+  };
+}
+
+const BACKEND_GALLERY_PATH = path.join(__dirname, '../resources/gallery');
+const FRONTEND_PUBLIC_PATH = path.join(__dirname, '../../frontend/public');
+
+// Assets to migrate
+const GALLERY_ASSETS = [
+  'vehicle1-before.jpg',
+  'vehicle1-after.jpg',
+  'vehicle2-before.jpg',
+  'vehicle2-after.jpg',
+  'ex_1.jpg',
+  'ex_2.jpg',
+  'ex_3.jpg',
+  'ex_4.jpg',
+  'ex_5.jpg',
+  'ex_6.jpg',
+  'ex_7.jpg',
+  'ex_8.jpg',
+  'ex_9.jpg',
+  'owner.jpeg',
+];
+
+const STATIC_ASSETS = [
+  { file: 'hero_fallback.jpg', name: 'hero-fallback' },
+  { file: 'owner.jpeg', name: 'owner' },
+];
+
+async function uploadToCloudinary(
+  filePath: string,
+  folder: string,
+  publicId?: string,
+): Promise<UploadResult> {
+  const fileName = path.basename(filePath, path.extname(filePath));
+  const finalPublicId = publicId || fileName;
+
+  try {
+    if (!fs.existsSync(filePath)) {
+      return {
+        localPath: filePath,
+        publicId: '',
+        secureUrl: '',
+        folder,
+        success: false,
+        error: `File not found: ${filePath}`,
+      };
+    }
+
+    const result: UploadApiResponse = await cloudinary.uploader.upload(filePath, {
+      folder,
+      public_id: finalPublicId,
+      resource_type: 'auto',
+      overwrite: true,
+    });
+
+    console.log(`✅ Uploaded: ${filePath} -> ${result.public_id}`);
+
+    return {
+      localPath: filePath,
+      publicId: result.public_id,
+      secureUrl: result.secure_url,
+      folder,
+      success: true,
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`❌ Failed to upload ${filePath}: ${errorMessage}`);
+
+    return {
+      localPath: filePath,
+      publicId: '',
+      secureUrl: '',
+      folder,
+      success: false,
+      error: errorMessage,
+    };
+  }
+}
+
+async function migrateGalleryAssets(): Promise<UploadResult[]> {
+  console.log('\n📁 Migrating gallery assets...\n');
+  
+  const results: UploadResult[] = [];
+
+  for (const asset of GALLERY_ASSETS) {
+    const filePath = path.join(BACKEND_GALLERY_PATH, asset);
+    const publicId = path.basename(asset, path.extname(asset));
+    const result = await uploadToCloudinary(filePath, 'quikspit/gallery', publicId);
+    results.push(result);
+  }
+
+  return results;
+}
+
+async function migrateStaticAssets(): Promise<UploadResult[]> {
+  console.log('\n📁 Migrating static assets...\n');
+  
+  const results: UploadResult[] = [];
+
+  for (const asset of STATIC_ASSETS) {
+    const filePath = path.join(FRONTEND_PUBLIC_PATH, asset.file);
+    const result = await uploadToCloudinary(filePath, 'quikspit/static', asset.name);
+    results.push(result);
+  }
+
+  return results;
+}
+
+function generateMappingFile(results: UploadResult[]): void {
+  const mapping: AssetMapping = {};
+  
+  for (const result of results) {
+    if (result.success) {
+      const relativePath = result.localPath.includes('resources/gallery')
+        ? `/resources/gallery/${path.basename(result.localPath)}`
+        : `/${path.basename(result.localPath)}`;
+      
+      mapping[relativePath] = {
+        publicId: result.publicId,
+        secureUrl: result.secureUrl,
+      };
+    }
+  }
+
+  const outputPath = path.join(__dirname, 'cloudinary-mapping.json');
+  fs.writeFileSync(outputPath, JSON.stringify(mapping, null, 2));
+  console.log(`\n📄 Mapping file saved to: ${outputPath}`);
+}
+
+function generateTypeScriptConstants(results: UploadResult[]): void {
+  const galleryResults = results.filter(r => r.success && r.folder === 'quikspit/gallery');
+  const staticResults = results.filter(r => r.success && r.folder === 'quikspit/static');
+
+  let output = `/**
+ * Cloudinary Asset Public IDs
+ * Auto-generated by migrate-to-cloudinary.ts
+ * 
+ * Usage:
+ *   import { CLOUDINARY_ASSETS } from './cloudinary-assets';
+ *   
+ *   // In component:
+ *   <CldImage src={CLOUDINARY_ASSETS.gallery.vehicle1Before} ... />
+ */
+
+export const CLOUDINARY_CLOUD_NAME = '${process.env.CLOUDINARY_CLOUD_NAME}';
+
+export const CLOUDINARY_ASSETS = {
+  gallery: {
+`;
+
+  for (const result of galleryResults) {
+    const name = path.basename(result.publicId)
+      .replace(/-/g, '')
+      .replace(/_/g, '')
+      .replace(/(\d+)/g, '$1')
+      .replace(/before/gi, 'Before')
+      .replace(/after/gi, 'After')
+      .replace(/^ex/, 'example');
+    
+    const camelName = name.charAt(0).toLowerCase() + name.slice(1);
+    output += `    ${camelName}: '${result.publicId}',\n`;
+  }
+
+  output += `  },
+  static: {
+`;
+
+  for (const result of staticResults) {
+    const name = path.basename(result.publicId)
+      .replace(/-/g, '')
+      .replace(/_/g, '');
+    
+    const camelName = name.charAt(0).toLowerCase() + name.slice(1);
+    output += `    ${camelName}: '${result.publicId}',\n`;
+  }
+
+  output += `  },
+} as const;
+
+// Helper to generate Cloudinary URLs
+export function cloudinaryUrl(publicId: string, options?: {
+  width?: number;
+  height?: number;
+  crop?: string;
+  quality?: string;
+  format?: string;
+}): string {
+  const { width, height, crop = 'fill', quality = 'auto', format = 'auto' } = options || {};
+  
+  const transformations: string[] = [];
+  if (width) transformations.push(\`w_\${width}\`);
+  if (height) transformations.push(\`h_\${height}\`);
+  if (crop) transformations.push(\`c_\${crop}\`);
+  if (quality) transformations.push(\`q_\${quality}\`);
+  if (format) transformations.push(\`f_\${format}\`);
+  
+  const transformString = transformations.length > 0 ? transformations.join(',') + '/' : '';
+  
+  return \`https://res.cloudinary.com/\${CLOUDINARY_CLOUD_NAME}/image/upload/\${transformString}\${publicId}\`;
+}
+`;
+
+  const outputPath = path.join(__dirname, 'cloudinary-assets.ts');
+  fs.writeFileSync(outputPath, output);
+  console.log(`📄 TypeScript constants saved to: ${outputPath}`);
+}
+
+async function main(): Promise<void> {
+  console.log('🚀 Starting Cloudinary Migration\n');
+  console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
+  console.log('='.repeat(50));
+
+  // Validate configuration
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error('\n❌ Missing Cloudinary configuration!');
+    console.error('Please set the following environment variables:');
+    console.error('  - CLOUDINARY_CLOUD_NAME');
+    console.error('  - CLOUDINARY_API_KEY');
+    console.error('  - CLOUDINARY_API_SECRET');
+    process.exit(1);
+  }
+
+  const allResults: UploadResult[] = [];
+
+  // Migrate gallery assets
+  const galleryResults = await migrateGalleryAssets();
+  allResults.push(...galleryResults);
+
+  // Migrate static assets
+  const staticResults = await migrateStaticAssets();
+  allResults.push(...staticResults);
+
+  // Generate output files
+  console.log('\n' + '='.repeat(50));
+  console.log('📊 Migration Summary\n');
+
+  const successful = allResults.filter(r => r.success);
+  const failed = allResults.filter(r => !r.success);
+
+  console.log(`✅ Successful: ${successful.length}`);
+  console.log(`❌ Failed: ${failed.length}`);
+
+  if (failed.length > 0) {
+    console.log('\nFailed uploads:');
+    for (const result of failed) {
+      console.log(`  - ${result.localPath}: ${result.error}`);
+    }
+  }
+
+  generateMappingFile(allResults);
+  generateTypeScriptConstants(allResults);
+
+  console.log('\n✨ Migration complete!\n');
+  console.log('Next steps:');
+  console.log('1. Review the generated cloudinary-assets.ts file');
+  console.log('2. Update your frontend components to use CldImage with the public IDs');
+  console.log('3. Update backend gallery service to return Cloudinary URLs');
+}
+
+main().catch(console.error);

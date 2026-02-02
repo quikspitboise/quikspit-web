@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as express from 'express';
+import express from 'express';
 import { join } from 'path';
 import helmet from 'helmet';
-import * as cookieParser from 'cookie-parser';
-import * as csurf from 'csurf';
+import cookieParser from 'cookie-parser';
+import { doubleCsrf } from 'csrf-csrf';
 import { LoggerService } from './common/logger.service';
 
 async function bootstrap() {
@@ -72,23 +72,41 @@ async function bootstrap() {
   // Enable cookie parser for CSRF (must come before CSRF middleware)
   app.use(cookieParser());
   
-  // CSRF Protection for POST/PUT/PATCH/DELETE requests
-  // Note: GET requests and requests with valid CSRF tokens will pass through
-  const csrfProtection = csurf({
-    cookie: {
+  // CSRF Protection using csrf-csrf (modern replacement for deprecated csurf)
+  const {
+    generateCsrfToken, // Used to generate a CSRF token
+    doubleCsrfProtection, // Middleware to validate CSRF tokens
+  } = doubleCsrf({
+    getSecret: () => process.env.CSRF_SECRET || 'default-csrf-secret-change-in-production',
+    cookieName: '_csrf',
+    cookieOptions: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      path: '/',
+    },
+    size: 64, // Token size
+    ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
+    getSessionIdentifier: (req) => {
+      // Use session ID or a default identifier
+      // In a real app, this should be from a session store
+      return req.cookies?.sessionId || 'anonymous';
     },
   });
   
   // Apply CSRF protection conditionally (skip for development convenience)
   if (process.env.ENABLE_CSRF === 'true') {
-    app.use(csrfProtection);
+    app.use(doubleCsrfProtection);
     logger.log('CSRF Protection enabled');
   } else {
     logger.warn('CSRF Protection is DISABLED - enable in production with ENABLE_CSRF=true');
   }
+  
+  // Store generateCsrfToken function in app locals for use in controllers
+  app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    req.app.locals.generateCsrfToken = generateCsrfToken;
+    next();
+  });
   
   // Enable CORS for frontend communication (environment-based)
   const allowedOrigins = process.env.ALLOWED_ORIGINS
