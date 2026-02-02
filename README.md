@@ -168,9 +168,3 @@ Dark theme with red accents — see [`.github/copilot-instructions.md`](.github/
 2. Make changes
 3. Test thoroughly
 4. Submit a pull request
-
----
-
-## License
-
-Private and proprietary.
