@@ -15,7 +15,7 @@ QuikSpit is a full-stack web application for auto detailing services:
 |-------------|---------------|---------|
 | Cloudinary | [docs/CLOUDINARY.md](docs/CLOUDINARY.md) | Image/video hosting |
 | Cal.com | [docs/CAL_COM.md](docs/CAL_COM.md) | Appointment scheduling |
-| Stripe | Via Cal.com | Payment processing |
+| Stripe | [docs/STRIPE_INVOICING.md](docs/STRIPE_INVOICING.md) | Invoicing & payments |
 
 ## Code Conventions
 
