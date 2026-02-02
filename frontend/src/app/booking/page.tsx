@@ -47,7 +47,7 @@ const sizeAdjustments = [
 ]
 
 const addons = [
-  { name: 'Headlight Restoration', price: 60, description: 'Crystal clear headlights' },
+  { name: 'Headlight Restoration', price: 65, description: 'Crystal clear headlights' },
   { name: 'Bio Clean', price: 60, description: 'Cleaning any bodily fluids' },
   { name: 'Engine Bay Cleaning', price: 50, description: 'Spotless engine compartment' },
   { name: 'Pet Hair Removal', price: 35, description: 'Deep extraction of embedded pet hair' },
@@ -55,7 +55,7 @@ const addons = [
 ]
 
 const ceramicServices = [
-  { id: 'graphene-coating', name: '5-7 Year Graphene Ceramic Coating', price: 400, description: 'A deep, mirror-like shine that lasts years, not weeks.', note: 'While not required, a 1-step paint correction is strongly recommended for the best results of a ceramic coating.' },
+  { id: 'graphene-coating', name: '5-7 Year Graphene Ceramic Coating', price: 850, description: 'A deep, mirror-like shine that lasts years, not weeks. Includes 1-step paint correction.', note: 'Want even more perfection? Upgrade to 2-step paint correction below.' },
   { id: 'paint-correction-1', name: '1-Step Paint Correction & Polish', price: 450, description: 'Years of swirls and scratches erased in a single session.' },
   { id: 'paint-correction-2', name: '2-Step Paint Correction', price: 650, description: 'Maximum defect removal with multi-stage compounding and polishing for a flawless finish.' },
 ]

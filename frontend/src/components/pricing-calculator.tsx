@@ -103,20 +103,33 @@ export function PricingCalculator({
         return total
     }, [selectedAddons, addons])
 
+    // Calculate upgrade price for 2-step when ceramic is selected (difference between 2-step and 1-step)
+    const paintCorrectionUpgradePrice = useMemo(() => {
+        const step1 = ceramicServices.find((s) => s.id === 'paint-correction-1')
+        const step2 = ceramicServices.find((s) => s.id === 'paint-correction-2')
+        if (step1 && step2) return step2.price - step1.price
+        return 200 // fallback
+    }, [ceramicServices])
+
     const ceramicTotal = useMemo(() => {
         let total = 0
-        // Ceramic coating
+        // Ceramic coating (includes 1-step paint correction)
         if (ceramicCoatingSelected) {
             const coating = ceramicServices.find((s) => s.id === 'graphene-coating')
             if (coating) total += coating.price
-        }
-        // Paint correction (mutually exclusive)
-        if (selectedPaintCorrection) {
-            const correction = ceramicServices.find((s) => s.id === selectedPaintCorrection)
-            if (correction) total += correction.price
+            // If 2-step upgrade is selected with ceramic, add only the upgrade difference
+            if (selectedPaintCorrection === 'paint-correction-2-upgrade') {
+                total += paintCorrectionUpgradePrice
+            }
+        } else {
+            // Without ceramic coating, paint correction is full price
+            if (selectedPaintCorrection && selectedPaintCorrection !== 'paint-correction-2-upgrade') {
+                const correction = ceramicServices.find((s) => s.id === selectedPaintCorrection)
+                if (correction) total += correction.price
+            }
         }
         return total
-    }, [ceramicCoatingSelected, selectedPaintCorrection, ceramicServices])
+    }, [ceramicCoatingSelected, selectedPaintCorrection, ceramicServices, paintCorrectionUpgradePrice])
 
     const grandTotal = packagePrice + addonsTotal + ceramicTotal
 
@@ -370,41 +383,94 @@ export function PricingCalculator({
                             </label>
                         ))}
 
-                        {/* Paint Correction - Radio Group (mutually exclusive) */}
+                        {/* Paint Correction - Changes based on ceramic coating selection */}
                         <div className="border-t border-neutral-700 pt-4">
-                            <p className="text-neutral-400 text-sm mb-3">Paint Correction <span className="text-neutral-500">(choose one)</span></p>
-                            <div className="space-y-3">
-                                {ceramicServices.filter(s => s.id.startsWith('paint-correction')).map((service) => {
-                                    const active = selectedPaintCorrection === service.id
-                                    return (
-                                        <label
-                                            key={service.id}
-                                            className={`block cursor-pointer select-none p-4 rounded-lg border transition-all duration-200 ${!ceramicEnabled
-                                                ? 'cursor-not-allowed bg-neutral-800/30 border-neutral-700'
-                                                : active
-                                                    ? 'bg-red-600/10 border-red-600'
-                                                    : 'bg-neutral-800/50 border-neutral-600 hover:border-red-600/50'
-                                                }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="paintCorrection"
-                                                className="sr-only"
-                                                checked={active}
-                                                disabled={!ceramicEnabled}
-                                                onChange={() => selectPaintCorrection(service.id)}
-                                            />
-                                            <div className="flex items-start justify-between mb-1">
-                                                <span className={`font-medium ${ceramicEnabled && active ? 'text-white' : 'text-neutral-300'}`}>
-                                                    {service.name}
-                                                </span>
-                                                <span className="text-red-500 font-display">+${service.price}</span>
-                                            </div>
-                                            <p className="text-neutral-400 text-sm">{service.description}</p>
-                                        </label>
-                                    )
-                                })}
-                            </div>
+                            {ceramicCoatingSelected ? (
+                                /* When ceramic is selected: show upgrade to 2-step option */
+                                <>
+                                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
+                                        <p className="text-green-400 text-sm">
+                                            ✓ <strong>1-Step Paint Correction included</strong> with your ceramic coating selection.
+                                        </p>
+                                    </div>
+                                    <p className="text-neutral-400 text-sm mb-3">Want more? <span className="text-neutral-500">(optional upgrade)</span></p>
+                                    <div className="space-y-3">
+                                        {(() => {
+                                            const active = selectedPaintCorrection === 'paint-correction-2-upgrade'
+                                            return (
+                                                <label
+                                                    className={`block cursor-pointer select-none p-4 rounded-lg border transition-all duration-200 ${active
+                                                        ? 'bg-red-600/10 border-red-600'
+                                                        : 'bg-neutral-800/50 border-neutral-600 hover:border-red-600/50'
+                                                        }`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="paintCorrection"
+                                                        className="sr-only"
+                                                        checked={active}
+                                                        onClick={() => {
+                                                            if (active) selectPaintCorrection('paint-correction-2-upgrade')
+                                                        }}
+                                                        onChange={() => {
+                                                            if (!active) selectPaintCorrection('paint-correction-2-upgrade')
+                                                        }}
+                                                    />
+                                                    <div className="flex items-start justify-between mb-1">
+                                                        <span className={`font-medium ${active ? 'text-white' : 'text-neutral-300'}`}>
+                                                            Upgrade to 2-Step Paint Correction
+                                                        </span>
+                                                        <span className="text-red-500 font-display">+${paintCorrectionUpgradePrice}</span>
+                                                    </div>
+                                                    <p className="text-neutral-400 text-sm">Maximum defect removal with multi-stage compounding and polishing for a flawless finish.</p>
+                                                </label>
+                                            )
+                                        })()}
+                                    </div>
+                                </>
+                            ) : (
+                                /* When ceramic is NOT selected: show both paint correction options */
+                                <>
+                                    <p className="text-neutral-400 text-sm mb-3">Paint Correction <span className="text-neutral-500">(choose one)</span></p>
+                                    <div className="space-y-3">
+                                        {ceramicServices.filter(s => s.id.startsWith('paint-correction')).map((service) => {
+                                            const active = selectedPaintCorrection === service.id
+                                            return (
+                                                <label
+                                                    key={service.id}
+                                                    className={`block cursor-pointer select-none p-4 rounded-lg border transition-all duration-200 ${!ceramicEnabled
+                                                        ? 'cursor-not-allowed bg-neutral-800/30 border-neutral-700'
+                                                        : active
+                                                            ? 'bg-red-600/10 border-red-600'
+                                                            : 'bg-neutral-800/50 border-neutral-600 hover:border-red-600/50'
+                                                        }`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="paintCorrection"
+                                                        className="sr-only"
+                                                        checked={active}
+                                                        disabled={!ceramicEnabled}
+                                                        onClick={() => {
+                                                            if (active) selectPaintCorrection(service.id)
+                                                        }}
+                                                        onChange={() => {
+                                                            if (!active) selectPaintCorrection(service.id)
+                                                        }}
+                                                    />
+                                                    <div className="flex items-start justify-between mb-1">
+                                                        <span className={`font-medium ${ceramicEnabled && active ? 'text-white' : 'text-neutral-300'}`}>
+                                                            {service.name}
+                                                        </span>
+                                                        <span className="text-red-500 font-display">+${service.price}</span>
+                                                    </div>
+                                                    <p className="text-neutral-400 text-sm">{service.description}</p>
+                                                </label>
+                                            )
+                                        })}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </GlassCard>
