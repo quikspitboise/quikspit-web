@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PostHogProvider } from "@/components/posthog-provider";
 import { Navigation } from "@/components/navigation";
 import PageTransition from "@/components/page-transition";
 import ErrorBoundary from "@/components/error-boundary";
@@ -103,18 +104,20 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <ThemeProvider
-          defaultTheme="system"
-          storageKey="quickspit-theme"
-        >
-          <ErrorBoundary>
-            <Navigation />
-            <PageTransition>
-              {children}
-            </PageTransition>
-            <Footer />
-          </ErrorBoundary>
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider
+            defaultTheme="system"
+            storageKey="quickspit-theme"
+          >
+            <ErrorBoundary>
+              <Navigation />
+              <PageTransition>
+                {children}
+              </PageTransition>
+              <Footer />
+            </ErrorBoundary>
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
