@@ -1,0 +1,70 @@
+# Dependabot configuration
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # Root workspace (pnpm)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+  # Frontend – Next.js / React (pnpm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      next:
+        patterns:
+          - "next"
+          - "next-*"
+          - "eslint-config-next"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      lint-format:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript"
+
+  # Backend – NestJS / TypeORM (npm)
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+      testing:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "ts-jest"
+          - "supertest"
+          - "@types/supertest"
+      lint-format:
+        patterns:
+          - "eslint"
+          - "@typescript-eslint/*"
+          - "prettier"
+          - "eslint-*"
+      types:
+        patterns:
+          - "@types/*"
+        exclude-patterns:
+          - "@types/jest"
+          - "@types/supertest"
+          - "@types/react"
+          - "@types/react-dom"
