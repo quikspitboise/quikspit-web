@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",
-    "framer-motion": "^12.34.0",
+    "framer-motion": "^12.34.3",
     "next": "^16.1.6",
     "next-cloudinary": "^6.17.5",
     "posthog-js": "^1.347.2",
