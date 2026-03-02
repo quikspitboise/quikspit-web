@@ -36,7 +36,7 @@
     "dotenv": "^17.3.1",
     "file-type": "^21.3.0",
     "helmet": "^8.1.0",
-    "libphonenumber-js": "^1.12.36",
+    "libphonenumber-js": "^1.12.38",
     "multer": "^2.0.2",
     "nest-winston": "^1.10.2",
     "nodemailer": "^8.0.1",
