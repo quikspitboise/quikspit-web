@@ -42,7 +42,7 @@ export function Navigation() {
       
       <motion.nav 
         className={`
-          fixed top-0 left-0 right-0 z-50
+          fixed top-0 left-0 right-0 z-50 pt-[var(--nav-safe-offset)]
           transition-all duration-500 ease-out
           bg-[#080808] border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
@@ -76,8 +76,7 @@ export function Navigation() {
         />
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-end h-[var(--nav-total-height)]">
-            <div className="flex w-full items-center justify-between h-[var(--nav-bar-height)]">
+          <div className="relative flex items-center justify-between h-[var(--nav-bar-height)]">
             {/* Logo */}
             <Link
               href="/"
@@ -182,7 +181,6 @@ export function Navigation() {
                 />
               </div>
             </motion.button>
-            </div>
           </div>
         </div>
 
