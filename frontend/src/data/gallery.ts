@@ -3,6 +3,10 @@ import { GalleryItem } from '@/components/gallery-grid';
 /**
  * Static gallery items with Cloudinary public IDs
  * Images are served directly from Cloudinary CDN - no backend needed
+ *
+ * The `category` field drives the filter tabs on the gallery page.
+ * Adding items with a new category string will automatically create
+ * a new filter tab — no code changes required.
  */
 export const GALLERY_ITEMS: GalleryItem[] = [
   // Comparison images (before/after)
@@ -10,6 +14,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     id: 'detail-1',
     title: 'Exterior Detail',
     description: 'Full exterior restoration',
+    category: 'comparison',
     beforeUrl: 'quikspit/gallery/vehicle1-before',
     afterUrl: 'quikspit/gallery/vehicle1-after',
   },
@@ -17,6 +22,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     id: 'detail-2',
     title: 'Interior Refresh',
     description: 'Complete interior transformation',
+    category: 'comparison',
     beforeUrl: 'quikspit/gallery/vehicle2-before',
     afterUrl: 'quikspit/gallery/vehicle2-after',
   },
@@ -24,46 +30,55 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 'showcase-1',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_1',
   },
   {
     id: 'showcase-2',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_2',
   },
   {
     id: 'showcase-3',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_3',
   },
   {
     id: 'showcase-4',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_4',
   },
   {
     id: 'showcase-5',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_5',
   },
   {
     id: 'showcase-6',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_6',
   },
   {
     id: 'showcase-7',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_7',
   },
   {
     id: 'showcase-8',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_8',
   },
   {
     id: 'showcase-9',
     title: 'Professional Detailing Results',
+    category: 'exterior',
     imageUrl: 'quikspit/gallery/ex_9',
   },
 ];

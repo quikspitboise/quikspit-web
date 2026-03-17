@@ -9,6 +9,7 @@ export type GalleryItem = {
   id: string
   title: string
   description?: string
+  category?: string
   // For comparison images (before/after)
   beforeUrl?: string
   afterUrl?: string
@@ -20,28 +21,177 @@ type GalleryGridProps = {
   items: GalleryItem[]
 }
 
+/* ─── Filter Tab ─────────────────────────────────────────────── */
+function FilterTab({
+  label,
+  active,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  const prefersReducedMotion = useReducedMotion()
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      className={`filter-tab ${active ? 'filter-tab--active' : ''}`}
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.96 }}
+      aria-pressed={active}
+    >
+      {label}
+    </motion.button>
+  )
+}
+
+/* ─── Gallery Card ───────────────────────────────────────────── */
+function GalleryCard({
+  item,
+  index,
+  onOpen,
+}: {
+  item: GalleryItem
+  index: number
+  onOpen: (idx: number) => void
+}) {
+  const prefersReducedMotion = useReducedMotion()
+  const isComparison = !!(item.beforeUrl && item.afterUrl)
+
+  return (
+    <motion.div
+      layout={!prefersReducedMotion}
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className="gallery-card break-inside-avoid mb-5"
+    >
+      <div
+        className="group relative overflow-hidden rounded-2xl border border-white/6 bg-neutral-900/60 backdrop-blur-sm cursor-pointer"
+        onClick={() => onOpen(index)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onOpen(index)
+          }
+        }}
+        aria-label={`View ${item.title}`}
+      >
+        {/* Image / Comparison */}
+        {isComparison ? (
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <ComparisonSlider
+              beforeUrl={item.beforeUrl!}
+              afterUrl={item.afterUrl!}
+              altBefore={`${item.title} - before detailing`}
+              altAfter={`${item.title} - after detailing`}
+            />
+            {/* Badge */}
+            <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-red-600/90 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white tracking-wide uppercase shadow-lg">
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 014-4h14" />
+                <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 01-4 4H3" />
+              </svg>
+              Before &amp; After
+            </span>
+            {/* Clickable overlay for lightbox on comparison cards */}
+            <button
+              type="button"
+              className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-medium py-2 px-3 rounded-lg transition-all"
+              onClick={(e) => { e.stopPropagation(); onOpen(index) }}
+              aria-label={`Enlarge ${item.title}`}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" />
+                <line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
+              </svg>
+              Expand
+            </button>
+          </div>
+        ) : item.imageUrl ? (
+          <>
+            <div className="relative aspect-4/3 overflow-hidden">
+              <CldImage
+                src={item.imageUrl}
+                alt={item.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
+            </div>
+            {/* Hover overlay */}
+            <div className="gallery-card__overlay">
+              <span className="text-white font-semibold text-sm leading-snug drop-shadow-lg">{item.title}</span>
+              <span className="inline-flex items-center gap-1 text-white/70 text-xs mt-1">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+                View
+              </span>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </motion.div>
+  )
+}
+
+/* ─── Main Gallery Grid ──────────────────────────────────────── */
 export function GalleryGrid({ items }: GalleryGridProps) {
+  const [activeCategory, setActiveCategory] = useState<string>('all')
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const activeItem = useMemo(() => (activeIndex == null ? null : items[activeIndex]), [activeIndex, items])
-  const closeBtnRef = useRef<HTMLButtonElement | null>(null)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+  const zoomContainerRef = useRef<HTMLDivElement | null>(null)
   const touchStartXRef = useRef<number | null>(null)
   const touchDeltaXRef = useRef<number>(0)
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
-  const onOpen = useCallback((index: number) => setActiveIndex(index), [])
-  const onClose = useCallback(() => setActiveIndex(null), [])
+  // Build categories dynamically from data
+  const categories = useMemo(() => {
+    const cats = new Set<string>()
+    items.forEach((item) => {
+      if (item.category) cats.add(item.category)
+      else if (item.beforeUrl && item.afterUrl) cats.add('comparison')
+      else cats.add('showcase')
+    })
+    return ['all', ...Array.from(cats)]
+  }, [items])
 
-  // Close on ESC
+  // Filtered items
+  const filteredItems = useMemo(() => {
+    if (activeCategory === 'all') return items
+    return items.filter((item) => {
+      const cat = item.category || (item.beforeUrl && item.afterUrl ? 'comparison' : 'showcase')
+      return cat === activeCategory
+    })
+  }, [items, activeCategory])
+
+  // Active item for lightbox — index is relative to filtered list
+  const activeItem = useMemo(
+    () => (activeIndex == null ? null : filteredItems[activeIndex]),
+    [activeIndex, filteredItems],
+  )
+
+  const onOpen = useCallback((idx: number) => { setActiveIndex(idx); setIsZoomed(false) }, [])
+  const onClose = useCallback(() => { setActiveIndex(null); setIsZoomed(false) }, [])
+
+  // Keyboard nav for lightbox
   useEffect(() => {
     if (activeIndex == null) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowRight') setActiveIndex((i) => (i == null ? i : Math.min(items.length - 1, i + 1)))
-      if (e.key === 'ArrowLeft') setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1)))
+      if (e.key === 'Escape') { if (isZoomed) { setIsZoomed(false); return } onClose() }
+      if (e.key === 'ArrowRight') { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1))) }
+      if (e.key === 'ArrowLeft') { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1))) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [activeIndex, items.length, onClose])
+  }, [activeIndex, filteredItems.length, onClose])
 
   // Focus close button when modal opens
   useEffect(() => {
@@ -62,91 +212,56 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
+  // Pretty-print the category label
+  const labelFor = (cat: string) => {
+    if (cat === 'all') return 'All'
+    if (cat === 'comparison') return 'Before & After'
+    return cat.charAt(0).toUpperCase() + cat.slice(1)
+  }
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {items.map((item, idx) => {
-          const isComparison = item.beforeUrl && item.afterUrl
-          const isSingle = item.imageUrl
-          
-          return (
-            <div key={item.id} className="bg-brand-charcoal-light p-6 rounded-xl shadow-lg border border-neutral-600 group">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-white font-semibold">{item.title}</h3>
-                {item.description ? (
-                  <span className="text-neutral-300 text-sm">{item.description}</span>
-                ) : isComparison ? (
-                  <span className="text-neutral-300 text-sm">Before / After</span>
-                ) : null}
-              </div>
-
-              <div
-                className="relative"
-                onDoubleClick={() => onOpen(idx)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    onOpen(idx)
-                  }
-                }}
-                title="Double-click to view larger"
-              >
-                {isComparison && (
-                  <ComparisonSlider
-                    beforeUrl={item.beforeUrl!}
-                    afterUrl={item.afterUrl!}
-                    altBefore={`${item.title} - before detailing`}
-                    altAfter={`${item.title} - after detailing`}
-                  />
-                )}
-                
-                {isSingle && (
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                    <CldImage
-                      src={item.imageUrl!}
-                      alt={item.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                )}
-
-                {/* Hover affordance to open lightbox */}
-                <motion.button
-                  type="button"
-                  onClick={() => onOpen(idx)}
-                  className="absolute top-3 right-3 inline-flex items-center gap-2 bg-red-600/90 hover:bg-red-700 text-white text-sm font-semibold py-3 px-4 rounded-lg shadow-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light min-h-[44px] min-w-[44px]"
-                  aria-label={`Enlarge ${item.title}`}
-                  whileTap={{ scale: prefersReducedMotion ? 1 : 0.96 }}
-                  whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <span className="hidden sm:inline">View</span>
-                </motion.button>
-              </div>
-            </div>
-          )
-        })}
+      {/* Filter Bar */}
+      <div className="flex flex-wrap justify-center gap-2 mb-10">
+        {categories.map((cat) => (
+          <FilterTab
+            key={cat}
+            label={labelFor(cat)}
+            active={activeCategory === cat}
+            onClick={() => { setActiveCategory(cat); setActiveIndex(null) }}
+          />
+        ))}
       </div>
 
-      {/* Lightbox modal */}
+      {/* Masonry Grid */}
+      <motion.div
+        className="gallery-masonry"
+        layout={!prefersReducedMotion}
+      >
+        <AnimatePresence mode="popLayout">
+          {filteredItems.map((item, idx) => (
+            <GalleryCard key={item.id} item={item} index={idx} onOpen={onOpen} />
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Counter */}
+      <div className="text-center mt-8 text-neutral-500 text-sm tracking-wide">
+        {filteredItems.length} {filteredItems.length === 1 ? 'photo' : 'photos'}
+      </div>
+
+      {/* ─── Lightbox Modal ─────────────────────────────────────── */}
       {mounted && createPortal(
         <AnimatePresence>
           {activeItem && (
             <motion.div
               key="lightbox-root"
-              className="fixed inset-0 z-[9999] flex items-center justify-center"
+              className="fixed inset-0 z-9999 flex items-center justify-center"
               role="dialog"
               aria-modal="true"
-              aria-label={`${activeItem.title} enlarged comparison`}
+              aria-label={`${activeItem.title} enlarged view`}
               initial={prefersReducedMotion ? false : { opacity: 0 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1 }}
+              animate={{ opacity: 1 }}
               exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
             >
               {/* Backdrop */}
@@ -154,25 +269,25 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                 key="backdrop"
                 type="button"
                 aria-label="Close"
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+                className="fixed inset-0 bg-black/85 backdrop-blur-md"
                 onClick={onClose}
                 initial={prefersReducedMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
               />
 
               {/* Dialog content */}
               <motion.div
                 key="dialog"
-                className="relative z-[1] w-full max-w-5xl mx-4 sm:mx-6 bg-brand-charcoal-light border border-neutral-600 rounded-xl shadow-2xl p-4 sm:p-6"
-                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.98, y: 12 }}
+                className="relative z-1 w-full max-w-[95vw] max-h-[92vh] mx-2 sm:mx-4 bg-neutral-900/95 backdrop-blur-xl border border-white/8 rounded-2xl shadow-2xl shadow-black/60 p-3 sm:p-5 flex flex-col"
+                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.97, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98, y: 12 }}
+                exit={{ opacity: 0, scale: 0.97, y: 16 }}
                 transition={
                   prefersReducedMotion
                     ? { duration: 0 }
-                    : { type: 'spring', stiffness: 260, damping: 22, mass: 0.6 }
+                    : { type: 'spring', stiffness: 300, damping: 26, mass: 0.5 }
                 }
                 onTouchStart={(e) => {
                   touchStartXRef.current = e.changedTouches[0].clientX
@@ -186,68 +301,114 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                   const delta = touchDeltaXRef.current
                   const threshold = 60
                   if (Math.abs(delta) > threshold) {
-                    if (delta < 0) setActiveIndex((i) => (i == null ? i : Math.min(items.length - 1, i + 1)))
+                    setIsZoomed(false)
+                    if (delta < 0) setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1)))
                     else setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1)))
                   }
                   touchStartXRef.current = null
                   touchDeltaXRef.current = 0
                 }}
               >
+                {/* Header */}
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white text-lg font-semibold">{activeItem.title}</h3>
+                  <div>
+                    <h3 className="text-white text-lg font-semibold">{activeItem.title}</h3>
+                    <span className="text-neutral-500 text-sm">
+                      {activeIndex! + 1} / {filteredItems.length}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <motion.button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-lg border border-neutral-600 text-neutral-300 hover:text-white hover:border-red-600 hover:bg-red-600/10 transition-all focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light"
+                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
                       onClick={() => setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1)))}
                       aria-label="Previous"
-                      whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
+                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <polyline points="15 18 9 12 15 6"></polyline>
+                        <polyline points="15 18 9 12 15 6" />
                       </svg>
                     </motion.button>
                     <motion.button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-lg border border-neutral-600 text-neutral-300 hover:text-white hover:border-red-600 hover:bg-red-600/10 transition-all focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light"
-                      onClick={() => setActiveIndex((i) => (i == null ? i : Math.min(items.length - 1, i + 1)))}
+                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
+                      onClick={() => setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1)))}
                       aria-label="Next"
-                      whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
+                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <polyline points="9 18 15 12 9 6"></polyline>
+                        <polyline points="9 18 15 12 9 6" />
                       </svg>
                     </motion.button>
                     <motion.button
                       ref={closeBtnRef}
                       type="button"
                       onClick={onClose}
-                      className="inline-flex items-center justify-center h-10 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-all focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light"
-                      whileTap={{ scale: prefersReducedMotion ? 1 : 0.96 }}
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/10 hover:bg-red-600 text-white transition-all"
+                      aria-label="Close"
+                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
                     >
-                      Close
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </motion.button>
                   </div>
                 </div>
 
-                <div className="relative">
+                {/* Image */}
+                <div className="relative flex-1 min-h-0 flex items-center justify-center">
                   {activeItem.beforeUrl && activeItem.afterUrl ? (
-                    <ComparisonSlider
-                      beforeUrl={activeItem.beforeUrl}
-                      afterUrl={activeItem.afterUrl}
-                      altBefore={`${activeItem.title} - before detailing`}
-                      altAfter={`${activeItem.title} - after detailing`}
-                      initialPosition={50}
-                    />
+                    <div 
+                      className="w-full"
+                      style={{
+                        maxHeight: 'calc(92vh - 10rem)',
+                        maxWidth: 'calc((92vh - 10rem) * 1.6)'
+                      }}
+                    >
+                      <ComparisonSlider
+                        beforeUrl={activeItem.beforeUrl}
+                        afterUrl={activeItem.afterUrl}
+                        altBefore={`${activeItem.title} - before detailing`}
+                        altAfter={`${activeItem.title} - after detailing`}
+                        initialPosition={50}
+                      />
+                    </div>
                   ) : activeItem.imageUrl ? (
-                    <div className="relative w-full overflow-hidden rounded-lg aspect-[4/3]">
+                    <div
+                      ref={zoomContainerRef}
+                      className={`relative w-full overflow-hidden rounded-xl ${
+                        isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
+                      }`}
+                      style={{ height: 'calc(92vh - 6rem)' }}
+                      onClick={() => setIsZoomed((z) => !z)}
+                      onMouseMove={(e) => {
+                        if (!isZoomed || !zoomContainerRef.current) return
+                        const rect = zoomContainerRef.current.getBoundingClientRect()
+                        const x = ((e.clientX - rect.left) / rect.width) * 100
+                        const y = ((e.clientY - rect.top) / rect.height) * 100
+                        setZoomOrigin({ x, y })
+                      }}
+                    >
                       <CldImage
                         src={activeItem.imageUrl}
                         alt={activeItem.title}
                         fill
-                        sizes="(max-width: 1280px) 100vw, 1280px"
-                        className="object-contain"
+                        sizes="(max-width: 1920px) 100vw, 1920px"
+                        className={`transition-transform duration-300 ease-out ${
+                          isZoomed ? 'scale-[2.5]' : 'scale-100'
+                        } object-contain`}
+                        style={isZoomed ? { transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%` } : undefined}
                       />
+                      {/* Zoom hint */}
+                      {!isZoomed && (
+                        <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white/70 text-xs px-3 py-1.5 rounded-lg pointer-events-none">
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                          </svg>
+                          Click to zoom
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </div>

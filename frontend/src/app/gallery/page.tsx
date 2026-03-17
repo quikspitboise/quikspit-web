@@ -26,21 +26,24 @@ export default async function Gallery() {
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
-        {/* Background accents */}
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-red-600/3 rounded-full blur-3xl pointer-events-none" />
-        
+      <section className="relative py-28 lg:py-40 overflow-hidden">
+        {/* Ambient orbs */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-red-600/6 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-red-600/3 rounded-full blur-[100px] pointer-events-none" />
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center">
+            <span className="text-red-500 text-sm uppercase tracking-[0.3em] font-medium mb-6 block">
+              Portfolio
+            </span>
             <AnimatedHeadline
-              text="OUR WORK"
+              text="THE SHOWROOM"
               as="h1"
-              className="text-5xl sm:text-6xl lg:text-7xl text-white mb-6"
+              className="text-6xl sm:text-7xl lg:text-8xl text-white mb-6"
               splitBy="character"
             />
-            <FadeHeadline as="p" delay={0.3} className="text-xl text-neutral-400 max-w-2xl mx-auto">
-              Every vehicle tells a story of transformation. Browse our portfolio to see the quality and care we bring to every detail.
+            <FadeHeadline as="p" delay={0.3} className="text-xl lg:text-2xl text-neutral-400 max-w-2xl mx-auto font-light">
+              Every detail, on display. Browse our work and see the transformation for yourself.
             </FadeHeadline>
           </div>
         </div>
@@ -48,39 +51,10 @@ export default async function Gallery() {
 
       <SectionTransition variant="line" />
 
-      {/* Stats Bar */}
-      <AnimatedSection className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { value: '100+', label: 'Vehicles Detailed' },
-                { value: '5★', label: 'Average Rating' },
-                { value: '98%', label: 'Satisfaction' },
-                { value: '24hr', label: 'Response Time' },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="font-display text-3xl lg:text-4xl text-red-500 mb-1">{stat.value}</div>
-                  <div className="text-neutral-500 text-sm uppercase tracking-wider">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
       {/* Main Gallery */}
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Portfolio</span>
-              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
-                TRANSFORMATIONS
-              </FadeHeadline>
-            </div>
-
-            {/* Gallery Grid */}
+          <div className="max-w-7xl mx-auto">
             <GalleryGrid items={galleryItems} />
           </div>
         </div>
