@@ -42,28 +42,29 @@ export function Navigation() {
       
       <motion.nav 
         className={`
-          mobile-nav-shell fixed top-0 left-0 right-0 z-50 pt-(--nav-safe-offset)
+          mobile-nav-shell relative z-50 pt-(--nav-safe-offset)
           transition-all duration-500 ease-out
-          shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
-            ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
-            : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
+            ? 'lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
+            : 'lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
           }
           ${isTransitioning ? 'pointer-events-none' : ''}
         `}
         initial={false}
       >
+        <div aria-hidden="true" className="mobile-safe-cap lg:hidden" />
+        <div aria-hidden="true" className="mobile-nav-panel lg:hidden" />
         <div
           aria-hidden="true"
           className="
-            absolute inset-x-0 top-0 h-px pointer-events-none lg:hidden
+            absolute inset-x-0 top-(--nav-safe-offset) h-px pointer-events-none lg:hidden
             bg-linear-to-r from-transparent via-white/20 to-transparent
           "
         />
         <div
           aria-hidden="true"
           className="
-            absolute inset-x-0 top-0 h-20 pointer-events-none lg:hidden
+            absolute inset-x-0 top-(--nav-safe-offset) h-20 pointer-events-none lg:hidden
             bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_35%,rgba(255,255,255,0)_72%)]
           "
         />
@@ -75,7 +76,7 @@ export function Navigation() {
           "
         />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mobile-nav-content container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex items-center justify-between h-(--nav-bar-height)">
             {/* Logo */}
             <Link
@@ -256,8 +257,8 @@ export function Navigation() {
         </AnimatePresence>
       </motion.nav>
       
-      {/* Spacer for fixed nav */}
-      <div className="h-(--nav-total-height)" />
+      {/* Spacer for desktop fixed nav */}
+      <div className="hidden lg:block h-(--nav-total-height)" />
     </>
   );
 }

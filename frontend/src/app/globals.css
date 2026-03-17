@@ -39,7 +39,12 @@ html {
   color-scheme: light dark;
   background-color: var(--background);
   overscroll-behavior-y: none;
-  scroll-padding-top: var(--nav-total-height);
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-top: var(--nav-total-height);
+  }
 }
 
 body {
@@ -181,36 +186,47 @@ body::before {
 @media (max-width: 1023px) {
   .mobile-nav-shell {
     position: relative;
+    background:
+      linear-gradient(180deg, rgba(10, 10, 10, 0.98) 0%, rgba(10, 10, 10, 0.94) var(--nav-safe-offset), transparent var(--nav-safe-offset), transparent 100%);
+  }
+
+  .mobile-safe-cap {
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--nav-safe-offset);
+    background:
+      linear-gradient(180deg, rgba(10, 10, 10, 0.98) 0%, rgba(10, 10, 10, 0.92) 100%),
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.08) 0%, transparent 42%);
+    pointer-events: none;
+  }
+
+  .mobile-nav-panel {
+    position: absolute;
+    top: var(--nav-safe-offset);
+    left: 0;
+    right: 0;
+    height: var(--nav-bar-height);
     isolation: isolate;
     overflow: clip;
-    background: transparent;
+    background:
+      linear-gradient(180deg, rgba(18, 18, 18, 0.82) 0%, rgba(10, 10, 10, 0.76) 100%),
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.14) 0%, transparent 38%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
-    transform: translateZ(0);
-    will-change: transform;
-  }
-
-  .mobile-nav-shell::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background:
-      linear-gradient(180deg, rgba(12, 12, 12, 0.98) 0%, rgba(10, 10, 10, 0.94) 24%, rgba(8, 8, 8, 0.9) 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 62%),
-      radial-gradient(circle at top right, rgba(239, 68, 68, 0.14) 0%, transparent 38%);
-  }
-
-  .mobile-nav-shell::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 34%, rgba(255, 255, 255, 0) 72%),
-      radial-gradient(circle at top, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 35%, rgba(255, 255, 255, 0) 72%);
     -webkit-backdrop-filter: blur(24px) saturate(165%);
     backdrop-filter: blur(24px) saturate(165%);
+    transform: translateZ(0);
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  .mobile-nav-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 62%),
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 35%, rgba(255, 255, 255, 0) 72%);
   }
 
   .mobile-menu-shell {
@@ -240,6 +256,12 @@ body::before {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 62%);
     -webkit-backdrop-filter: blur(24px) saturate(165%);
     backdrop-filter: blur(24px) saturate(165%);
+  }
+
+  .mobile-nav-content {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
   }
 }
 
