@@ -36,13 +36,14 @@ export function Navigation() {
     <>
       {/* Scroll Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
+        className="fixed top-[var(--nav-safe-offset)] left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
         style={{ scaleX: scrollYProgress }}
       />
       
       <motion.nav 
         className={`
           fixed top-0 left-0 right-0 z-50
+          pt-[var(--nav-safe-offset)]
           transition-all duration-500 ease-out
           bg-black border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 

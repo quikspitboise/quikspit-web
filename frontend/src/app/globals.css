@@ -16,8 +16,8 @@
   --gradient-start: #ef4444;
   --gradient-end: #dc2626;
   --nav-bar-height: 76px;
-  --nav-safe-offset: 0px;
-  --nav-total-height: var(--nav-bar-height);
+  --nav-safe-offset: env(safe-area-inset-top, 0px);
+  --nav-total-height: calc(var(--nav-bar-height) + var(--nav-safe-offset));
 }
 
 .dark {
@@ -59,7 +59,7 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   opacity: 0.03;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 40;
 }
 
 /* Ambient glow effects */
@@ -313,8 +313,7 @@ body::before {
   left: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--brand-primary), var(--accent));
-  z-index: 9999;
-  transform-origin: left;
+  z-index: 101;
 }
 
 /* Video hero overlay */
