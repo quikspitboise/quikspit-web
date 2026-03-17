@@ -16,8 +16,8 @@
   --gradient-start: #ef4444;
   --gradient-end: #dc2626;
   --nav-bar-height: 76px;
-  --nav-safe-offset: env(safe-area-inset-top, 0px);
-  --nav-total-height: calc(var(--nav-safe-offset) + var(--nav-bar-height));
+  --nav-safe-offset: 0px;
+  --nav-total-height: var(--nav-bar-height);
 }
 
 .dark {
@@ -41,7 +41,7 @@ html {
 
 body {
   background-color: #000000;
-  background: var(--background);
+  background: #000000;
   color: var(--foreground);
   font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
   line-height: 1.6;
