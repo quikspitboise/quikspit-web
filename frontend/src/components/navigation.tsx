@@ -39,21 +39,21 @@ export function Navigation() {
         className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
         style={{ scaleX: scrollYProgress }}
       />
+
+      <div className="mobile-nav-liquid" aria-hidden="true" />
       
       <motion.nav 
         className={`
           fixed top-0 left-0 right-0 z-50 pt-[var(--safe-area-top)]
           transition-all duration-500 ease-out
-          bg-[rgba(10,10,10,0.94)] backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.25)]
+          bg-[rgba(10,10,10,0.24)] backdrop-blur-[18px] border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
             ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
             : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
           }
           ${isTransitioning ? 'pointer-events-none' : ''}
         `}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        initial={false}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[var(--nav-bar-height)]">
@@ -169,7 +169,7 @@ export function Navigation() {
           {menuOpen && (
             <motion.div
               id="mobile-menu"
-              className="lg:hidden absolute top-full left-0 right-0 bg-[rgba(10,10,10,0.98)] backdrop-blur-xl border-b border-white/5"
+              className="lg:hidden absolute top-full left-0 right-0 bg-[rgba(10,10,10,0.72)] backdrop-blur-[26px] border-b border-white/8 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
