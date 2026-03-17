@@ -36,15 +36,15 @@ export function Navigation() {
     <>
       {/* Scroll Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
+        className="fixed top-0 left-0 right-0 h-0.75 bg-linear-to-r from-red-600 to-red-500 origin-left z-100"
         style={{ scaleX: scrollYProgress }}
       />
       
       <motion.nav 
         className={`
-          fixed top-0 left-0 right-0 z-50 pt-[var(--nav-safe-offset)]
+          mobile-nav-shell fixed top-0 left-0 right-0 z-50 pt-(--nav-safe-offset)
           transition-all duration-500 ease-out
-          bg-[#080808] border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
+          bg-[#080808] shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
             ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
             : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
@@ -56,27 +56,27 @@ export function Navigation() {
         <div
           aria-hidden="true"
           className="
-            absolute inset-0 pointer-events-none lg:hidden
-            bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.02)_28%,rgba(255,255,255,0)_62%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.18)_0%,transparent_38%),linear-gradient(180deg,rgba(18,18,18,0.96)_0%,rgba(12,12,12,0.94)_100%)]
+            absolute inset-x-0 top-0 h-px pointer-events-none lg:hidden
+            bg-linear-to-r from-transparent via-white/20 to-transparent
           "
         />
         <div
           aria-hidden="true"
           className="
-            absolute inset-0 pointer-events-none lg:hidden
-            backdrop-blur-[18px]
+            absolute inset-x-0 top-0 h-20 pointer-events-none lg:hidden
+            bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_35%,rgba(255,255,255,0)_72%)]
           "
         />
         <div
           aria-hidden="true"
           className="
             absolute inset-x-4 bottom-0 h-px pointer-events-none lg:hidden
-            bg-gradient-to-r from-transparent via-white/18 to-transparent
+            bg-linear-to-r from-transparent via-white/18 to-transparent
           "
         />
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-center justify-between h-[var(--nav-bar-height)]">
+          <div className="relative flex items-center justify-between h-(--nav-bar-height)">
             {/* Logo */}
             <Link
               href="/"
@@ -112,7 +112,7 @@ export function Navigation() {
                   
                   {/* Active/Hover underline */}
                   <motion.span
-                    className="absolute bottom-0 left-1/2 h-[2px] bg-red-600 rounded-full"
+                    className="absolute bottom-0 left-1/2 h-0.5 bg-red-600 rounded-full"
                     initial={false}
                     animate={{
                       width: pathname === item.href ? '60%' : '0%',
@@ -189,7 +189,7 @@ export function Navigation() {
           {menuOpen && (
             <motion.div
               id="mobile-menu"
-              className="lg:hidden absolute top-full left-0 right-0 overflow-hidden bg-[#080808] border-b border-white/8 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
+              className="mobile-menu-shell lg:hidden absolute top-full left-0 right-0 overflow-hidden border-b border-white/8 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -198,9 +198,8 @@ export function Navigation() {
               <div
                 aria-hidden="true"
                 className="
-                  absolute inset-0 pointer-events-none
-                  bg-[linear-gradient(180deg,rgba(255,255,255,0.07)_0%,rgba(255,255,255,0.02)_24%,rgba(255,255,255,0)_58%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.14)_0%,transparent_36%),linear-gradient(180deg,rgba(18,18,18,0.96)_0%,rgba(10,10,10,0.98)_100%)]
-                  backdrop-blur-[24px]
+                  absolute inset-x-4 top-0 h-px pointer-events-none
+                  bg-linear-to-r from-transparent via-white/18 to-transparent
                 "
               />
               <div className="relative z-10 container mx-auto px-4 py-6 space-y-1">
@@ -258,7 +257,7 @@ export function Navigation() {
       </motion.nav>
       
       {/* Spacer for fixed nav */}
-      <div className="h-[var(--nav-total-height)]" />
+      <div className="h-(--nav-total-height)" />
     </>
   );
 }

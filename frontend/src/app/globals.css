@@ -15,16 +15,10 @@
   --glass-border: rgba(255, 255, 255, 0.08);
   --gradient-start: #ef4444;
   --gradient-end: #dc2626;
+  --safe-area-top: env(safe-area-inset-top, 0px);
   --nav-bar-height: 76px;
-  --nav-safe-offset: 0px;
-  --nav-total-height: var(--nav-bar-height);
-}
-
-@media (display-mode: standalone), (display-mode: fullscreen) {
-  :root {
-    --nav-safe-offset: env(safe-area-inset-top, 0px);
-    --nav-total-height: calc(var(--nav-safe-offset) + var(--nav-bar-height));
-  }
+  --nav-safe-offset: var(--safe-area-top);
+  --nav-total-height: calc(var(--nav-safe-offset) + var(--nav-bar-height));
 }
 
 .dark {
@@ -41,12 +35,15 @@
 }
 
 html {
+  min-height: 100%;
   color-scheme: light dark;
   background-color: var(--background);
   overscroll-behavior-y: none;
+  scroll-padding-top: var(--nav-total-height);
 }
 
 body {
+  min-height: 100%;
   background-color: var(--background);
   background: var(--background);
   color: var(--foreground);
@@ -179,6 +176,30 @@ body::before {
 .glass-nav-scrolled {
   background: rgba(10, 10, 10, 0.95);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 1023px) {
+  .mobile-nav-shell {
+    background-color: rgba(8, 8, 8, 0.78);
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 62%),
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.18) 0%, transparent 38%),
+      linear-gradient(180deg, rgba(18, 18, 18, 0.96) 0%, rgba(10, 10, 10, 0.94) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    -webkit-backdrop-filter: blur(24px) saturate(165%);
+    backdrop-filter: blur(24px) saturate(165%);
+  }
+
+  .mobile-menu-shell {
+    background-color: rgba(8, 8, 8, 0.88);
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 58%),
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.14) 0%, transparent 36%),
+      linear-gradient(180deg, rgba(18, 18, 18, 0.96) 0%, rgba(10, 10, 10, 0.98) 100%);
+    -webkit-backdrop-filter: blur(24px) saturate(165%);
+    backdrop-filter: blur(24px) saturate(165%);
+  }
 }
 
 /* Shine effect for cards */
