@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#080808",
+  themeColor: "#000000",
 };
 
 export const metadata: Metadata = {
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "QuikSpit Auto Detailing",
   },
   formatDetection: {

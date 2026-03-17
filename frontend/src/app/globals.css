@@ -34,13 +34,13 @@
 }
 
 html {
-  color-scheme: light dark;
-  background-color: var(--background);
+  color-scheme: dark;
+  background-color: #000000;
   overscroll-behavior-y: none;
 }
 
 body {
-  background-color: var(--background);
+  background-color: #000000;
   background: var(--background);
   color: var(--foreground);
   font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
