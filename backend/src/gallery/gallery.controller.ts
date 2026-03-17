@@ -12,5 +12,3 @@ export class GalleryController {
     return { items };
   }
 }
-
-

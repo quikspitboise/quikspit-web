@@ -66,16 +66,19 @@ export class LoggerService implements NestLoggerService {
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.colorize(),
-            winston.format.printf(({ level, message, timestamp, ...metadata }) => {
-              let msg = `${timestamp} [${level}]: ${message}`;
-              if (Object.keys(metadata).length > 0 && metadata.service) {
-                const { service, ...rest } = metadata;
-                if (Object.keys(rest).length > 0) {
-                  msg += ` ${JSON.stringify(rest)}`;
+            winston.format.printf(
+              ({ level, message, timestamp, ...metadata }) => {
+                let msg = `${timestamp} [${level}]: ${message}`;
+                if (Object.keys(metadata).length > 0 && metadata.service) {
+                  const rest = { ...metadata };
+                  delete rest.service;
+                  if (Object.keys(rest).length > 0) {
+                    msg += ` ${JSON.stringify(rest)}`;
+                  }
                 }
-              }
-              return msg;
-            }),
+                return msg;
+              },
+            ),
           ),
         }),
       );
@@ -93,12 +96,19 @@ export class LoggerService implements NestLoggerService {
     const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
 
     for (const key in sanitized) {
-      if (sensitiveFields.some((field) => key.toLowerCase().includes(field.toLowerCase()))) {
+      if (
+        sensitiveFields.some((field) =>
+          key.toLowerCase().includes(field.toLowerCase()),
+        )
+      ) {
         // Mask sensitive data
         if (typeof sanitized[key] === 'string' && sanitized[key].length > 0) {
           sanitized[key] = '***REDACTED***';
         }
-      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      } else if (
+        typeof sanitized[key] === 'object' &&
+        sanitized[key] !== null
+      ) {
         // Recursively sanitize nested objects
         sanitized[key] = this.sanitizeObject(sanitized[key], sensitiveFields);
       }

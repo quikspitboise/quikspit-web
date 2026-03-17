@@ -18,10 +18,12 @@ import { LoggerModule } from './common/logger.module';
     LoggerModule, // Global logger module
     CloudinaryModule, // Global Cloudinary module for image/video uploads
     // Rate limiting: 10 requests per minute per IP by default
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 seconds
-      limit: 10, // 10 requests per ttl
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds
+        limit: 10, // 10 requests per ttl
+      },
+    ]),
     ContactModule,
     BookingModule,
     GalleryModule,
@@ -37,4 +39,4 @@ import { LoggerModule } from './common/logger.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

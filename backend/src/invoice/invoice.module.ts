@@ -5,9 +5,9 @@ import { SmsService } from '../common/sms.service';
 
 /**
  * Invoice Module
- * 
+ *
  * Provides Stripe invoice functionality for billing customers.
- * 
+ *
  * Features:
  * - Create draft invoices after booking
  * - Finalize and send invoices after service completion
@@ -16,8 +16,8 @@ import { SmsService } from '../common/sms.service';
  * - Email and SMS delivery options
  */
 @Module({
-    controllers: [InvoiceController],
-    providers: [InvoiceService, SmsService],
-    exports: [InvoiceService, SmsService],
+  controllers: [InvoiceController],
+  providers: [InvoiceService, SmsService],
+  exports: [InvoiceService, SmsService],
 })
-export class InvoiceModule { }
+export class InvoiceModule {}

@@ -69,29 +69,29 @@ export class BookingService {
 
   async getAllBookings(): Promise<Booking[]> {
     this.logger.log('Fetching all bookings from database');
-    
+
     // In a real implementation, this would be:
     // return await this.bookingRepository.find();
-    
+
     return this.bookings;
   }
 
   async getBooking(id: string): Promise<Booking | null> {
     this.logger.log(`Fetching booking with ID: ${id}`);
-    
+
     // In a real implementation, this would be:
     // return await this.bookingRepository.findOne({ where: { id } });
-    
-    const booking = this.bookings.find(b => b.id === id);
+
+    const booking = this.bookings.find((b) => b.id === id);
     return booking || null;
   }
 
   async createBooking(bookingData: CreateBookingDto): Promise<Booking> {
     this.logger.log('Creating new booking');
-    
+
     // Calculate price based on service type (placeholder logic)
     const servicePrice = this.calculateServicePrice(bookingData.serviceType);
-    
+
     const newBooking: Booking = {
       id: Date.now().toString(),
       ...bookingData,
@@ -103,16 +103,18 @@ export class BookingService {
     // In a real implementation, this would be:
     // const booking = this.bookingRepository.create(newBooking);
     // return await this.bookingRepository.save(booking);
-    
+
     this.bookings.push(newBooking);
-    this.logger.log('Booking created successfully', { bookingId: newBooking.id });
-    
+    this.logger.log('Booking created successfully', {
+      bookingId: newBooking.id,
+    });
+
     return newBooking;
   }
 
   async processStripePayment(booking: Booking): Promise<any> {
     this.logger.log('Processing payment via Stripe webhook');
-    
+
     // SECURITY: Payment processing should be handled via Stripe webhooks
     // 1. Frontend creates a Stripe Checkout session or PaymentIntent
     // 2. Customer completes payment on Stripe-hosted page
@@ -124,7 +126,7 @@ export class BookingService {
     //
     // NEVER expose STRIPE_SECRET_KEY in client code or comments
     // Key rotation plan: Use Stripe Dashboard to roll keys quarterly
-    
+
     // Placeholder payment result for development
     const paymentResult = {
       paymentId: `pi_${Date.now()}`,
@@ -135,11 +137,11 @@ export class BookingService {
       processedAt: new Date().toISOString(),
     };
 
-    this.logger.log('Payment processed (placeholder)', { 
+    this.logger.log('Payment processed (placeholder)', {
       paymentId: paymentResult.paymentId,
       bookingId: booking.id,
     });
-    
+
     return paymentResult;
   }
 
@@ -151,6 +153,6 @@ export class BookingService {
       'Ultimate Shine Package': 149.99,
     };
 
-    return prices[serviceType] || 50.00; // Default price
+    return prices[serviceType] || 50.0; // Default price
   }
 }

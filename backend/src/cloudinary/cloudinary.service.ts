@@ -1,5 +1,9 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import {
+  v2 as cloudinary,
+  UploadApiResponse,
+  UploadApiErrorResponse,
+} from 'cloudinary';
 
 export interface CloudinaryUploadOptions {
   folder?: string;
@@ -30,7 +34,12 @@ export class CloudinaryService {
     buffer: Buffer,
     options: CloudinaryUploadOptions = {},
   ): Promise<CloudinaryUploadResult> {
-    const { folder = 'quikspit/uploads', publicId, resourceType = 'auto', transformation } = options;
+    const {
+      folder = 'quikspit/uploads',
+      publicId,
+      resourceType = 'auto',
+      transformation,
+    } = options;
 
     return new Promise((resolve, reject) => {
       const uploadOptions: Record<string, unknown> = {
@@ -48,7 +57,10 @@ export class CloudinaryService {
 
       const uploadStream = cloudinary.uploader.upload_stream(
         uploadOptions,
-        (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+        (
+          error: UploadApiErrorResponse | undefined,
+          result: UploadApiResponse | undefined,
+        ) => {
           if (error) {
             this.logger.error(`Cloudinary upload failed: ${error.message}`);
             reject(new BadRequestException(`Upload failed: ${error.message}`));
@@ -56,7 +68,9 @@ export class CloudinaryService {
           }
 
           if (!result) {
-            reject(new BadRequestException('Upload failed: No result returned'));
+            reject(
+              new BadRequestException('Upload failed: No result returned'),
+            );
             return;
           }
 
@@ -85,7 +99,12 @@ export class CloudinaryService {
     filePath: string,
     options: CloudinaryUploadOptions = {},
   ): Promise<CloudinaryUploadResult> {
-    const { folder = 'quikspit/uploads', publicId, resourceType = 'auto', transformation } = options;
+    const {
+      folder = 'quikspit/uploads',
+      publicId,
+      resourceType = 'auto',
+      transformation,
+    } = options;
 
     try {
       const uploadOptions: Record<string, unknown> = {
@@ -115,7 +134,8 @@ export class CloudinaryService {
         resourceType: result.resource_type,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Cloudinary upload failed: ${errorMessage}`);
       throw new BadRequestException(`Upload failed: ${errorMessage}`);
     }
@@ -124,7 +144,10 @@ export class CloudinaryService {
   /**
    * Delete a file from Cloudinary by public ID
    */
-  async deleteFile(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<boolean> {
+  async deleteFile(
+    publicId: string,
+    resourceType: 'image' | 'video' | 'raw' = 'image',
+  ): Promise<boolean> {
     try {
       const result = await cloudinary.uploader.destroy(publicId, {
         resource_type: resourceType,
@@ -138,7 +161,8 @@ export class CloudinaryService {
       this.logger.warn(`Failed to delete from Cloudinary: ${publicId}`);
       return false;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Cloudinary delete failed: ${errorMessage}`);
       throw new BadRequestException(`Delete failed: ${errorMessage}`);
     }
@@ -157,7 +181,13 @@ export class CloudinaryService {
       format?: string;
     } = {},
   ): string {
-    const { width, height, crop = 'fill', quality = 'auto', format = 'auto' } = options;
+    const {
+      width,
+      height,
+      crop = 'fill',
+      quality = 'auto',
+      format = 'auto',
+    } = options;
 
     const transformations: string[] = [];
 
@@ -167,7 +197,8 @@ export class CloudinaryService {
     if (quality) transformations.push(`q_${quality}`);
     if (format) transformations.push(`f_${format}`);
 
-    const transformationString = transformations.length > 0 ? transformations.join(',') + '/' : '';
+    const transformationString =
+      transformations.length > 0 ? transformations.join(',') + '/' : '';
 
     return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${transformationString}${publicId}`;
   }
@@ -193,7 +224,8 @@ export class CloudinaryService {
     if (quality) transformations.push(`q_${quality}`);
     if (format) transformations.push(`f_${format}`);
 
-    const transformationString = transformations.length > 0 ? transformations.join(',') + '/' : '';
+    const transformationString =
+      transformations.length > 0 ? transformations.join(',') + '/' : '';
 
     return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/video/upload/${transformationString}${publicId}`;
   }

@@ -1,6 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-// file-type v16 uses commonjs, not ESM
-const FileType = require('file-type');
+
+type FileTypeModule = typeof import('file-type');
+const importFileType = new Function(
+  'specifier',
+  'return import(specifier)',
+) as (specifier: string) => Promise<FileTypeModule>;
 
 export class FileValidationService {
   private static readonly ALLOWED_MIME_TYPES = [
@@ -38,8 +42,9 @@ export class FileValidationService {
     // Validate file type using magic bytes
     let fileType;
     try {
-      fileType = await FileType.fromBuffer(fileBuffer);
-    } catch (error) {
+      const { fileTypeFromBuffer } = await importFileType('file-type');
+      fileType = await fileTypeFromBuffer(fileBuffer);
+    } catch {
       throw new BadRequestException('Unable to determine file type');
     }
 

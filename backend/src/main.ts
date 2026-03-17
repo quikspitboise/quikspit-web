@@ -12,15 +12,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
-  
+
   // Set up custom logger
   const logger = app.get(LoggerService);
   app.useLogger(logger);
-  
+
   // Set a global prefix so all routes become /api/... while keeping
   // controller decorators clean (e.g., @Controller('contact')).
   app.setGlobalPrefix('api');
-  
+
   // Global validation pipe with transformation and whitelist
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,16 +34,25 @@ async function bootstrap() {
   );
 
   // HTTPS redirect middleware (for production behind reverse proxy)
-  if (process.env.NODE_ENV === 'production' && process.env.ENFORCE_HTTPS === 'true') {
-    app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req.headers['x-forwarded-proto'] !== 'https') {
-        logger.warn(`HTTPS redirect: ${req.method} ${req.url}`);
-        return res.redirect(301, `https://${req.headers.host}${req.url}`);
-      }
-      next();
-    });
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.ENFORCE_HTTPS === 'true'
+  ) {
+    app.use(
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction,
+      ) => {
+        if (req.headers['x-forwarded-proto'] !== 'https') {
+          logger.warn(`HTTPS redirect: ${req.method} ${req.url}`);
+          return res.redirect(301, `https://${req.headers.host}${req.url}`);
+        }
+        next();
+      },
+    );
   }
-  
+
   // Security: Add HTTP security headers with helmet and Content Security Policy
   app.use(
     helmet({
@@ -68,16 +77,17 @@ async function bootstrap() {
       },
     }),
   );
-  
+
   // Enable cookie parser for CSRF (must come before CSRF middleware)
   app.use(cookieParser());
-  
+
   // CSRF Protection using csrf-csrf (modern replacement for deprecated csurf)
   const {
     generateCsrfToken, // Used to generate a CSRF token
     doubleCsrfProtection, // Middleware to validate CSRF tokens
   } = doubleCsrf({
-    getSecret: () => process.env.CSRF_SECRET || 'default-csrf-secret-change-in-production',
+    getSecret: () =>
+      process.env.CSRF_SECRET || 'default-csrf-secret-change-in-production',
     cookieName: '_csrf',
     cookieOptions: {
       httpOnly: true,
@@ -93,32 +103,43 @@ async function bootstrap() {
       return req.cookies?.sessionId || 'anonymous';
     },
   });
-  
+
   // Apply CSRF protection conditionally (skip for development convenience)
   if (process.env.ENABLE_CSRF === 'true') {
     app.use(doubleCsrfProtection);
     logger.log('CSRF Protection enabled');
   } else {
-    logger.warn('CSRF Protection is DISABLED - enable in production with ENABLE_CSRF=true');
+    logger.warn(
+      'CSRF Protection is DISABLED - enable in production with ENABLE_CSRF=true',
+    );
   }
-  
+
   // Store generateCsrfToken function in app locals for use in controllers
-  app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    req.app.locals.generateCsrfToken = generateCsrfToken;
-    next();
-  });
-  
+  app.use(
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      req.app.locals.generateCsrfToken = generateCsrfToken;
+      next();
+    },
+  );
+
   // Enable CORS for frontend communication (environment-based)
   const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
     : ['http://localhost:3000']; // Default for development
-  
+
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+
+      if (
+        allowedOrigins.indexOf(origin) !== -1 ||
+        allowedOrigins.includes('*')
+      ) {
         callback(null, true);
       } else {
         logger.warn(`CORS blocked origin: ${origin}`);

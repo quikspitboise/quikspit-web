@@ -28,7 +28,7 @@ export class GalleryService {
     // Return Cloudinary public IDs for gallery images
     // The frontend CldImage component will construct the full URL
     const asset = (name: string) => this.publicId(name);
-    
+
     return [
       // Comparison images (before/after)
       {

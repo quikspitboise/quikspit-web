@@ -24,16 +24,28 @@ export class EmailService {
         pass: this.configService.get<string>('SMTP_PASS'),
       },
     });
-    this.adminEmails = (this.configService.get<string>('ADMIN_EMAILS') || '').split(',').map(e => e.trim()).filter(Boolean);
+    this.adminEmails = (this.configService.get<string>('ADMIN_EMAILS') || '')
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
   }
 
-  async sendContactNotification(contactData: ContactFormDto, file?: Express.Multer.File) {
+  async sendContactNotification(
+    contactData: ContactFormDto,
+    file?: Express.Multer.File,
+  ) {
     const mailOptions: nodemailer.SendMailOptions = {
-      from: this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER'),
-      to: this.adminEmails.length ? this.adminEmails : this.configService.get<string>('SMTP_USER'),
+      from:
+        this.configService.get<string>('SMTP_FROM') ||
+        this.configService.get<string>('SMTP_USER'),
+      to: this.adminEmails.length
+        ? this.adminEmails
+        : this.configService.get<string>('SMTP_USER'),
       subject: `New Contact Form Submission from ${contactData.name}`,
       text: `Name: ${contactData.name}\nEmail: ${contactData.email}\nMessage: ${contactData.message}\n${file ? `Image attached: ${file.originalname}` : 'No image attached'}`,
-      attachments: file ? [{ filename: file.originalname, path: file.path }] : [],
+      attachments: file
+        ? [{ filename: file.originalname, path: file.path }]
+        : [],
     };
     try {
       await this.transporter.sendMail(mailOptions);

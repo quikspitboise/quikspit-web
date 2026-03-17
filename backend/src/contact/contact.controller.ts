@@ -51,14 +51,14 @@ export class ContactController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     this.logger.log('Contact form submission received');
-    
+
     let savedFile: Express.Multer.File | undefined;
-    
+
     if (file) {
       try {
         // Validate file with magic byte checking
         await FileValidationService.validateImageFile(file);
-        
+
         // Save file to disk after validation
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
@@ -68,27 +68,30 @@ export class ContactController {
         const filename = `${sanitizedOriginalName}-${uniqueSuffix}${ext}`;
         const uploadDir = './uploads';
         const filePath = join(uploadDir, filename);
-        
+
         // Ensure upload directory exists
         await fs.mkdir(uploadDir, { recursive: true });
-        
+
         // Write file to disk
         await fs.writeFile(filePath, file.buffer);
-        
+
         // Update file object with saved path
         savedFile = {
           ...file,
           filename,
           path: filePath,
         };
-        
+
         this.logger.log('Image file validated and saved', {
           filename,
           mimetype: file.mimetype,
           size: file.size,
         });
       } catch (error) {
-        this.logger.error('File validation error', error instanceof Error ? error.stack : '');
+        this.logger.error(
+          'File validation error',
+          error instanceof Error ? error.stack : '',
+        );
         throw new BadRequestException(
           error instanceof Error ? error.message : 'File validation failed',
         );
@@ -98,8 +101,11 @@ export class ContactController {
     }
 
     // Process the contact form
-    const result = await this.contactService.saveContactForm(contactData, savedFile);
-    
+    const result = await this.contactService.saveContactForm(
+      contactData,
+      savedFile,
+    );
+
     // Send email notification
     await this.contactService.sendContactEmail(contactData, savedFile);
 

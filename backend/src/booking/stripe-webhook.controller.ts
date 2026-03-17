@@ -1,25 +1,32 @@
-import { Controller, Post, Req, Headers, BadRequestException, RawBodyRequest } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Req,
+  Headers,
+  BadRequestException,
+  RawBodyRequest,
+} from '@nestjs/common';
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { LoggerService } from '../common/logger.service';
 
 /**
  * Stripe Webhook Controller
- * 
+ *
  * This controller handles webhook events from Stripe to confirm payments securely.
- * 
+ *
  * SECURITY BEST PRACTICES:
  * 1. Always verify webhook signatures using STRIPE_WEBHOOK_SECRET
  * 2. Never trust payment status from client - only from webhooks
  * 3. Implement idempotency to handle duplicate events
  * 4. Use raw body parser for signature verification
- * 
+ *
  * Setup Instructions:
  * 1. Configure webhook endpoint in Stripe Dashboard: https://dashboard.stripe.com/webhooks
  * 2. Add webhook URL: https://yourdomain.com/api/webhooks/stripe
  * 3. Select events to listen for: payment_intent.succeeded, payment_intent.payment_failed
  * 4. Copy webhook signing secret to STRIPE_WEBHOOK_SECRET in .env
- * 
+ *
  * Resources:
  * - Stripe Webhooks: https://stripe.com/docs/webhooks
  * - Webhook Best Practices: https://stripe.com/docs/webhooks/best-practices
@@ -32,7 +39,9 @@ export class StripeWebhookController {
   constructor(private readonly logger: LoggerService) {
     // Initialize Stripe with secret key from environment (optional for now)
     if (!process.env.STRIPE_SECRET_KEY) {
-      this.logger.warn('STRIPE_SECRET_KEY is not configured - Stripe webhooks will not be available');
+      this.logger.warn(
+        'STRIPE_SECRET_KEY is not configured - Stripe webhooks will not be available',
+      );
       this.isStripeConfigured = false;
     } else {
       try {
@@ -40,7 +49,10 @@ export class StripeWebhookController {
         this.isStripeConfigured = true;
         this.logger.log('Stripe webhook controller initialized successfully');
       } catch (error) {
-        this.logger.error('Failed to initialize Stripe', error instanceof Error ? error.message : '');
+        this.logger.error(
+          'Failed to initialize Stripe',
+          error instanceof Error ? error.message : '',
+        );
         this.isStripeConfigured = false;
       }
     }
@@ -75,7 +87,10 @@ export class StripeWebhookController {
         process.env.STRIPE_WEBHOOK_SECRET,
       );
     } catch (err) {
-      this.logger.error('Webhook signature verification failed', err instanceof Error ? err.message : '');
+      this.logger.error(
+        'Webhook signature verification failed',
+        err instanceof Error ? err.message : '',
+      );
       throw new BadRequestException('Webhook signature verification failed');
     }
 
@@ -83,15 +98,21 @@ export class StripeWebhookController {
     try {
       switch (event.type) {
         case 'payment_intent.succeeded':
-          await this.handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+          await this.handlePaymentIntentSucceeded(
+            event.data.object as Stripe.PaymentIntent,
+          );
           break;
 
         case 'payment_intent.payment_failed':
-          await this.handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
+          await this.handlePaymentIntentFailed(
+            event.data.object as Stripe.PaymentIntent,
+          );
           break;
 
         case 'checkout.session.completed':
-          await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+          await this.handleCheckoutSessionCompleted(
+            event.data.object as Stripe.Checkout.Session,
+          );
           break;
 
         case 'invoice.paid':
@@ -99,14 +120,19 @@ export class StripeWebhookController {
           break;
 
         case 'invoice.payment_failed':
-          await this.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+          await this.handleInvoicePaymentFailed(
+            event.data.object as Stripe.Invoice,
+          );
           break;
 
         default:
           this.logger.warn(`Unhandled webhook event type: ${event.type}`);
       }
     } catch (error) {
-      this.logger.error('Error handling webhook event', error instanceof Error ? error.stack : '');
+      this.logger.error(
+        'Error handling webhook event',
+        error instanceof Error ? error.stack : '',
+      );
       // Return 200 to prevent Stripe from retrying
       // Log error for manual investigation
     }
@@ -117,7 +143,9 @@ export class StripeWebhookController {
   /**
    * Handle successful payment
    */
-  private async handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  private async handlePaymentIntentSucceeded(
+    paymentIntent: Stripe.PaymentIntent,
+  ) {
     const bookingId = paymentIntent.metadata.bookingId;
 
     this.logger.log('Payment succeeded', {
@@ -153,7 +181,9 @@ export class StripeWebhookController {
   /**
    * Handle completed checkout session
    */
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  private async handleCheckoutSessionCompleted(
+    session: Stripe.Checkout.Session,
+  ) {
     const bookingId = session.metadata?.bookingId;
 
     this.logger.log('Checkout session completed', {
