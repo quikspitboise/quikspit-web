@@ -15,6 +15,9 @@
   --glass-border: rgba(255, 255, 255, 0.08);
   --gradient-start: #ef4444;
   --gradient-end: #dc2626;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --nav-bar-height: 76px;
+  --nav-total-height: calc(var(--safe-area-top) + var(--nav-bar-height));
 }
 
 .dark {
@@ -30,9 +33,13 @@
   --glass-border: rgba(255, 255, 255, 0.08);
 }
 
-html { color-scheme: light dark; }
+html {
+  color-scheme: light dark;
+  background-color: var(--background);
+}
 
 body {
+  background-color: var(--background);
   background: var(--background);
   color: var(--foreground);
   font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;

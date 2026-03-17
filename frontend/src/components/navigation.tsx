@@ -12,7 +12,7 @@ export function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isTransitioning } = useContext(TransitionContext);
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50);
@@ -37,16 +37,17 @@ export function Navigation() {
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
-        style={{ scaleX: useScroll().scrollYProgress }}
+        style={{ scaleX: scrollYProgress }}
       />
       
       <motion.nav 
         className={`
-          fixed top-0 left-0 right-0 z-50
+          fixed top-0 left-0 right-0 z-50 pt-[var(--safe-area-top)]
           transition-all duration-500 ease-out
+          bg-[rgba(10,10,10,0.94)] backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.25)]
           ${scrolled 
-            ? 'glass-nav-scrolled bg-[rgba(10,10,10,0.95)] border-b border-white/5' 
-            : 'bg-transparent border-b border-transparent'
+            ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
+            : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
           }
           ${isTransitioning ? 'pointer-events-none' : ''}
         `}
@@ -55,7 +56,7 @@ export function Navigation() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-[76px]">
+          <div className="flex items-center justify-between h-[var(--nav-bar-height)]">
             {/* Logo */}
             <Link
               href="/"
@@ -229,7 +230,7 @@ export function Navigation() {
       </motion.nav>
       
       {/* Spacer for fixed nav */}
-      <div className="h-[76px]" />
+      <div className="h-[var(--nav-total-height)]" />
     </>
   );
 }
