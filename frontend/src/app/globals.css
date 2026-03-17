@@ -15,9 +15,17 @@
   --glass-border: rgba(255, 255, 255, 0.08);
   --gradient-start: #ef4444;
   --gradient-end: #dc2626;
-  --safe-area-top: env(safe-area-inset-top, 0px);
   --nav-bar-height: 76px;
-  --nav-total-height: calc(var(--safe-area-top) + var(--nav-bar-height));
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --nav-safe-offset: 0px;
+  --nav-total-height: var(--nav-bar-height);
+}
+
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  :root {
+    --nav-safe-offset: env(safe-area-inset-top, 0px);
+    --nav-total-height: calc(var(--nav-safe-offset) + var(--nav-bar-height));
+  }
 }
 
 .dark {
@@ -176,26 +184,20 @@ body::before {
 
 .mobile-nav-liquid {
   position: fixed;
-  top: 0;
+  top: calc(var(--safe-area-top) * -1);
   left: 0;
   right: 0;
-  height: calc(var(--nav-total-height) + 4.5rem);
+  height: calc(var(--safe-area-top) + 1px);
   pointer-events: none;
   z-index: 45;
   background:
     linear-gradient(180deg,
-      rgba(6, 6, 6, 0.88) 0%,
-      rgba(9, 9, 9, 0.78) 38%,
-      rgba(12, 12, 12, 0.52) 68%,
-      rgba(10, 10, 10, 0.12) 88%,
-      transparent 100%);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 80%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 80%, transparent 100%);
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.35),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+      rgba(8, 8, 8, 0.84) 0%,
+      rgba(12, 12, 12, 0.62) 55%,
+      rgba(12, 12, 12, 0.18) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transform: translateZ(0);
 }
 
@@ -211,16 +213,16 @@ body::before {
   background:
     linear-gradient(180deg,
       rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.04) 20%,
-      transparent 42%),
+      rgba(255, 255, 255, 0.04) 30%,
+      transparent 65%),
     radial-gradient(circle at top right,
       rgba(239, 68, 68, 0.16) 0%,
-      transparent 32%);
+      transparent 46%);
   opacity: 0.9;
 }
 
 .mobile-nav-liquid::after {
-  inset: auto 1rem 0.75rem 1rem;
+  inset: auto 1rem 0 1rem;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
   opacity: 0.8;

@@ -44,7 +44,7 @@ export function Navigation() {
       
       <motion.nav 
         className={`
-          fixed top-0 left-0 right-0 z-50 pt-[var(--safe-area-top)]
+          fixed top-0 left-0 right-0 z-50 pt-[var(--nav-safe-offset)]
           transition-all duration-500 ease-out
           bg-[rgba(10,10,10,0.24)] backdrop-blur-[18px] border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
