@@ -180,23 +180,64 @@ body::before {
 
 @media (max-width: 1023px) {
   .mobile-nav-shell {
-    background-color: rgba(8, 8, 8, 0.78);
-    background-image:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 62%),
-      radial-gradient(circle at top right, rgba(239, 68, 68, 0.18) 0%, transparent 38%),
-      linear-gradient(180deg, rgba(18, 18, 18, 0.96) 0%, rgba(10, 10, 10, 0.94) 100%);
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    background: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .mobile-nav-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      linear-gradient(180deg, rgba(12, 12, 12, 0.98) 0%, rgba(10, 10, 10, 0.94) 24%, rgba(8, 8, 8, 0.9) 100%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 62%),
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.14) 0%, transparent 38%);
+  }
+
+  .mobile-nav-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 34%, rgba(255, 255, 255, 0) 72%),
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 35%, rgba(255, 255, 255, 0) 72%);
     -webkit-backdrop-filter: blur(24px) saturate(165%);
     backdrop-filter: blur(24px) saturate(165%);
   }
 
   .mobile-menu-shell {
-    background-color: rgba(8, 8, 8, 0.88);
-    background-image:
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    background: transparent;
+    transform: translateZ(0);
+  }
+
+  .mobile-menu-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      linear-gradient(180deg, rgba(14, 14, 14, 0.98) 0%, rgba(10, 10, 10, 0.96) 100%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0) 58%),
-      radial-gradient(circle at top right, rgba(239, 68, 68, 0.14) 0%, transparent 36%),
-      linear-gradient(180deg, rgba(18, 18, 18, 0.96) 0%, rgba(10, 10, 10, 0.98) 100%);
+      radial-gradient(circle at top right, rgba(239, 68, 68, 0.12) 0%, transparent 36%);
+  }
+
+  .mobile-menu-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 62%);
     -webkit-backdrop-filter: blur(24px) saturate(165%);
     backdrop-filter: blur(24px) saturate(165%);
   }

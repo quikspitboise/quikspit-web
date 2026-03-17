@@ -44,7 +44,7 @@ export function Navigation() {
         className={`
           mobile-nav-shell fixed top-0 left-0 right-0 z-50 pt-(--nav-safe-offset)
           transition-all duration-500 ease-out
-          bg-[#080808] shadow-[0_10px_30px_rgba(0,0,0,0.18)]
+          shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
             ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
             : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
