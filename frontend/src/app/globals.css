@@ -17,14 +17,21 @@
   --gradient-end: #dc2626;
   --nav-bar-height: 76px;
   --safe-area-top: env(safe-area-inset-top, 0px);
-  --nav-safe-offset: 0px;
+  --nav-top-fill: 0px;
   --nav-total-height: var(--nav-bar-height);
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --nav-top-fill: 48px;
+    --nav-total-height: calc(var(--nav-top-fill) + var(--nav-bar-height));
+  }
 }
 
 @media (display-mode: standalone), (display-mode: fullscreen) {
   :root {
-    --nav-safe-offset: env(safe-area-inset-top, 0px);
-    --nav-total-height: calc(var(--nav-safe-offset) + var(--nav-bar-height));
+    --nav-top-fill: max(48px, env(safe-area-inset-top, 0px));
+    --nav-total-height: calc(var(--nav-top-fill) + var(--nav-bar-height));
   }
 }
 
