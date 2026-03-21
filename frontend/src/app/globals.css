@@ -380,6 +380,34 @@ body::before {
 
 /* ─── Gallery ──────────────────────────────────────────────── */
 
+.gallery-featured {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.gallery-featured__comparisons,
+.gallery-featured__images {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .gallery-featured {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gallery-featured__comparisons {
+    grid-column: 1;
+  }
+
+  .gallery-featured__images {
+    grid-column: 2 / span 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+}
+
 /* Masonry columns */
 .gallery-masonry {
   columns: 1;

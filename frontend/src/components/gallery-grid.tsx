@@ -172,6 +172,21 @@ export function GalleryGrid({ items }: GalleryGridProps) {
     })
   }, [items, activeCategory])
 
+  const comparisonTopItems = useMemo(() => {
+    if (activeCategory !== 'all') return []
+    return filteredItems.slice(0, 2)
+  }, [activeCategory, filteredItems])
+
+  const exteriorTopItems = useMemo(() => {
+    if (activeCategory !== 'all') return []
+    return filteredItems.slice(2, 5)
+  }, [activeCategory, filteredItems])
+
+  const masonryItems = useMemo(() => {
+    if (activeCategory !== 'all') return filteredItems
+    return filteredItems.slice(5)
+  }, [activeCategory, filteredItems])
+
   // Active item for lightbox — index is relative to filtered list
   const activeItem = useMemo(
     () => (activeIndex == null ? null : filteredItems[activeIndex]),
@@ -233,17 +248,56 @@ export function GalleryGrid({ items }: GalleryGridProps) {
         ))}
       </div>
 
+      {(comparisonTopItems.length > 0 || exteriorTopItems.length > 0) && (
+        <motion.div
+          className="gallery-featured"
+          layout={!prefersReducedMotion}
+        >
+          {comparisonTopItems.length > 0 && (
+            <div className="gallery-featured__comparisons">
+              <AnimatePresence mode="popLayout">
+                {comparisonTopItems.map((item, idx) => (
+                  <GalleryCard key={item.id} item={item} index={idx} onOpen={onOpen} />
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {exteriorTopItems.length > 0 && (
+            <div className="gallery-featured__images">
+              <AnimatePresence mode="popLayout">
+                {exteriorTopItems.map((item, idx) => (
+                  <GalleryCard
+                    key={item.id}
+                    item={item}
+                    index={comparisonTopItems.length + idx}
+                    onOpen={onOpen}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+      )}
+
       {/* Masonry Grid */}
-      <motion.div
-        className="gallery-masonry"
-        layout={!prefersReducedMotion}
-      >
-        <AnimatePresence mode="popLayout">
-          {filteredItems.map((item, idx) => (
-            <GalleryCard key={item.id} item={item} index={idx} onOpen={onOpen} />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {masonryItems.length > 0 && (
+        <motion.div
+          className="gallery-masonry"
+          layout={!prefersReducedMotion}
+        >
+          <AnimatePresence mode="popLayout">
+            {masonryItems.map((item, idx) => (
+              <GalleryCard
+                key={item.id}
+                item={item}
+                index={comparisonTopItems.length + exteriorTopItems.length + idx}
+                onOpen={onOpen}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
 
       {/* Counter */}
       <div className="text-center mt-8 text-neutral-500 text-sm tracking-wide">

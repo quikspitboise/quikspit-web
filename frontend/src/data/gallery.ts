@@ -29,19 +29,19 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 'external-1',
     title: 'Professional Detailing Results',
-    category: 'external',
+    category: 'exterior',
     imageUrl: 'IMG_5095_molq77',
   },
   {
     id: 'external-2',
     title: 'Professional Detailing Results',
-    category: 'external',
+    category: 'exterior',
     imageUrl: 'IMG_5136_lrd9j9',
   },
   {
     id: 'external-3',
     title: 'Professional Detailing Results',
-    category: 'external',
+    category: 'exterior',
     imageUrl: 'IMG_5179_iksey6',
   },
   // Single showcase images
