@@ -172,19 +172,14 @@ export function GalleryGrid({ items }: GalleryGridProps) {
     })
   }, [items, activeCategory])
 
-  const comparisonTopItems = useMemo(() => {
+  const featuredItems = useMemo(() => {
     if (activeCategory !== 'all') return []
-    return filteredItems.slice(0, 2)
-  }, [activeCategory, filteredItems])
-
-  const exteriorTopItems = useMemo(() => {
-    if (activeCategory !== 'all') return []
-    return filteredItems.slice(2, 5)
+    return filteredItems.slice(0, 6)
   }, [activeCategory, filteredItems])
 
   const masonryItems = useMemo(() => {
     if (activeCategory !== 'all') return filteredItems
-    return filteredItems.slice(5)
+    return filteredItems.slice(6)
   }, [activeCategory, filteredItems])
 
   // Active item for lightbox — index is relative to filtered list
@@ -248,35 +243,21 @@ export function GalleryGrid({ items }: GalleryGridProps) {
         ))}
       </div>
 
-      {(comparisonTopItems.length > 0 || exteriorTopItems.length > 0) && (
+      {featuredItems.length > 0 && (
         <motion.div
           className="gallery-featured"
           layout={!prefersReducedMotion}
         >
-          {comparisonTopItems.length > 0 && (
-            <div className="gallery-featured__comparisons">
-              <AnimatePresence mode="popLayout">
-                {comparisonTopItems.map((item, idx) => (
-                  <GalleryCard key={item.id} item={item} index={idx} onOpen={onOpen} />
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {exteriorTopItems.length > 0 && (
-            <div className="gallery-featured__images">
-              <AnimatePresence mode="popLayout">
-                {exteriorTopItems.map((item, idx) => (
-                  <GalleryCard
-                    key={item.id}
-                    item={item}
-                    index={comparisonTopItems.length + idx}
-                    onOpen={onOpen}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+          <AnimatePresence mode="popLayout">
+            {featuredItems.map((item, idx) => (
+              <div
+                key={item.id}
+                className={idx < 6 ? `gallery-featured__item gallery-featured__item--${idx + 1}` : 'gallery-featured__item'}
+              >
+                <GalleryCard item={item} index={idx} onOpen={onOpen} />
+              </div>
+            ))}
+          </AnimatePresence>
         </motion.div>
       )}
 
@@ -291,7 +272,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
               <GalleryCard
                 key={item.id}
                 item={item}
-                index={comparisonTopItems.length + exteriorTopItems.length + idx}
+                index={featuredItems.length + idx}
                 onOpen={onOpen}
               />
             ))}

@@ -20,7 +20,7 @@ export function ComparisonSlider({ beforeUrl, afterUrl, altBefore = 'Before imag
 	}, [])
 
 	return (
-		<div className="group relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light">
+		<div className="group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light">
 			{/* After image as base layer */}
 			<CldImage src={afterUrl} alt={altAfter} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover select-none" priority={false} />
 
@@ -61,5 +61,4 @@ export function ComparisonSlider({ beforeUrl, afterUrl, altBefore = 'Before imag
 }
 
 export default ComparisonSlider
-
 

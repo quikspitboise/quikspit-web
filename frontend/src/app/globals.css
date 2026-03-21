@@ -386,28 +386,22 @@ body::before {
   margin-bottom: 1.25rem;
 }
 
-.gallery-featured__comparisons,
-.gallery-featured__images {
-  display: grid;
-  gap: 1.25rem;
-}
-
 @media (min-width: 1024px) {
   .gallery-featured {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
   }
 
-  .gallery-featured__comparisons {
-    grid-column: 1;
+  .gallery-featured__item {
+    margin-bottom: 0;
   }
 
-  .gallery-featured__images {
-    grid-column: 2 / span 2;
-    columns: 2;
-    column-gap: 1.25rem;
-    display: block;
-    align-content: start;
-  }
+  .gallery-featured__item--1 { grid-column: 1; grid-row: 1; }
+  .gallery-featured__item--2 { grid-column: 1; grid-row: 2; }
+  .gallery-featured__item--3 { grid-column: 2; grid-row: 1; }
+  .gallery-featured__item--4 { grid-column: 3; grid-row: 1; }
+  .gallery-featured__item--5 { grid-column: 2; grid-row: 2; }
+  .gallery-featured__item--6 { grid-column: 3; grid-row: 2; }
 }
 
 /* Masonry columns */
