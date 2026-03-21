@@ -403,7 +403,9 @@ body::before {
 
   .gallery-featured__images {
     grid-column: 2 / span 2;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    columns: 2;
+    column-gap: 1.25rem;
+    display: block;
     align-content: start;
   }
 }
