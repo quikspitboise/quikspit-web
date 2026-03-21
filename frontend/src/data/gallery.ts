@@ -26,6 +26,24 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     beforeUrl: 'quikspit/gallery/vehicle2-before',
     afterUrl: 'quikspit/gallery/vehicle2-after',
   },
+  {
+    id: 'external-1',
+    title: 'Professional Detailing Results',
+    category: 'external',
+    imageUrl: 'IMG_5095_molq77',
+  },
+  {
+    id: 'external-2',
+    title: 'Professional Detailing Results',
+    category: 'external',
+    imageUrl: 'IMG_5136_lrd9j9',
+  },
+  {
+    id: 'external-3',
+    title: 'Professional Detailing Results',
+    category: 'external',
+    imageUrl: 'IMG_5179_iksey6',
+  },
   // Single showcase images
   {
     id: 'showcase-1',
