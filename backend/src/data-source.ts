@@ -1,10 +1,9 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
+import { GalleryItemEntity } from './gallery/entities/gallery-item.entity';
 
-// Load environment variables
 config();
 
-// Validate required environment variables
 const requiredEnvVars = [
   'DB_HOST',
   'DB_PORT',
@@ -26,25 +25,17 @@ if (missingEnvVars.length > 0) {
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT!),
+  port: parseInt(process.env.DB_PORT!, 10),
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  synchronize: process.env.NODE_ENV !== 'production', // Only in development
+  synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
-  entities: [
-    // Add your entities here
-    // Example: Contact, Booking, User, etc.
-  ],
-  migrations: [
-    // Add your migrations here
-  ],
-  subscribers: [
-    // Add your subscribers here
-  ],
+  entities: [GalleryItemEntity],
+  migrations: [],
+  subscribers: [],
 });
 
-// Example of how to initialize the data source
 export const initializeDatabase = async () => {
   try {
     if (!AppDataSource.isInitialized) {
@@ -57,7 +48,6 @@ export const initializeDatabase = async () => {
   }
 };
 
-// Example of how to close the data source
 export const closeDatabase = async () => {
   try {
     if (AppDataSource.isInitialized) {

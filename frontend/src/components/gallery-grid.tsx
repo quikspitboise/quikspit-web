@@ -4,28 +4,22 @@ import { createPortal } from 'react-dom'
 import { ComparisonSlider } from './comparison-slider'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CldImage } from 'next-cloudinary'
-
-export type GalleryItem = {
-  id: string
-  title: string
-  description?: string
-  category?: string
-  tags?: string[]
-  // For comparison images (before/after)
-  beforeUrl?: string
-  afterUrl?: string
-  // For single images
-  imageUrl?: string
-}
+import type { GalleryItem } from '@/lib/gallery'
 
 type GalleryGridProps = {
   items: GalleryItem[]
 }
 
-function getItemCategories(item: GalleryItem) {
-  if (item.tags?.length) return item.tags
-  if (item.category) return [item.category]
-  if (item.beforeUrl && item.afterUrl) return ['comparison']
+function getItemCategories(item: GalleryItem): string[] {
+  const categories = [...(item.categories ?? []), ...(item.tags ?? [])]
+
+  if (categories.length > 0) {
+    return Array.from(new Set(categories))
+  }
+
+  if (item.beforeUrl && item.afterUrl) {
+    return ['comparison']
+  }
   return ['showcase']
 }
 
@@ -172,7 +166,9 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   // Filtered items
   const filteredItems = useMemo(() => {
     if (activeCategory === 'all') return items
-    return items.filter((item) => getItemCategories(item).includes(activeCategory))
+    return items.filter((item) => {
+      return getItemCategories(item).includes(activeCategory)
+    })
   }, [items, activeCategory])
 
   const featuredItems = useMemo(() => {

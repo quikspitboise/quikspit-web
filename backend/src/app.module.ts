@@ -1,27 +1,42 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { HealthController } from './health.controller';
-import { AppService } from './app.service';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ContactModule } from './contact/contact.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './booking/booking.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { LoggerModule } from './common/logger.module';
+import { ContactModule } from './contact/contact.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { InvoiceModule } from './invoice/invoice.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
-import { LoggerModule } from './common/logger.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    LoggerModule, // Global logger module
-    CloudinaryModule, // Global Cloudinary module for image/video uploads
-    // Rate limiting: 10 requests per minute per IP by default
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV === 'development',
+    }),
+    LoggerModule,
+    AuthModule,
+    CloudinaryModule,
     ThrottlerModule.forRoot([
       {
-        ttl: 60000, // 60 seconds
-        limit: 10, // 10 requests per ttl
+        ttl: 60000,
+        limit: 10,
       },
     ]),
     ContactModule,
@@ -32,7 +47,6 @@ import { LoggerModule } from './common/logger.module';
   controllers: [AppController, HealthController],
   providers: [
     AppService,
-    // Apply throttler guard globally
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
