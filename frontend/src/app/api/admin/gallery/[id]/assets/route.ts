@@ -11,7 +11,7 @@ type RouteContext = {
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(`/gallery/admin/items/${id}/assets`, {
+  return proxyAdminRequest(request, `/gallery/admin/items/${id}/assets`, {
     method: 'POST',
     body: await request.formData(),
   });

@@ -11,7 +11,7 @@ type RouteContext = {
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(`/gallery/admin/items/${id}`, {
+  return proxyAdminRequest(request, `/gallery/admin/items/${id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -20,10 +20,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(`/gallery/admin/items/${id}`, {
+  return proxyAdminRequest(request, `/gallery/admin/items/${id}`, {
     method: 'DELETE',
   });
 }

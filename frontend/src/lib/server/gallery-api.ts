@@ -5,6 +5,40 @@ import { buildBackendApiUrl } from '../backend-api';
 import type { GalleryAdminItem, GalleryItem } from '../gallery';
 import { getAdminApiAuth } from './admin-auth';
 
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+function getMethod(method: string | undefined): string {
+  return (method || 'GET').toUpperCase();
+}
+
+function isSameOriginUrl(candidate: string, expectedOrigin: string): boolean {
+  try {
+    return new URL(candidate).origin === expectedOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function validateAdminMutationOrigin(request: Request): NextResponse | null {
+  const requestOrigin = new URL(request.url).origin;
+  const originHeader = request.headers.get('origin');
+
+  if (originHeader) {
+    if (originHeader !== requestOrigin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    return null;
+  }
+
+  const refererHeader = request.headers.get('referer');
+  if (refererHeader && isSameOriginUrl(refererHeader, requestOrigin)) {
+    return null;
+  }
+
+  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+
 export async function fetchPublicGalleryItems(): Promise<GalleryItem[]> {
   const response = await fetch(buildBackendApiUrl('/gallery'), {
     cache: 'no-store',
@@ -41,9 +75,19 @@ export async function fetchAdminGalleryItems(): Promise<GalleryAdminItem[]> {
 }
 
 export async function proxyAdminRequest(
+  request: Request,
   path: string,
   init: RequestInit = {},
 ): Promise<NextResponse> {
+  const method = getMethod(init.method ?? request.method);
+
+  if (!SAFE_METHODS.has(method)) {
+    const originValidationResponse = validateAdminMutationOrigin(request);
+    if (originValidationResponse) {
+      return originValidationResponse;
+    }
+  }
+
   const adminAuth = await getAdminApiAuth();
   if (!adminAuth) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -55,6 +99,7 @@ export async function proxyAdminRequest(
 
   const response = await fetch(buildBackendApiUrl(path), {
     ...init,
+    method,
     headers,
     cache: 'no-store',
   });

@@ -56,6 +56,12 @@ export class AuthService {
       );
     }
 
+    if (authorizedParties.length === 0) {
+      throw new InternalServerErrorException(
+        'Clerk authorized parties are not configured',
+      );
+    }
+
     const clerkRequest = this.toClerkRequest(request);
     clerkRequest.headers.set('authorization', `Bearer ${token}`);
 
@@ -66,7 +72,7 @@ export class AuthService {
     });
 
     const requestState = await clerkClient.authenticateRequest(clerkRequest, {
-      ...(authorizedParties.length > 0 ? { authorizedParties } : {}),
+      authorizedParties,
       acceptsToken: 'session_token',
       clockSkewInMs: 5000,
     });

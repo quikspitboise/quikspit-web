@@ -79,6 +79,25 @@ describe('AuthService', () => {
     );
   });
 
+  it('fails closed when Clerk authorized parties are not configured', async () => {
+    process.env.CLERK_AUTHORIZED_PARTIES = '';
+
+    await expect(
+      service.authenticateClerkRequest({
+        method: 'GET',
+        protocol: 'http',
+        originalUrl: '/api/gallery/admin/items',
+        url: '/api/gallery/admin/items',
+        headers: {
+          host: 'localhost:3001',
+          authorization: 'Bearer token-value',
+        },
+      } as any),
+    ).rejects.toThrow(InternalServerErrorException);
+
+    expect(authenticateRequestMock).not.toHaveBeenCalled();
+  });
+
   it('fails closed when the admin allowlist is not configured', () => {
     process.env.CLERK_ADMIN_USER_IDS = '';
 
