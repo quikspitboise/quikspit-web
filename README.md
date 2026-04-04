@@ -43,6 +43,30 @@ quickspit/
 
 ## Quick Start
 
+### Nix Development Shell
+
+If you use Nix, enter the repo shell with:
+
+```bash
+nix develop path:.
+```
+
+After the flake files are tracked by Git, plain `nix develop` works too.
+
+The shell provides:
+- Node.js 22
+- pnpm 9
+- PostgreSQL 16 tooling (`psql`, `initdb`, `pg_ctl`)
+- Native build prerequisites for Node packages
+
+It also adds local helpers for Postgres:
+
+```bash
+pg-init   # initialize ./.nix-postgres once
+pg-start  # start a local Postgres instance on port 5432
+pg-stop   # stop the local Postgres instance
+```
+
 ### Prerequisites
 
 - Node.js ≥ 18

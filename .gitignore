@@ -70,3 +70,5 @@ quickspit-shine/shell.nix
 
 # Others
 quickspit-shine/result/
+.nix-postgres/
+.pnpm-home/
