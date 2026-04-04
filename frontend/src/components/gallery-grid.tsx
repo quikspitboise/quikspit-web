@@ -10,6 +10,7 @@ export type GalleryItem = {
   title: string
   description?: string
   category?: string
+  tags?: string[]
   // For comparison images (before/after)
   beforeUrl?: string
   afterUrl?: string
@@ -19,6 +20,13 @@ export type GalleryItem = {
 
 type GalleryGridProps = {
   items: GalleryItem[]
+}
+
+function getItemCategories(item: GalleryItem) {
+  if (item.tags?.length) return item.tags
+  if (item.category) return [item.category]
+  if (item.beforeUrl && item.afterUrl) return ['comparison']
+  return ['showcase']
 }
 
 /* ─── Filter Tab ─────────────────────────────────────────────── */
@@ -156,9 +164,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   const categories = useMemo(() => {
     const cats = new Set<string>()
     items.forEach((item) => {
-      if (item.category) cats.add(item.category)
-      else if (item.beforeUrl && item.afterUrl) cats.add('comparison')
-      else cats.add('showcase')
+      getItemCategories(item).forEach((category) => cats.add(category))
     })
     return ['all', ...Array.from(cats)]
   }, [items])
@@ -166,10 +172,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   // Filtered items
   const filteredItems = useMemo(() => {
     if (activeCategory === 'all') return items
-    return items.filter((item) => {
-      const cat = item.category || (item.beforeUrl && item.afterUrl ? 'comparison' : 'showcase')
-      return cat === activeCategory
-    })
+    return items.filter((item) => getItemCategories(item).includes(activeCategory))
   }, [items, activeCategory])
 
   const featuredItems = useMemo(() => {
@@ -201,7 +204,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [activeIndex, filteredItems.length, onClose])
+  }, [activeIndex, filteredItems.length, isZoomed, onClose])
 
   // Focus close button when modal opens
   useEffect(() => {
