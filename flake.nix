@@ -5,7 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { nixpkgs, ... }:
+  outputs =
+    { nixpkgs, ... }:
     let
       systems = [
         "x86_64-linux"
@@ -14,7 +15,8 @@
         "aarch64-darwin"
       ];
 
-      forAllSystems = f:
+      forAllSystems =
+        f:
         nixpkgs.lib.genAttrs systems (
           system:
           f (
@@ -30,29 +32,27 @@
         let
           lib = pkgs.lib;
           postgres = pkgs.postgresql_16;
-          runtimeLibs =
-            [
-              pkgs.libpq
-              pkgs.openssl
-            ]
-            ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+          runtimeLibs = [
+            pkgs.libpq
+            pkgs.openssl
+          ]
+          ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
         in
         {
           default = pkgs.mkShell (
             {
-              packages =
-                [
-                  pkgs.nodejs_22
-                  pkgs.pnpm_9
-                  postgres
-                  pkgs.libpq
-                  pkgs.openssl
-                  pkgs.pkg-config
-                  pkgs.python3
-                  pkgs.gnumake
-                  pkgs.git
-                ]
-                ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+              packages = [
+                pkgs.nodejs_22
+                pkgs.pnpm_9
+                postgres
+                pkgs.libpq
+                pkgs.openssl
+                pkgs.pkg-config
+                pkgs.python3
+                pkgs.gnumake
+                pkgs.git
+              ]
+              ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
 
               LD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
 
@@ -61,8 +61,8 @@
                 export PATH="$PNPM_HOME:$PATH"
                 export npm_config_python="${pkgs.python3}/bin/python3"
 
-                export PGHOST="${PGHOST:-localhost}"
-                export PGPORT="${PGPORT:-5432}"
+                export PGHOST="$PGDATA/tmp"
+                export PGPORT="''${PGPORT:-5432}"
                 export PGDATA="$PWD/.nix-postgres"
 
                 pg-init() {
@@ -73,8 +73,9 @@
                 }
 
                 pg-start() {
+                  mkdir -p "$PGDATA/tmp"
                   pg-init
-                  pg_ctl -D "$PGDATA" -l "$PGDATA/postgres.log" -o "-p $PGPORT" start
+                  pg_ctl -D "$PGDATA" -l "$PGDATA/postgres.log" -o "-p $PGPORT -k $PGDATA/tmp" start
                 }
 
                 pg-stop() {

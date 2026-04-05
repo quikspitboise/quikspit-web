@@ -6,7 +6,7 @@ import { AnimatedSection, SectionTransition } from '@/components/ui/section-tran
 import { GalleryGrid } from '@/components/gallery-grid'
 import InstagramEmbedWithSkeleton from '@/components/InstagramEmbedWithSkeleton'
 import TikTokEmbedWithSkeleton from '@/components/TikTokEmbedWithSkeleton'
-import { GALLERY_ITEMS } from '@/data/gallery'
+import { fetchPublicGalleryItems } from '@/lib/server/gallery-api'
 
 export const metadata: Metadata = {
   title: 'Gallery',
@@ -21,8 +21,10 @@ export const metadata: Metadata = {
   },
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function Gallery() {
-  const galleryItems = GALLERY_ITEMS;
+  const galleryItems = await fetchPublicGalleryItems()
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}

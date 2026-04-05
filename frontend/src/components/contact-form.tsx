@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { buildBackendApiUrl } from '@/lib/backend-api'
 import { Reveal } from '@/components/reveal'
 
 interface ValidationErrors {
@@ -129,7 +130,7 @@ export function ContactForm() {
       formData.append('email', form.email)
       formData.append('message', form.message)
       if (image) formData.append('image', image)
-      const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/contact', {
+      const res = await fetch(buildBackendApiUrl('/contact'), {
         method: 'POST',
         body: formData,
       })

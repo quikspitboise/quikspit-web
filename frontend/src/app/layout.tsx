@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -107,20 +108,22 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <PostHogProvider>
-          <ThemeProvider
-            defaultTheme="system"
-            storageKey="quickspit-theme"
-          >
-            <ErrorBoundary>
-              <Navigation />
-              <PageTransition>
-                {children}
-              </PageTransition>
-              <Footer />
-            </ErrorBoundary>
-          </ThemeProvider>
-        </PostHogProvider>
+        <ClerkProvider>
+          <PostHogProvider>
+            <ThemeProvider
+              defaultTheme="system"
+              storageKey="quickspit-theme"
+            >
+              <ErrorBoundary>
+                <Navigation />
+                <PageTransition>
+                  {children}
+                </PageTransition>
+                <Footer />
+              </ErrorBoundary>
+            </ThemeProvider>
+          </PostHogProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

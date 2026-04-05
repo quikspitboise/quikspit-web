@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const backendHost = new URL(backendUrl).hostname;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -10,14 +13,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3001',
-        pathname: '/resources/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'quickspit.onrender.com',
+        protocol: backendUrl.startsWith('https') ? 'https' : 'http',
+        hostname: backendHost,
         pathname: '/resources/**',
       },
       {

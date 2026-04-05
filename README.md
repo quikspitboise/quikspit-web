@@ -83,7 +83,10 @@ pnpm install
 
 **Frontend** — `frontend/.env.local`
 ```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001/api
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_ADMIN_USER_IDS=user_xxx,user_yyy
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
 NEXT_PUBLIC_CAL_USERNAME=your-calcom-username
 NEXT_PUBLIC_ENV=development
@@ -92,7 +95,18 @@ NEXT_PUBLIC_ENV=development
 **Backend** — `backend/.env`
 ```env
 PORT=3001
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=quikspit
+
+# Clerk auth
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_JWT_KEY=your-clerk-jwt-public-key
+CLERK_ADMIN_USER_IDS=user_xxx,user_yyy
+CLERK_AUTHORIZED_PARTIES=http://localhost:3000
 
 # Cloudinary (image/video hosting)
 CLOUDINARY_CLOUD_NAME=your-cloud-name

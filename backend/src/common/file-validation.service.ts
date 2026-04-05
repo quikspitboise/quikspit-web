@@ -1,10 +1,18 @@
 import { BadRequestException } from '@nestjs/common';
 
-type FileTypeModule = typeof import('file-type');
+interface FileTypeResult {
+  mime: string;
+  ext: string;
+}
+
+type FileTypeFromBuffer = (
+  buffer: Buffer,
+) => Promise<FileTypeResult | undefined>;
+
 const importFileType = new Function(
   'specifier',
   'return import(specifier)',
-) as (specifier: string) => Promise<FileTypeModule>;
+) as (specifier: string) => Promise<{ fileTypeFromBuffer: FileTypeFromBuffer }>;
 
 export class FileValidationService {
   private static readonly ALLOWED_MIME_TYPES = [
