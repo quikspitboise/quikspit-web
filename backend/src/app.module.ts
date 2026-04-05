@@ -29,6 +29,8 @@ import { HealthController } from './health.controller';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
+      migrationsRun: process.env.NODE_ENV === 'production',
+      migrations: [__dirname + '/migrations/*{.ts,.js}'],
     }),
     LoggerModule,
     AuthModule,

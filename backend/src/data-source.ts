@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { GalleryItemEntity } from './gallery/entities/gallery-item.entity';
+import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
 
 config();
 
@@ -32,7 +33,7 @@ export const AppDataSource = new DataSource({
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
   entities: [GalleryItemEntity],
-  migrations: [],
+  migrations: [CreateGalleryItemsTable1740000000000],
   subscribers: [],
 });
 
