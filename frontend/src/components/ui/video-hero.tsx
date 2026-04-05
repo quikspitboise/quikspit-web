@@ -31,13 +31,10 @@ export function VideoHero({
 
   // Debug logging
   useEffect(() => {
-    console.log('VideoHero - videoPublicId:', videoPublicId);
-    console.log('VideoHero - CLOUDINARY_ASSETS:', CLOUDINARY_ASSETS);
-    console.log('VideoHero - isMobile:', isMobile);
-    console.log('VideoHero - isVideoLoaded:', isVideoLoaded);
-    console.log('VideoHero - hasError:', hasError);
-    console.log('VideoHero - showDesktopVideo:', isMobile === false && !hasError);
-    console.log('VideoHero - showMobileImage:', isMobile === true || hasError);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('VideoHero - videoPublicId:', videoPublicId);
+      console.log('VideoHero - isMobile:', isMobile, '| loaded:', isVideoLoaded, '| error:', hasError);
+    }
   }, [videoPublicId, isMobile, isVideoLoaded, hasError]);
 
   const { scrollYProgress } = useScroll({
@@ -149,15 +146,12 @@ export function VideoHero({
               playsInline
               className="w-full h-full object-cover"
               onPlay={() => {
-                console.log('Video onPlay fired');
                 setIsVideoLoaded(true);
               }}
               onLoadedData={() => {
-                console.log('Video onLoadedData fired');
                 setIsVideoLoaded(true);
               }}
               onCanPlay={() => {
-                console.log('Video onCanPlay fired');
                 setIsVideoLoaded(true);
               }}
               onError={(e) => {

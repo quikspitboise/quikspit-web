@@ -9,24 +9,37 @@ type ComparisonSliderProps = {
 	altBefore?: string
 	altAfter?: string
 	initialPosition?: number // 0-100
+	className?: string
+	imageFit?: 'cover' | 'contain'
+	sizes?: string
 }
 
-export function ComparisonSlider({ beforeUrl, afterUrl, altBefore = 'Before image', altAfter = 'After image', initialPosition = 50 }: ComparisonSliderProps) {
+export function ComparisonSlider({
+	beforeUrl,
+	afterUrl,
+	altBefore = 'Before image',
+	altAfter = 'After image',
+	initialPosition = 50,
+	className = '',
+	imageFit = 'cover',
+	sizes = '(max-width: 640px) 100vw, 50vw',
+}: ComparisonSliderProps) {
 	const [position, setPosition] = useState<number>(Math.min(100, Math.max(0, initialPosition)))
 	const clipStyle = useMemo(() => ({ clipPath: `polygon(0 0, ${position}% 0, ${position}% 100%, 0 100%)` }), [position])
+	const imageClassName = `${imageFit === 'contain' ? 'object-contain' : 'object-cover'} select-none`
 
 	const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setPosition(parseInt(e.target.value, 10))
 	}, [])
 
 	return (
-		<div className="group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light">
+		<div className={`group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light ${className}`.trim()}>
 			{/* After image as base layer */}
-			<CldImage src={afterUrl} alt={altAfter} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover select-none" priority={false} />
+			<CldImage src={afterUrl} alt={altAfter} fill sizes={sizes} className={imageClassName} priority={false} />
 
 			{/* Before image clipped to position (keeps full size, clips using CSS) */}
 			<div className="absolute inset-0 pointer-events-none" style={clipStyle} aria-hidden>
-				<CldImage src={beforeUrl} alt={altBefore} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover select-none" />
+				<CldImage src={beforeUrl} alt={altBefore} fill sizes={sizes} className={imageClassName} />
 			</div>
 
 			{/* Divider + handle */}
@@ -61,4 +74,3 @@ export function ComparisonSlider({ beforeUrl, afterUrl, altBefore = 'Before imag
 }
 
 export default ComparisonSlider
-

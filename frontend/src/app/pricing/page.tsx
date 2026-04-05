@@ -415,10 +415,6 @@ export default function Pricing() {
                   q: 'What payment methods do you accept?',
                   a: 'We accept all major credit cards, debit cards, cash, and digital payments including Apple Pay, Google Pay, and Venmo.',
                 },
-                {
-                  q: 'Do you offer any discounts?',
-                  a: 'Yes! We offer a 10% discount for first-time customers and special rates for recurring service packages. Ask about our referral program too!',
-                },
               ].map((faq) => (
                 <GlassCard key={faq.q} className="p-6">
                   <h3 className="font-semibold text-white mb-2">{faq.q}</h3>

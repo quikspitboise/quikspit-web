@@ -18,12 +18,21 @@ export function SectionTransition({
   if (variant === 'line') {
     return (
       <div ref={ref} className={`py-12 lg:py-16 ${className}`}>
-        <motion.div
-          className="h-px bg-gradient-to-r from-transparent via-red-600/50 to-transparent"
-          initial={{ scaleX: 0, opacity: 0 }}
-          animate={isInView ? { scaleX: 1, opacity: 1 } : { scaleX: 0, opacity: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        />
+        <div className="relative">
+          <motion.div
+            className="h-px bg-gradient-to-r from-transparent via-red-600/50 to-transparent"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={isInView ? { scaleX: 1, opacity: 1 } : { scaleX: 0, opacity: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          />
+          {/* Subtle glow behind the line */}
+          <motion.div
+            className="absolute inset-x-[20%] -top-2 h-5 bg-gradient-to-r from-transparent via-red-600/10 to-transparent blur-md"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 1.2, delay: 0.3 }}
+          />
+        </div>
       </div>
     );
   }
@@ -47,7 +56,7 @@ export function SectionTransition({
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 rounded-full bg-red-600/50"
+            className="w-1.5 h-1.5 rounded-full bg-red-600/50"
             initial={{ scale: 0, opacity: 0 }}
             animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
             transition={{ duration: 0.4, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}

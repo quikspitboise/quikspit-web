@@ -50,7 +50,7 @@ export function GlassCard({
     <motion.div
       ref={cardRef}
       className={`
-        relative overflow-hidden rounded-2xl
+        group relative overflow-hidden rounded-2xl
         glass-card
         ${hover ? 'glass-card-hover shine-effect' : ''}
         ${paddingClasses[padding]}
@@ -65,12 +65,12 @@ export function GlassCard({
       {/* Spotlight effect following cursor */}
       {spotlight && (
         <motion.div
-          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           style={{
             background: useMotionTemplate`
               radial-gradient(
-                350px circle at ${mouseX}px ${mouseY}px,
-                rgba(239, 68, 68, 0.08),
+                400px circle at ${mouseX}px ${mouseY}px,
+                rgba(239, 68, 68, 0.1),
                 transparent 80%
               )
             `,
@@ -113,7 +113,7 @@ export function FeatureCard({
       <GlassCard className={`h-full ${className}`} hover gradient="subtle">
         <div className="flex flex-col h-full">
           {/* Icon */}
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center mb-5 shadow-lg shadow-red-600/20">
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center mb-5 shadow-lg shadow-red-600/20 ring-1 ring-red-500/20">
             <div className="text-white">{icon}</div>
           </div>
 

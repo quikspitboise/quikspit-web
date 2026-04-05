@@ -128,10 +128,13 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8"
+                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm mb-8 badge-pulse"
               >
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-sm text-white/80 tracking-wide">Mobile Detailing in Boise, ID</span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                </span>
+                <span className="text-sm text-white/80 tracking-wide font-medium">Mobile Detailing in Boise, ID</span>
               </motion.div>
 
               {/* Main Headline */}
@@ -174,25 +177,25 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 1.3 }}
-                className="mt-16 flex flex-wrap justify-center gap-8 text-white/50 text-sm"
+                className="mt-16 flex flex-wrap justify-center gap-4 sm:gap-6"
               >
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
+                  <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span>4.9 Rating</span>
+                  <span className="text-sm text-white/60 font-medium">4.9 Rating</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
+                  <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>100% Satisfaction</span>
+                  <span className="text-sm text-white/60 font-medium">100% Satisfaction</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Same-Day Available</span>
+                  <span className="text-sm text-white/60 font-medium">Same-Day Available</span>
                 </div>
               </motion.div>
             </div>
@@ -201,8 +204,9 @@ export default function Home() {
 
         {/* Services Section - Bento Grid */}
         <section className="py-24 lg:py-32 relative overflow-hidden">
-          {/* Background accent */}
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
+          {/* Background accents */}
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-red-600/[0.03] rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-red-600/[0.02] rounded-full blur-[100px] pointer-events-none" />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
             {/* Section Header */}
@@ -328,9 +332,9 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-center py-8"
               >
-                <div className="font-display text-5xl lg:text-6xl text-white mb-4 tracking-wide">
+                <div className="font-display text-5xl lg:text-6xl text-white mb-4 tracking-wide leading-tight">
                   READY TO<br />
-                  <span className="text-gradient-red">SHINE?</span>
+                  <span className="text-gradient-red text-6xl lg:text-7xl">SHINE?</span>
                 </div>
                 <p className="text-neutral-400 text-lg mb-8 max-w-md mx-auto">
                   Book your mobile detailing service today and experience the QuikSpit difference.

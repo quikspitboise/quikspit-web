@@ -10,6 +10,16 @@ import { Request } from 'express';
 import Stripe from 'stripe';
 import { LoggerService } from '../common/logger.service';
 
+type StripeClient = ReturnType<typeof Stripe>;
+type StripeEvent = ReturnType<StripeClient['webhooks']['constructEvent']>;
+type StripePaymentIntent = Awaited<
+  ReturnType<StripeClient['paymentIntents']['retrieve']>
+>;
+type StripeCheckoutSession = Awaited<
+  ReturnType<StripeClient['checkout']['sessions']['retrieve']>
+>;
+type StripeInvoice = Awaited<ReturnType<StripeClient['invoices']['retrieve']>>;
+
 /**
  * Stripe Webhook Controller
  *
@@ -33,7 +43,7 @@ import { LoggerService } from '../common/logger.service';
  */
 @Controller('webhooks/stripe')
 export class StripeWebhookController {
-  private stripe: Stripe | null = null;
+  private stripe: StripeClient | null = null;
   private isStripeConfigured: boolean = false;
 
   constructor(private readonly logger: LoggerService) {
@@ -45,7 +55,7 @@ export class StripeWebhookController {
       this.isStripeConfigured = false;
     } else {
       try {
-        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
         this.isStripeConfigured = true;
         this.logger.log('Stripe webhook controller initialized successfully');
       } catch (error) {
@@ -77,7 +87,7 @@ export class StripeWebhookController {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
 
-    let event: Stripe.Event;
+    let event: StripeEvent;
 
     try {
       // Verify webhook signature to ensure it came from Stripe
@@ -99,29 +109,29 @@ export class StripeWebhookController {
       switch (event.type) {
         case 'payment_intent.succeeded':
           await this.handlePaymentIntentSucceeded(
-            event.data.object as Stripe.PaymentIntent,
+            event.data.object as StripePaymentIntent,
           );
           break;
 
         case 'payment_intent.payment_failed':
           await this.handlePaymentIntentFailed(
-            event.data.object as Stripe.PaymentIntent,
+            event.data.object as StripePaymentIntent,
           );
           break;
 
         case 'checkout.session.completed':
           await this.handleCheckoutSessionCompleted(
-            event.data.object as Stripe.Checkout.Session,
+            event.data.object as StripeCheckoutSession,
           );
           break;
 
         case 'invoice.paid':
-          await this.handleInvoicePaid(event.data.object as Stripe.Invoice);
+          await this.handleInvoicePaid(event.data.object as StripeInvoice);
           break;
 
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailed(
-            event.data.object as Stripe.Invoice,
+            event.data.object as StripeInvoice,
           );
           break;
 
@@ -144,7 +154,7 @@ export class StripeWebhookController {
    * Handle successful payment
    */
   private async handlePaymentIntentSucceeded(
-    paymentIntent: Stripe.PaymentIntent,
+    paymentIntent: StripePaymentIntent,
   ) {
     const bookingId = paymentIntent.metadata.bookingId;
 
@@ -163,7 +173,7 @@ export class StripeWebhookController {
   /**
    * Handle failed payment
    */
-  private async handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
+  private async handlePaymentIntentFailed(paymentIntent: StripePaymentIntent) {
     const bookingId = paymentIntent.metadata.bookingId;
 
     this.logger.warn('Payment failed', {
@@ -182,7 +192,7 @@ export class StripeWebhookController {
    * Handle completed checkout session
    */
   private async handleCheckoutSessionCompleted(
-    session: Stripe.Checkout.Session,
+    session: StripeCheckoutSession,
   ) {
     const bookingId = session.metadata?.bookingId;
 
@@ -200,7 +210,7 @@ export class StripeWebhookController {
   /**
    * Handle paid invoice
    */
-  private async handleInvoicePaid(invoice: Stripe.Invoice) {
+  private async handleInvoicePaid(invoice: StripeInvoice) {
     const bookingId = invoice.metadata?.bookingId;
 
     this.logger.log('Invoice paid', {
@@ -219,7 +229,7 @@ export class StripeWebhookController {
   /**
    * Handle failed invoice payment
    */
-  private async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  private async handleInvoicePaymentFailed(invoice: StripeInvoice) {
     const bookingId = invoice.metadata?.bookingId;
 
     this.logger.warn('Invoice payment failed', {

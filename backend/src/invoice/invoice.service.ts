@@ -4,6 +4,11 @@ import { LoggerService } from '../common/logger.service';
 import { SmsService } from '../common/sms.service';
 import { CreateInvoiceDto, SendInvoiceDto } from './dto/create-invoice.dto';
 
+type StripeClient = ReturnType<typeof Stripe>;
+type StripeCustomerCreateParams = Parameters<StripeClient['customers']['create']>[0];
+type StripeInvoiceCreateParams = Parameters<StripeClient['invoices']['create']>[0];
+type StripeInvoice = Awaited<ReturnType<StripeClient['invoices']['retrieve']>>;
+
 /**
  * Invoice creation result
  */
@@ -51,7 +56,7 @@ const DEFAULT_CONFIG: InvoiceConfig = {
  */
 @Injectable()
 export class InvoiceService {
-  private stripe: Stripe | null = null;
+  private stripe: StripeClient | null = null;
   private isStripeConfigured: boolean = false;
   private config: InvoiceConfig = { ...DEFAULT_CONFIG };
 
@@ -66,7 +71,7 @@ export class InvoiceService {
       this.isStripeConfigured = false;
     } else {
       try {
-        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
         this.isStripeConfigured = true;
         this.logger.log('Invoice service initialized with Stripe');
       } catch (error) {
@@ -140,7 +145,7 @@ export class InvoiceService {
         metadata.bookingId = dto.bookingId;
       }
 
-      const customerParams: Stripe.CustomerCreateParams = {
+      const customerParams: StripeCustomerCreateParams = {
         name: dto.customerName,
         metadata,
       };
@@ -183,7 +188,7 @@ export class InvoiceService {
         invoiceMetadata.bookingId = dto.bookingId;
       }
 
-      const invoiceParams: Stripe.InvoiceCreateParams = {
+      const invoiceParams: StripeInvoiceCreateParams = {
         customer: customer.id,
         collection_method: 'send_invoice',
         days_until_due: daysUntilDue,
@@ -302,7 +307,7 @@ export class InvoiceService {
   /**
    * Retrieve an invoice by ID
    */
-  async getInvoice(invoiceId: string): Promise<Stripe.Invoice | null> {
+  async getInvoice(invoiceId: string): Promise<StripeInvoice | null> {
     if (!this.stripe) {
       throw new BadRequestException('Stripe is not configured');
     }
