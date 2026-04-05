@@ -84,7 +84,10 @@ export async function fetchAdminGalleryItems(): Promise<GalleryAdminItem[]> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch admin gallery items');
+    const body = await response.text();
+    throw new Error(
+      `Failed to fetch admin gallery items (${response.status}): ${body.slice(0, 300)}`,
+    );
   }
 
   const data = (await response.json()) as { items: GalleryAdminItem[] };

@@ -144,12 +144,16 @@ export class AuthService {
     const adminUserIds = this.getAdminUserIds();
 
     if (adminUserIds.length === 0) {
+      this.logger.error('Clerk admin allowlist is not configured');
       throw new InternalServerErrorException(
         'No Clerk admin users are configured',
       );
     }
 
     if (!adminUserIds.includes(userId)) {
+      this.logger.warn('Authenticated Clerk user is not on the admin allowlist', {
+        userId,
+      });
       throw new NotFoundException('Resource not found');
     }
   }

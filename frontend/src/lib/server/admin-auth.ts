@@ -41,6 +41,9 @@ export async function getAdminApiAuth(): Promise<{
 
   const token = await authObject.getToken();
   if (!token) {
+    console.error('Clerk did not return a session token for admin API auth', {
+      userId,
+    });
     return null;
   }
 
