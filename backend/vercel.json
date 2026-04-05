@@ -3,5 +3,13 @@
   "framework": null,
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/serverless" }
+  ],
+  "functions": {
+    "api/serverless.ts": {
+      "runtime": "@vercel/node@5",
+      "includeFiles": "dist/**"
+    }
+  }
 }
