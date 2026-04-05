@@ -6,9 +6,7 @@ export class LoggerService implements NestLoggerService {
   private logger: winston.Logger;
 
   constructor() {
-    // Define format for sanitizing sensitive data
     const sanitizeFormat = winston.format((info) => {
-      // Sanitize common sensitive fields
       const sensitiveFields = [
         'password',
         'token',
@@ -25,13 +23,55 @@ export class LoggerService implements NestLoggerService {
         info.message = this.sanitizeObject(info.message, sensitiveFields);
       }
 
-      // Sanitize metadata
       if (info.metadata) {
         info.metadata = this.sanitizeObject(info.metadata, sensitiveFields);
       }
 
       return info;
     });
+
+    const consoleTransport = new winston.transports.Console({
+      format:
+        process.env.NODE_ENV !== 'production'
+          ? winston.format.combine(
+              winston.format.colorize(),
+              winston.format.printf(
+                ({ level, message, timestamp, ...metadata }) => {
+                  let msg = `${timestamp} [${level}]: ${message}`;
+
+                  if (Object.keys(metadata).length > 0 && metadata.service) {
+                    const rest = { ...metadata };
+                    delete rest.service;
+
+                    if (Object.keys(rest).length > 0) {
+                      msg += ` ${JSON.stringify(rest)}`;
+                    }
+                  }
+
+                  return msg;
+                },
+              ),
+            )
+          : undefined,
+    });
+
+    const transports: winston.transport[] = [consoleTransport];
+
+    if (this.shouldUseFileTransports()) {
+      transports.push(
+        new winston.transports.File({
+          filename: 'logs/error.log',
+          level: 'error',
+          maxsize: 5242880,
+          maxFiles: 5,
+        }),
+        new winston.transports.File({
+          filename: 'logs/combined.log',
+          maxsize: 5242880,
+          maxFiles: 5,
+        }),
+      );
+    }
 
     this.logger = winston.createLogger({
       level: process.env.LOG_LEVEL || 'info',
@@ -43,51 +83,26 @@ export class LoggerService implements NestLoggerService {
         winston.format.json(),
       ),
       defaultMeta: { service: 'quickspit-backend' },
-      transports: [
-        // Write all logs with importance level of `error` or higher to `error.log`
-        new winston.transports.File({
-          filename: 'logs/error.log',
-          level: 'error',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        }),
-        // Write all logs to `combined.log`
-        new winston.transports.File({
-          filename: 'logs/combined.log',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        }),
-      ],
+      transports,
     });
-
-    // If we're not in production, log to the console with a simpler format
-    if (process.env.NODE_ENV !== 'production') {
-      this.logger.add(
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.printf(
-              ({ level, message, timestamp, ...metadata }) => {
-                let msg = `${timestamp} [${level}]: ${message}`;
-                if (Object.keys(metadata).length > 0 && metadata.service) {
-                  const rest = { ...metadata };
-                  delete rest.service;
-                  if (Object.keys(rest).length > 0) {
-                    msg += ` ${JSON.stringify(rest)}`;
-                  }
-                }
-                return msg;
-              },
-            ),
-          ),
-        }),
-      );
-    }
   }
 
-  /**
-   * Sanitize sensitive fields in objects by replacing with masked values
-   */
+  private shouldUseFileTransports(): boolean {
+    if (process.env.ENABLE_FILE_LOGGING === 'false') {
+      return false;
+    }
+
+    if (process.env.ENABLE_FILE_LOGGING === 'true') {
+      return true;
+    }
+
+    return !(
+      process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.NOW_REGION
+    );
+  }
+
   private sanitizeObject(obj: any, sensitiveFields: string[]): any {
     if (!obj || typeof obj !== 'object') {
       return obj;
@@ -101,7 +116,6 @@ export class LoggerService implements NestLoggerService {
           key.toLowerCase().includes(field.toLowerCase()),
         )
       ) {
-        // Mask sensitive data
         if (typeof sanitized[key] === 'string' && sanitized[key].length > 0) {
           sanitized[key] = '***REDACTED***';
         }
@@ -109,7 +123,6 @@ export class LoggerService implements NestLoggerService {
         typeof sanitized[key] === 'object' &&
         sanitized[key] !== null
       ) {
-        // Recursively sanitize nested objects
         sanitized[key] = this.sanitizeObject(sanitized[key], sensitiveFields);
       }
     }
@@ -137,9 +150,6 @@ export class LoggerService implements NestLoggerService {
     this.logger.verbose(message, ...optionalParams);
   }
 
-  /**
-   * Log with specific context
-   */
   logWithContext(level: string, message: string, context?: any) {
     this.logger.log(level, message, { context });
   }

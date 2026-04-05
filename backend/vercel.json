@@ -2,13 +2,9 @@
   "framework": null,
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/serverless" }
-  ],
   "functions": {
-    "api/serverless.ts": {
-      "includeFiles": "src/**"
+    "api/**/*.js": {
+      "includeFiles": "dist/**"
     }
   }
 }

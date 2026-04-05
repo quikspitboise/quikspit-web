@@ -13,6 +13,7 @@ import { ContactModule } from './contact/contact.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { HealthController } from './health.controller';
+import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { HealthController } from './health.controller';
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
       migrationsRun: process.env.NODE_ENV === 'production',
-      migrations: [__dirname + '/migrations/*{.ts,.js}'],
+      migrations: [CreateGalleryItemsTable1740000000000],
     }),
     LoggerModule,
     AuthModule,
