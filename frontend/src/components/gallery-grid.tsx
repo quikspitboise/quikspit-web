@@ -392,11 +392,10 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                 {/* Image */}
                 <div className="relative flex-1 min-h-0 flex items-center justify-center">
                   {activeItem.beforeUrl && activeItem.afterUrl ? (
-                    <div 
-                      className="w-full"
+                    <div
+                      className="mx-auto w-full"
                       style={{
-                        maxHeight: 'calc(92vh - 10rem)',
-                        maxWidth: 'calc((92vh - 10rem) * 1.6)'
+                        maxWidth: 'min(100%, calc((92vh - 10rem) * 4 / 3))',
                       }}
                     >
                       <ComparisonSlider
@@ -405,6 +404,8 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                         altBefore={`${activeItem.title} - before detailing`}
                         altAfter={`${activeItem.title} - after detailing`}
                         initialPosition={50}
+                        imageFit="contain"
+                        sizes="(max-width: 768px) 100vw, 90vw"
                       />
                     </div>
                   ) : activeItem.imageUrl ? (
