@@ -24,7 +24,9 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function Gallery() {
-  const galleryItems = await fetchPublicGalleryItems()
+  const { items: galleryItems, source } = await fetchPublicGalleryItems()
+  const isFallbackGallery = source === 'fallback'
+
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
@@ -57,6 +59,13 @@ export default async function Gallery() {
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
+            {isFallbackGallery && (
+              <GlassCard className="mb-8 border border-amber-500/30 bg-amber-500/5 p-5" hover={false}>
+                <p className="text-sm text-amber-100">
+                  The live gallery service is temporarily unavailable. Showing cached portfolio items while the backend reconnects.
+                </p>
+              </GlassCard>
+            )}
             <GalleryGrid items={galleryItems} />
           </div>
         </div>

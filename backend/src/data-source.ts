@@ -1,16 +1,15 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
+import { getDatabaseConnectionOptions } from './database.config';
 import { GalleryItemEntity } from './gallery/entities/gallery-item.entity';
 import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
 
 config();
 
 const requiredEnvVars = [
-  'DB_HOST',
-  'DB_PORT',
-  'DB_USERNAME',
-  'DB_PASSWORD',
-  'DB_NAME',
+  ...(process.env.DATABASE_URL
+    ? []
+    : ['DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME']),
 ];
 const missingEnvVars = requiredEnvVars.filter(
   (varName) => !process.env[varName],
@@ -24,12 +23,7 @@ if (missingEnvVars.length > 0) {
 }
 
 export const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT!, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  ...getDatabaseConnectionOptions(),
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
   entities: [GalleryItemEntity],

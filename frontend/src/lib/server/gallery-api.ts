@@ -1,11 +1,17 @@
 import 'server-only';
 
 import { NextResponse } from 'next/server';
+import { GALLERY_ITEMS } from '@/data/gallery';
 import { buildBackendApiUrl } from '../backend-api';
 import type { GalleryAdminItem, GalleryItem } from '../gallery';
 import { getAdminApiAuth } from './admin-auth';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+export type PublicGalleryItemsResult = {
+  items: GalleryItem[];
+  source: 'api' | 'fallback';
+};
 
 function getMethod(method: string | undefined): string {
   return (method || 'GET').toUpperCase();
@@ -39,17 +45,28 @@ function validateAdminMutationOrigin(request: Request): NextResponse | null {
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 }
 
-export async function fetchPublicGalleryItems(): Promise<GalleryItem[]> {
-  const response = await fetch(buildBackendApiUrl('/gallery'), {
-    cache: 'no-store',
-  });
+export async function fetchPublicGalleryItems(): Promise<PublicGalleryItemsResult> {
+  try {
+    const response = await fetch(buildBackendApiUrl('/gallery'), {
+      cache: 'no-store',
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch gallery items');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery items: ${response.status}`);
+    }
+
+    const data = (await response.json()) as { items: GalleryItem[] };
+    return {
+      items: data.items,
+      source: 'api',
+    };
+  } catch (error) {
+    console.error('Falling back to static gallery items', error);
+    return {
+      items: GALLERY_ITEMS,
+      source: 'fallback',
+    };
   }
-
-  const data = (await response.json()) as { items: GalleryItem[] };
-  return data.items;
 }
 
 export async function fetchAdminGalleryItems(): Promise<GalleryAdminItem[]> {
