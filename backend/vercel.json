@@ -8,7 +8,7 @@
   ],
   "functions": {
     "api/serverless.ts": {
-      "includeFiles": "dist/**"
+      "includeFiles": "src/**"
     }
   }
 }
