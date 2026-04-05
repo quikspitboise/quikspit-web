@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
 import { GalleryGrid } from '@/components/gallery-grid'
+import { GalleryGridSkeleton } from '@/components/gallery-loading-shell'
 import InstagramEmbedWithSkeleton from '@/components/InstagramEmbedWithSkeleton'
 import TikTokEmbedWithSkeleton from '@/components/TikTokEmbedWithSkeleton'
 import { fetchPublicGalleryItems } from '@/lib/server/gallery-api'
@@ -21,12 +23,27 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
-export default async function Gallery() {
+async function GalleryContent() {
   const { items: galleryItems, source } = await fetchPublicGalleryItems()
   const isFallbackGallery = source === 'fallback'
 
+  return (
+    <>
+      {isFallbackGallery && (
+        <GlassCard className="mb-8 border border-amber-500/30 bg-amber-500/5 p-5" hover={false}>
+          <p className="text-sm text-amber-100">
+            The live gallery service is temporarily unavailable. Showing cached portfolio items while the backend reconnects.
+          </p>
+        </GlassCard>
+      )}
+      <GalleryGrid items={galleryItems} />
+    </>
+  )
+}
+
+export default function Gallery() {
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
       {/* Hero Section */}
@@ -59,14 +76,9 @@ export default async function Gallery() {
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            {isFallbackGallery && (
-              <GlassCard className="mb-8 border border-amber-500/30 bg-amber-500/5 p-5" hover={false}>
-                <p className="text-sm text-amber-100">
-                  The live gallery service is temporarily unavailable. Showing cached portfolio items while the backend reconnects.
-                </p>
-              </GlassCard>
-            )}
-            <GalleryGrid items={galleryItems} />
+            <Suspense fallback={<GalleryGridSkeleton />}>
+              <GalleryContent />
+            </Suspense>
           </div>
         </div>
       </AnimatedSection>
