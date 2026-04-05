@@ -3,8 +3,18 @@
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run build",
   "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/serverless"
+    },
+    {
+      "source": "/",
+      "destination": "/api/serverless"
+    }
+  ],
   "functions": {
-    "api/**/*.js": {
+    "api/serverless.js": {
       "includeFiles": "dist/**"
     }
   }
