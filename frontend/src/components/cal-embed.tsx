@@ -244,7 +244,7 @@ export function parseBookingParams(searchParams: URLSearchParams): BookingSelect
  * <CalEmbed selection={bookingSelection} />
  */
 export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalEmbedProps) {
-    const [isReady, setIsReady] = useState(false);
+    const [readyEmbedKey, setReadyEmbedKey] = useState<string | null>(null);
 
     // Determine which Cal.com event to show
     const calLink = useMemo(() => {
@@ -265,14 +265,35 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
         return config;
     }, [selection]);
 
-    // Generate a stable key to prevent iframe recreation on every render
-    // but allow recreation when calLink changes
-    const embedKey = useMemo(() => `cal-embed-${calLink}`, [calLink]);
+    const selectionSignature = useMemo(() => {
+        if (!selection) return 'default';
+
+        return [
+            selection.category,
+            selection.tier,
+            selection.size,
+            selection.sizeLabel || '',
+            selection.addons,
+            selection.ceramic || '',
+            selection.paintCorrection || '',
+            selection.total.toString(),
+            selection.packageName || '',
+        ]
+            .map((part) => encodeURIComponent(part))
+            .join('__');
+    }, [selection]);
+
+    // Remount the Cal iframe whenever the booking details change.
+    const embedKey = useMemo(
+        () => `cal-embed-${calLink}-${selectionSignature}`,
+        [calLink, selectionSignature]
+    );
 
     // Initialize Cal.com API BEFORE rendering the Cal component
     // This fixes the "iframe doesn't exist" race condition
     useEffect(() => {
         let isMounted = true;
+        setReadyEmbedKey(null);
 
         (async function initCal() {
             try {
@@ -282,7 +303,7 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
 
                 // Only update state if component is still mounted
                 if (isMounted) {
-                    setIsReady(true);
+                    setReadyEmbedKey(embedKey);
                     // Notify parent after a delay to allow iframe content to render
                     setTimeout(() => {
                         if (isMounted && onReady) {
@@ -298,7 +319,7 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
                     setTimeout(() => onReady(), 500);
                 }
                 if (isMounted) {
-                    setIsReady(true); // Still show embed, it may work
+                    setReadyEmbedKey(embedKey); // Still show embed, it may work
                 }
             }
         })();
@@ -311,7 +332,7 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
     return (
         <div className={`cal-embed-container ${className}`}>
             {/* Only render Cal component after API is initialized */}
-            {isReady ? (
+            {readyEmbedKey === embedKey ? (
                 <Cal
                     key={embedKey}
                     namespace={embedKey}
