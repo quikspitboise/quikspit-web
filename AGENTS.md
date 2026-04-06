@@ -33,6 +33,14 @@ QuikSpit is a full-stack web application for auto detailing services:
 
 ## Commands
 
+Use the Nix dev shell for local installs, linting, and builds so the expected Node/pnpm toolchain is available:
+
+```bash
+nix develop path:.
+```
+
+After entering the shell, run the usual project commands:
+
 ```bash
 pnpm install        # Install dependencies
 pnpm dev            # Run both frontend + backend
