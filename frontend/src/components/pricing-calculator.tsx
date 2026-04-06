@@ -44,6 +44,7 @@ type PricingCalculatorProps = {
     sizeAdjustments: SizeAdjustment[]
     addons: Addon[]
     ceramicServices: CeramicService[]
+    initialSelection?: BookingSelection | null
     initialPackageSelection?: {
         categoryId: string
         packageId: string
@@ -54,6 +55,8 @@ type PricingCalculatorProps = {
      * instead of navigating to /booking
      */
     onComplete?: (selection: BookingSelection) => void
+    /** Fires whenever the current valid selection changes */
+    onSelectionChange?: (selection: BookingSelection | null) => void
     /** Custom label for the Book Now button (default: "Book Now") */
     bookButtonLabel?: string
 }
@@ -63,8 +66,10 @@ export function PricingCalculator({
     sizeAdjustments,
     addons,
     ceramicServices,
+    initialSelection = null,
     initialPackageSelection = null,
     onComplete,
+    onSelectionChange,
     bookButtonLabel = 'Book Now',
 }: PricingCalculatorProps) {
     const router = useRouter()
@@ -137,6 +142,41 @@ export function PricingCalculator({
     }, [ceramicCoatingSelected, selectedPaintCorrection, ceramicServices, paintCorrectionUpgradePrice])
 
     const grandTotal = packagePrice + addonsTotal + ceramicTotal
+    const currentSelection = useMemo<BookingSelection | null>(() => {
+        if (!selectedPackage) return null
+
+        const ceramicName = ceramicCoatingSelected
+            ? ceramicServices.find((s) => s.id === 'graphene-coating')?.name
+            : undefined
+
+        const paintCorrectionName = selectedPaintCorrection
+            ? ceramicServices.find((s) => s.id === selectedPaintCorrection)?.name ??
+                (selectedPaintCorrection === 'paint-correction-2-upgrade'
+                    ? ceramicServices.find((s) => s.id === 'paint-correction-2')?.name
+                    : undefined)
+            : undefined
+
+        return {
+            category: selectedPackage.categoryId,
+            tier: selectedPackage.id,
+            size: vehicleSize,
+            sizeLabel: sizeLabel,
+            addons: Array.from(selectedAddons).join(','),
+            ceramic: ceramicName,
+            paintCorrection: paintCorrectionName,
+            total: grandTotal,
+            packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
+        }
+    }, [
+        selectedPackage,
+        vehicleSize,
+        sizeLabel,
+        selectedAddons,
+        ceramicCoatingSelected,
+        selectedPaintCorrection,
+        ceramicServices,
+        grandTotal,
+    ])
 
     const toggleAddon = (name: string) => {
         setSelectedAddons((prev) => {
@@ -170,36 +210,16 @@ export function PricingCalculator({
      * OR call the onComplete callback if in "in-page" mode
      */
     const handleBookNow = () => {
-        if (!selectedPackage) return
-
-        const ceramicName = ceramicCoatingSelected
-            ? ceramicServices.find((s) => s.id === 'graphene-coating')?.name
-            : undefined
-
-        const paintCorrectionName = selectedPaintCorrection
-            ? ceramicServices.find((s) => s.id === selectedPaintCorrection)?.name
-            : undefined
-
-        const selection: BookingSelection = {
-            category: selectedPackage.categoryId,
-            tier: selectedPackage.id,
-            size: vehicleSize,
-            sizeLabel: sizeLabel,
-            addons: Array.from(selectedAddons).join(','),
-            ceramic: ceramicName,
-            paintCorrection: paintCorrectionName,
-            total: grandTotal,
-            packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
-        }
+        if (!currentSelection) return
 
         // In-page mode: call callback instead of navigating
         if (onComplete) {
-            onComplete(selection)
+            onComplete(currentSelection)
             return
         }
 
         // Default mode: navigate to booking page with URL params
-        const params = buildBookingParams(selection)
+        const params = buildBookingParams(currentSelection)
         router.push(`/booking?${params.toString()}#booking-widget`)
     }
 
@@ -234,6 +254,59 @@ export function PricingCalculator({
             return presetPackage
         })
     }, [initialPackageSelection, packages])
+
+    useEffect(() => {
+        if (!initialSelection) return
+
+        const presetPackage = packages.find(
+            (pkg) =>
+                pkg.categoryId === initialSelection.category &&
+                pkg.id === initialSelection.tier
+        )
+
+        if (presetPackage) {
+            setSelectedPackage(presetPackage)
+        }
+
+        setVehicleSize(initialSelection.size || 'car')
+        setSelectedAddons(
+            new Set(
+                initialSelection.addons
+                    .split(',')
+                    .map((addon) => addon.trim())
+                    .filter(Boolean)
+            )
+        )
+
+        const ceramicEnabledFromSelection = Boolean(initialSelection.ceramic)
+        setCeramicCoatingSelected(ceramicEnabledFromSelection)
+
+        if (!initialSelection.paintCorrection) {
+            setSelectedPaintCorrection(null)
+            return
+        }
+
+        const matchingCorrection = ceramicServices.find(
+            (service) => service.name === initialSelection.paintCorrection
+        )
+
+        if (!matchingCorrection) {
+            setSelectedPaintCorrection(null)
+            return
+        }
+
+        if (ceramicEnabledFromSelection && matchingCorrection.id === 'paint-correction-2') {
+            setSelectedPaintCorrection('paint-correction-2-upgrade')
+            return
+        }
+
+        setSelectedPaintCorrection(matchingCorrection.id)
+    }, [initialSelection, packages, ceramicServices])
+
+    useEffect(() => {
+        if (!onSelectionChange) return
+        onSelectionChange(currentSelection)
+    }, [onSelectionChange, currentSelection])
 
     return (
         <div className="space-y-8">

@@ -156,6 +156,7 @@ const bookingFaqStructuredData = {
 export default function Booking() {
   // Lifted state: the selection from the calculator
   const [selection, setSelection] = useState<BookingSelection | null>(null)
+  const [initialSelection, setInitialSelection] = useState<BookingSelection | null>(null)
   const [initialPackageSelection, setInitialPackageSelection] = useState<{
     categoryId: string
     packageId: string
@@ -166,6 +167,7 @@ export default function Booking() {
     const parsedSelection = parseBookingParams(searchParams)
 
     if (parsedSelection) {
+      setInitialSelection(parsedSelection)
       setSelection(parsedSelection)
     }
 
@@ -178,6 +180,10 @@ export default function Booking() {
         packageId: tier,
       })
     }
+  }, [])
+
+  const handleSelectionChange = useCallback((newSelection: BookingSelection | null) => {
+    setSelection(newSelection)
   }, [])
 
   // Called when user completes the "Design Your Detail" calculator
@@ -285,7 +291,7 @@ export default function Booking() {
                 DESIGN YOUR <span className="text-red-500">DETAIL</span>
               </FadeHeadline>
               <p className="text-neutral-400 max-w-2xl mx-auto">
-                Build your custom detail package below. Select your vehicle size, choose a package, and add any extras. When you&apos;re ready, click continue to pick your appointment time.
+                Build your custom detail package below. Select your vehicle size, choose a package, and add any extras. Your scheduling options will update automatically as you go.
               </p>
             </div>
 
@@ -294,9 +300,11 @@ export default function Booking() {
               sizeAdjustments={sizeAdjustments}
               addons={addons}
               ceramicServices={ceramicServices}
+              initialSelection={initialSelection}
               initialPackageSelection={initialPackageSelection}
+              onSelectionChange={handleSelectionChange}
               onComplete={handleDesignComplete}
-              bookButtonLabel="Continue to Scheduling →"
+              bookButtonLabel="Jump to Scheduling ↓"
             />
           </div>
         </div>
