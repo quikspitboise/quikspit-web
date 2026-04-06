@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Reveal } from '@/components/reveal'
@@ -44,6 +44,10 @@ type PricingCalculatorProps = {
     sizeAdjustments: SizeAdjustment[]
     addons: Addon[]
     ceramicServices: CeramicService[]
+    initialPackageSelection?: {
+        categoryId: string
+        packageId: string
+    } | null
     /** 
      * When provided, the calculator runs in "in-page" mode:
      * clicking Book Now calls this callback with the selection data
@@ -59,6 +63,7 @@ export function PricingCalculator({
     sizeAdjustments,
     addons,
     ceramicServices,
+    initialPackageSelection = null,
     onComplete,
     bookButtonLabel = 'Book Now',
 }: PricingCalculatorProps) {
@@ -209,6 +214,26 @@ export function PricingCalculator({
         })
         return grouped
     }, [packages])
+
+    useEffect(() => {
+        if (!initialPackageSelection) return
+
+        const presetPackage = packages.find(
+            (pkg) =>
+                pkg.categoryId === initialPackageSelection.categoryId &&
+                pkg.id === initialPackageSelection.packageId
+        )
+
+        if (!presetPackage) return
+
+        setSelectedPackage((current) => {
+            if (current?.categoryId === presetPackage.categoryId && current.id === presetPackage.id) {
+                return current
+            }
+
+            return presetPackage
+        })
+    }, [initialPackageSelection, packages])
 
     return (
         <div className="space-y-8">

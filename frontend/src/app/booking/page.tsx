@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Script from 'next/script'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
-import { CalEmbed, ServiceSummary, getDepositAmount, type BookingSelection } from '@/components/cal-embed'
+import { CalEmbed, ServiceSummary, getDepositAmount, parseBookingParams, type BookingSelection } from '@/components/cal-embed'
 import { PricingCalculator } from '@/components/pricing-calculator'
 
 // Package data (same as pricing page)
@@ -156,6 +156,29 @@ const bookingFaqStructuredData = {
 export default function Booking() {
   // Lifted state: the selection from the calculator
   const [selection, setSelection] = useState<BookingSelection | null>(null)
+  const [initialPackageSelection, setInitialPackageSelection] = useState<{
+    categoryId: string
+    packageId: string
+  } | null>(null)
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const parsedSelection = parseBookingParams(searchParams)
+
+    if (parsedSelection) {
+      setSelection(parsedSelection)
+    }
+
+    const category = searchParams.get('category')
+    const tier = searchParams.get('tier')
+
+    if (category && tier) {
+      setInitialPackageSelection({
+        categoryId: category,
+        packageId: tier,
+      })
+    }
+  }, [])
 
   // Called when user completes the "Design Your Detail" calculator
   const handleDesignComplete = useCallback((newSelection: BookingSelection) => {
@@ -271,6 +294,7 @@ export default function Booking() {
               sizeAdjustments={sizeAdjustments}
               addons={addons}
               ceramicServices={ceramicServices}
+              initialPackageSelection={initialPackageSelection}
               onComplete={handleDesignComplete}
               bookButtonLabel="Continue to Scheduling →"
             />

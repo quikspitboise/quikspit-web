@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { buildBookingParams } from '@/components/cal-embed'
 import { Reveal } from '@/components/reveal'
 
 interface Package {
@@ -29,6 +30,19 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
     const [activeCategory, setActiveCategory] = useState(0)
 
     const category = categories[activeCategory]
+    const getBookingHref = (categoryId: string, tierId: string, packageName: string, categoryLabel: string, basePrice: number) => {
+        const params = buildBookingParams({
+            category: categoryId,
+            tier: tierId,
+            size: 'car',
+            sizeLabel: 'Car / Sedan',
+            addons: '',
+            total: basePrice,
+            packageName: `${packageName} (${categoryLabel})`,
+        })
+
+        return `/booking?${params.toString()}#design-your-detail`
+    }
 
     return (
         <div>
@@ -105,6 +119,12 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
                                     <span className="text-red-600">${pkg.basePrice}</span>
                                     <span className="text-neutral-400 text-base align-top ml-1">+*</span>
                                 </span>
+                                <a
+                                    href={getBookingHref(category.id, pkg.id, pkg.name, category.label, pkg.basePrice)}
+                                    className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-brand-charcoal-light"
+                                >
+                                    Book This Package
+                                </a>
                             </div>
                         </div>
                     )
