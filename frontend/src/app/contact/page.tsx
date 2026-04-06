@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     canonical: '/contact',
   },
   openGraph: {
-    title: 'Contact QuikSpit Shine - Get a Free Quote',
+    title: 'Contact QuikSpit Auto Detailing - Get a Free Quote',
     description: 'Ready for a spotless vehicle? Contact us for professional mobile detailing services in Boise. Get a free quote today!',
     url: '/contact',
   },
@@ -174,7 +174,7 @@ export default function Contact() {
                     </svg>
                   </a>
                   <a
-                    href="https://www.facebook.com/profile.php?id=61576770498756"
+                    href="https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"

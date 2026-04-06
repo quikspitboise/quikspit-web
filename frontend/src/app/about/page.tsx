@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     canonical: '/about',
   },
   openGraph: {
-    title: 'About QuikSpit Shine - Professional Mobile Detailing',
+    title: 'About QuikSpit Auto Detailing - Professional Mobile Detailing',
     description: 'Learn about our mission to deliver efficient, high-quality mobile detailing services that save you time while providing results you can count on.',
     url: '/about',
   },

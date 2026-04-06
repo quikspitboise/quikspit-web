@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
@@ -13,10 +14,38 @@ export const metadata: Metadata = {
     canonical: '/pricing',
   },
   openGraph: {
-    title: 'Pricing - QuikSpit Shine Auto Detailing Services',
+    title: 'Pricing - QuikSpit Auto Detailing Services',
     description: 'View our competitive pricing for professional mobile detailing. Exterior, interior, and full detail packages available.',
     url: '/pricing',
   },
+}
+
+const pricingFaqs = [
+  {
+    q: 'Do prices vary by vehicle size?',
+    a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles have adjusted pricing based on size. Use our Design Your Detail tool on the booking page for accurate estimates.',
+  },
+  {
+    q: 'Is there a travel fee?',
+    a: 'We offer free travel within our primary service area (Boise and surrounding communities). Locations outside this area may incur a small travel fee.',
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'We accept all major credit cards, debit cards, cash, and digital payments including Apple Pay, Google Pay, and Venmo.',
+  },
+]
+
+const pricingFaqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: pricingFaqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
 }
 
 // All packages organized by category
@@ -218,6 +247,11 @@ const allPackagesFlat = packageCategories.flatMap((cat) =>
 export default function Pricing() {
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
+      <Script
+        id="pricing-faq-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqStructuredData) }}
+      />
       {/* Hero Section */}
       <section className="relative py-24 lg:py-32 overflow-hidden">
         {/* Background accents */}
@@ -402,20 +436,7 @@ export default function Pricing() {
             </div>
 
             <div className="space-y-4">
-              {[
-                {
-                  q: 'Do prices vary by vehicle size?',
-                  a: 'Yes, our base prices are for standard sedans. SUVs, trucks, and larger vehicles have adjusted pricing based on size. Use our Design Your Detail tool on the booking page for accurate estimates.',
-                },
-                {
-                  q: 'Is there a travel fee?',
-                  a: 'We offer free travel within our primary service area (Boise and surrounding communities). Locations outside this area may incur a small travel fee.',
-                },
-                {
-                  q: 'What payment methods do you accept?',
-                  a: 'We accept all major credit cards, debit cards, cash, and digital payments including Apple Pay, Google Pay, and Venmo.',
-                },
-              ].map((faq) => (
+              {pricingFaqs.map((faq) => (
                 <GlassCard key={faq.q} className="p-6">
                   <h3 className="font-semibold text-white mb-2">{faq.q}</h3>
                   <p className="text-neutral-400 text-sm">{faq.a}</p>

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { UserButton } from '@clerk/nextjs';
 import { GalleryAdminClient } from '@/components/admin/gallery-admin-client';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -5,6 +6,13 @@ import { requireAdminPageAuth } from '@/lib/server/admin-auth';
 import { fetchAdminGalleryItems } from '@/lib/server/gallery-api';
 
 export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: 'Admin',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default async function AdminGalleryPage() {
   await requireAdminPageAuth();

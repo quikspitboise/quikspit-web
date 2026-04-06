@@ -62,8 +62,9 @@ export default function Home() {
       "longitude": -116.2023
     },
     "sameAs": [
-      "https://www.instagram.com/quikspit_shine",
-      "https://www.tiktok.com/@quikspit_shine"
+      "https://www.instagram.com/quikspitboise/",
+      "https://www.tiktok.com/@quikspitboise",
+      "https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/"
     ],
     "aggregateRating": {
       "@type": "AggregateRating",

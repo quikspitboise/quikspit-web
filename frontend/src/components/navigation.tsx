@@ -75,7 +75,7 @@ export function Navigation() {
             <Link
               href="/"
               className="group relative flex items-center"
-              aria-label="QuikSpit Shine - Home"
+              aria-label="QuikSpit Auto Detailing - Home"
             >
               <motion.div
                 whileHover={{ scale: 1.03 }}

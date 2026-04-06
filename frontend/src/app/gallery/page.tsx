@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     canonical: '/gallery',
   },
   openGraph: {
-    title: 'Gallery - QuikSpit Shine Auto Detailing Work',
+    title: 'Gallery - QuikSpit Auto Detailing Work',
     description: 'Browse our portfolio of professional auto detailing transformations. See the quality and attention to detail we bring to every vehicle.',
     url: '/gallery',
   },

@@ -47,7 +47,6 @@ export const metadata: Metadata = {
     title: "QuikSpit Auto Detailing - Professional Car Detailing",
     description: "Professional car detailing services that make your vehicle shine like new.",
     images: ["/og-image.jpg"],
-    creator: "@quikspit_shine",
   },
   robots: {
     index: true,

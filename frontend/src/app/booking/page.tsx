@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Script from 'next/script'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
 import { MagneticButton } from '@/components/ui/magnetic-button'
@@ -120,6 +121,38 @@ const features = [
   { icon: '✨', title: 'Quality Guarantee', description: 'Satisfaction guaranteed' },
 ]
 
+const bookingFaqs = [
+  {
+    q: 'How far in advance should I book?',
+    a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
+  },
+  {
+    q: 'What if I need to reschedule or cancel?',
+    a: 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.',
+  },
+  {
+    q: 'Where do you provide service?',
+    a: 'We serve the greater Boise area and surrounding communities. Contact us to confirm service in your location.',
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'We accept all major credit cards, debit cards, and digital payments including Apple Pay and Google Pay.',
+  },
+]
+
+const bookingFaqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: bookingFaqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
+}
+
 export default function Booking() {
   // Lifted state: the selection from the calculator
   const [selection, setSelection] = useState<BookingSelection | null>(null)
@@ -152,6 +185,11 @@ export default function Booking() {
 
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
+      <Script
+        id="booking-faq-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bookingFaqStructuredData) }}
+      />
       {/* Hero Section */}
       <section className="relative py-20 lg:py-28 overflow-hidden">
         {/* Background accents */}
@@ -368,24 +406,7 @@ export default function Booking() {
             </div>
 
             <div className="space-y-4">
-              {[
-                {
-                  q: 'How far in advance should I book?',
-                  a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
-                },
-                {
-                  q: 'What if I need to reschedule or cancel?',
-                  a: 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.',
-                },
-                {
-                  q: 'Where do you provide service?',
-                  a: 'We serve the greater Boise area and surrounding communities. Contact us to confirm service in your location.',
-                },
-                {
-                  q: 'What payment methods do you accept?',
-                  a: 'We accept all major credit cards, debit cards, and digital payments including Apple Pay and Google Pay.',
-                },
-              ].map((faq) => (
+              {bookingFaqs.map((faq) => (
                 <GlassCard key={faq.q} className="p-5 lg:p-6">
                   <h3 className="font-semibold text-white mb-2 text-sm lg:text-base">{faq.q}</h3>
                   <p className="text-neutral-400 text-xs lg:text-sm">{faq.a}</p>
