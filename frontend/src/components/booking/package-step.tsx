@@ -11,7 +11,7 @@ interface PackageStepProps {
 }
 
 export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: PackageStepProps) {
-  const [expandedCard, setExpandedCard] = useState<string | null>(null)
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
 
   const packagesByCategory = useMemo(() => {
     const grouped: Record<string, Package[]> = {}
@@ -25,7 +25,12 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
   const toggleExpand = useCallback((cardKey: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setExpandedCard((prev) => (prev === cardKey ? null : cardKey))
+    setExpandedCards((prev) => {
+      const next = new Set(prev)
+      if (next.has(cardKey)) next.delete(cardKey)
+      else next.add(cardKey)
+      return next
+    })
   }, [])
 
   return (
@@ -47,7 +52,7 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                   selectedPackage?.id === pkg.id &&
                   selectedPackage?.categoryId === pkg.categoryId
                 const adjustedPrice = pkg.basePrice + sizeAdd
-                const isExpanded = expandedCard === cardKey
+                const isExpanded = expandedCards.has(cardKey)
                 return (
                   <label
                     key={cardKey}
