@@ -33,6 +33,21 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
     })
   }, [])
 
+  const toggleCategory = useCallback((pkgs: Package[], e: React.MouseEvent) => {
+    e.preventDefault()
+    const keys = pkgs.map((pkg) => `${pkg.categoryId}-${pkg.id}`)
+    setExpandedCards((prev) => {
+      const allExpanded = keys.every((k) => prev.has(k))
+      const next = new Set(prev)
+      if (allExpanded) {
+        keys.forEach((k) => next.delete(k))
+      } else {
+        keys.forEach((k) => next.add(k))
+      }
+      return next
+    })
+  }, [])
+
   return (
     <div>
       <h3 className="text-white font-semibold text-lg mb-2">Choose Your Package</h3>
@@ -42,9 +57,20 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
       <div className="space-y-6">
         {Object.entries(packagesByCategory).map(([categoryId, pkgs]) => (
           <div key={categoryId}>
-            <h4 className="text-red-500 text-sm uppercase tracking-wide font-medium mb-3">
-              {pkgs[0]?.categoryLabel}
-            </h4>
+            <div className="flex items-baseline justify-between mb-3">
+              <h4 className="text-red-500 text-sm uppercase tracking-wide font-medium">
+                {pkgs[0]?.categoryLabel}
+              </h4>
+              <button
+                type="button"
+                onClick={(e) => toggleCategory(pkgs, e)}
+                className="hidden sm:inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+              >
+                {pkgs.every((p) => expandedCards.has(`${p.categoryId}-${p.id}`))
+                  ? 'Hide all'
+                  : 'Compare all'}
+              </button>
+            </div>
             <div className="grid sm:grid-cols-3 gap-3">
               {pkgs.map((pkg) => {
                 const cardKey = `${pkg.categoryId}-${pkg.id}`
