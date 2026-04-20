@@ -45,10 +45,10 @@ export class ReviewsService {
     }
   }
 
-  private async tryFindPlace(apiKey: string, query: string): Promise<string | null> {
-    const encoded = encodeURIComponent(query);
-    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=textquery&fields=place_id&locationbias=circle:50000@43.60,-116.20&key=${apiKey}`;
-    console.log(`[Reviews] FindPlace request for: "${query}"`);
+  private async tryFindPlace(apiKey: string, input: string, inputtype: string): Promise<string | null> {
+    const encoded = encodeURIComponent(input);
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=${inputtype}&fields=place_id,name&locationbias=circle:50000@43.60,-116.20&key=${apiKey}`;
+    console.log(`[Reviews] FindPlace (${inputtype}): "${input}"`);
     const response = await fetch(url);
     const raw = await response.text();
     console.log(`[Reviews] FindPlace response: ${raw.slice(0, 500)}`);
@@ -64,7 +64,7 @@ export class ReviewsService {
   private async tryTextSearch(apiKey: string, query: string): Promise<string | null> {
     const encoded = encodeURIComponent(query);
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encoded}&location=43.60,-116.20&radius=50000&key=${apiKey}`;
-    console.log(`[Reviews] TextSearch request for: "${query}"`);
+    console.log(`[Reviews] TextSearch: "${query}"`);
     const response = await fetch(url);
     const raw = await response.text();
     console.log(`[Reviews] TextSearch response: ${raw.slice(0, 500)}`);
@@ -77,42 +77,74 @@ export class ReviewsService {
     return null;
   }
 
+  private async tryNearbySearch(apiKey: string, keyword: string): Promise<string | null> {
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=${encodeURIComponent(keyword)}&location=43.603582,-116.4087469&radius=5000&key=${apiKey}`;
+    console.log(`[Reviews] NearbySearch: "${keyword}"`);
+    const response = await fetch(url);
+    const raw = await response.text();
+    console.log(`[Reviews] NearbySearch response: ${raw.slice(0, 500)}`);
+    const data = JSON.parse(raw);
+
+    if (data.status === 'OK' && data.results?.length > 0) {
+      return data.results[0].place_id;
+    }
+    console.log(`[Reviews] NearbySearch failed: ${data.status} - ${data.error_message || 'No results'}`);
+    return null;
+  }
+
   private async resolvePlaceId(apiKey: string): Promise<string | null> {
     if (this.resolvedPlaceId) return this.resolvedPlaceId;
 
     const explicitPlaceId = this.configService.get('GOOGLE_PLACE_ID');
     if (explicitPlaceId) {
       this.resolvedPlaceId = explicitPlaceId;
+      console.log(`[Reviews] Using explicit Place ID: ${explicitPlaceId}`);
       return explicitPlaceId;
     }
 
-    const queries = [
-      this.configService.get('GOOGLE_BUSINESS_NAME') || 'QuikSpit Auto Detailing Boise ID',
-      'QuikSpit Auto Detailing',
-      'QuikSpit Boise',
+    const phone = this.configService.get('GOOGLE_BUSINESS_PHONE') || '+12089604970';
+
+    const attempts: Array<{ method: () => Promise<string | null>; label: string }> = [
+      {
+        label: 'phone',
+        method: () => this.tryFindPlace(apiKey, phone, 'phonenumber'),
+      },
+      {
+        label: 'text-full',
+        method: () => this.tryFindPlace(apiKey, 'QuikSpit Auto Detailing Boise ID', 'textquery'),
+      },
+      {
+        label: 'text-short',
+        method: () => this.tryFindPlace(apiKey, 'QuikSpit Auto Detailing', 'textquery'),
+      },
+      {
+        label: 'text-brand',
+        method: () => this.tryFindPlace(apiKey, 'QuikSpit Boise', 'textquery'),
+      },
+      {
+        label: 'textsearch-full',
+        method: () => this.tryTextSearch(apiKey, 'QuikSpit Auto Detailing Boise Idaho'),
+      },
+      {
+        label: 'nearby-quikspit',
+        method: () => this.tryNearbySearch(apiKey, 'QuikSpit'),
+      },
+      {
+        label: 'nearby-detailing',
+        method: () => this.tryNearbySearch(apiKey, 'QuikSpit Auto Detailing'),
+      },
     ];
 
-    for (const query of queries) {
+    for (const attempt of attempts) {
       try {
-        const placeId = await this.tryFindPlace(apiKey, query);
+        const placeId = await attempt.method();
         if (placeId) {
           this.resolvedPlaceId = placeId;
-          console.log(`[Reviews] Resolved Place ID: ${placeId} via FindPlace`);
+          console.log(`[Reviews] Resolved Place ID: ${placeId} via ${attempt.label}`);
           return placeId;
         }
       } catch (error) {
-        console.log(`[Reviews] FindPlace error for "${query}": ${error}`);
-      }
-
-      try {
-        const placeId = await this.tryTextSearch(apiKey, query);
-        if (placeId) {
-          this.resolvedPlaceId = placeId;
-          console.log(`[Reviews] Resolved Place ID: ${placeId} via TextSearch`);
-          return placeId;
-        }
-      } catch (error) {
-        console.log(`[Reviews] TextSearch error for "${query}": ${error}`);
+        console.log(`[Reviews] ${attempt.label} error: ${error}`);
       }
     }
 
