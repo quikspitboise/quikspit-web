@@ -28,6 +28,7 @@ interface ReviewsCache {
 export class ReviewsService {
   private isConfigured = false;
   private cache: ReviewsCache | null = null;
+  private resolvedPlaceId: string | null = null;
   private readonly CACHE_TTL = 24 * 60 * 60 * 1000;
 
   constructor(
@@ -44,35 +45,79 @@ export class ReviewsService {
     }
   }
 
+  private async tryFindPlace(apiKey: string, query: string): Promise<string | null> {
+    const encoded = encodeURIComponent(query);
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=textquery&fields=place_id&locationbias=circle:50000@43.60,-116.20&key=${apiKey}`;
+    console.log(`[Reviews] FindPlace request for: "${query}"`);
+    const response = await fetch(url);
+    const raw = await response.text();
+    console.log(`[Reviews] FindPlace response: ${raw.slice(0, 500)}`);
+    const data = JSON.parse(raw);
+
+    if (data.status === 'OK' && data.candidates?.length > 0) {
+      return data.candidates[0].place_id;
+    }
+    console.log(`[Reviews] FindPlace failed: ${data.status} - ${data.error_message || 'No candidates'}`);
+    return null;
+  }
+
+  private async tryTextSearch(apiKey: string, query: string): Promise<string | null> {
+    const encoded = encodeURIComponent(query);
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encoded}&location=43.60,-116.20&radius=50000&key=${apiKey}`;
+    console.log(`[Reviews] TextSearch request for: "${query}"`);
+    const response = await fetch(url);
+    const raw = await response.text();
+    console.log(`[Reviews] TextSearch response: ${raw.slice(0, 500)}`);
+    const data = JSON.parse(raw);
+
+    if (data.status === 'OK' && data.results?.length > 0) {
+      return data.results[0].place_id;
+    }
+    console.log(`[Reviews] TextSearch failed: ${data.status} - ${data.error_message || 'No results'}`);
+    return null;
+  }
+
   private async resolvePlaceId(apiKey: string): Promise<string | null> {
+    if (this.resolvedPlaceId) return this.resolvedPlaceId;
+
     const explicitPlaceId = this.configService.get('GOOGLE_PLACE_ID');
-    if (explicitPlaceId) return explicitPlaceId;
+    if (explicitPlaceId) {
+      this.resolvedPlaceId = explicitPlaceId;
+      return explicitPlaceId;
+    }
 
-    const businessName = this.configService.get('GOOGLE_BUSINESS_NAME') || 'QuikSpit Auto Detailing Boise ID';
+    const queries = [
+      this.configService.get('GOOGLE_BUSINESS_NAME') || 'QuikSpit Auto Detailing Boise ID',
+      'QuikSpit Auto Detailing',
+      'QuikSpit Boise',
+    ];
 
-    this.logger.log(`Auto-resolving Place ID for: "${businessName}"`);
-
-    try {
-      const encoded = encodeURIComponent(businessName);
-      const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=textquery&fields=place_id&key=${apiKey}`;
-      this.logger.log(`Calling Find Place API: ${url.replace(apiKey, 'REDACTED')}`);
-      const response = await fetch(url);
-      const raw = await response.text();
-      this.logger.log(`Find Place response: ${response.status} - ${raw.slice(0, 500)}`);
-      const data = JSON.parse(raw);
-
-      if (data.status === 'OK' && data.candidates?.length > 0) {
-        const placeId = data.candidates[0].place_id;
-        this.logger.log(`Resolved Place ID: ${placeId}`);
-        return placeId;
+    for (const query of queries) {
+      try {
+        const placeId = await this.tryFindPlace(apiKey, query);
+        if (placeId) {
+          this.resolvedPlaceId = placeId;
+          console.log(`[Reviews] Resolved Place ID: ${placeId} via FindPlace`);
+          return placeId;
+        }
+      } catch (error) {
+        console.log(`[Reviews] FindPlace error for "${query}": ${error}`);
       }
 
-      this.logger.error(`Place ID auto-resolve failed: ${data.status} - ${data.error_message || 'No candidates'}`);
-      return null;
-    } catch (error) {
-      this.logger.error('Place ID auto-resolve error', error instanceof Error ? error.stack : '');
-      return null;
+      try {
+        const placeId = await this.tryTextSearch(apiKey, query);
+        if (placeId) {
+          this.resolvedPlaceId = placeId;
+          console.log(`[Reviews] Resolved Place ID: ${placeId} via TextSearch`);
+          return placeId;
+        }
+      } catch (error) {
+        console.log(`[Reviews] TextSearch error for "${query}": ${error}`);
+      }
     }
+
+    this.logger.error('All Place ID resolution methods failed');
+    return null;
   }
 
   async getReviews(): Promise<ReviewsData | null> {
