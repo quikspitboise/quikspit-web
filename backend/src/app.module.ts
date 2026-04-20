@@ -12,6 +12,7 @@ import { LoggerModule } from './common/logger.module';
 import { ContactModule } from './contact/contact.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { InvoiceModule } from './invoice/invoice.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { HealthController } from './health.controller';
 import { getDatabaseConnectionOptions } from './database.config';
 import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
@@ -42,6 +43,7 @@ import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000
     BookingModule,
     GalleryModule,
     InvoiceModule,
+    ReviewsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

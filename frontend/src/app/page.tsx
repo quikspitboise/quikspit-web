@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Script from 'next/script';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { VideoHero } from '@/components/ui/video-hero';
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline';
 import { GlassCard, FeatureCard } from '@/components/ui/glass-card';
@@ -11,8 +11,9 @@ import { MagneticButton } from '@/components/ui/magnetic-button';
 import { SectionTransition, AnimatedSection } from '@/components/ui/section-transition';
 import InstagramEmbedWithSkeleton from '../components/InstagramEmbedWithSkeleton';
 import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
+import { ReviewsSection } from '@/components/reviews-section';
+import { fetchReviews, type ReviewsData } from '@/lib/reviews';
 
-// Icons
 const SparkleIcon = () => (
   <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -38,6 +39,21 @@ const TruckIcon = () => (
 );
 
 export default function Home() {
+  const [reviewsData, setReviewsData] = useState<ReviewsData>({
+    available: false,
+    rating: 4.9,
+    totalReviews: 127,
+    reviews: [],
+    reviewLink: '',
+  });
+
+  useEffect(() => {
+    fetchReviews().then(setReviewsData);
+  }, []);
+
+  const rating = reviewsData.rating;
+  const totalReviews = reviewsData.totalReviews;
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -68,8 +84,8 @@ export default function Home() {
     ],
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "127"
+      "ratingValue": rating.toString(),
+      "reviewCount": totalReviews.toString()
     },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
@@ -184,7 +200,7 @@ export default function Home() {
                   <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span className="text-sm text-white/60 font-medium">4.9 Rating</span>
+                  <span className="text-sm text-white/60 font-medium">{rating} Rating</span>
                 </div>
                 <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
                   <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,6 +307,13 @@ export default function Home() {
 
         <SectionTransition variant="line" />
 
+        {/* Google Reviews Section */}
+        <AnimatedSection className="py-16 lg:py-24">
+          <ReviewsSection />
+        </AnimatedSection>
+
+        <SectionTransition variant="dots" />
+
         {/* Social Proof & CTA Section */}
         <AnimatedSection className="py-16 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -318,11 +341,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <GlassCard padding="sm" className="overflow-hidden">
-                  <div className="aspect-[4/5] bg-neutral-900 rounded-xl overflow-hidden">
-                    <InstagramEmbedWithSkeleton className="w-full h-full" />
-                  </div>
-                </GlassCard>
+                <InstagramEmbedWithSkeleton />
               </motion.div>
 
               {/* Center CTA */}
@@ -360,11 +379,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                <GlassCard padding="sm" className="overflow-hidden">
-                  <div className="aspect-[4/5] bg-neutral-900 rounded-xl overflow-hidden">
-                    <TikTokEmbedWithSkeleton className="w-full h-full" />
-                  </div>
-                </GlassCard>
+                <TikTokEmbedWithSkeleton />
               </motion.div>
             </div>
           </div>
