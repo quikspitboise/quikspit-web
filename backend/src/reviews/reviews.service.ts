@@ -55,8 +55,11 @@ export class ReviewsService {
     try {
       const encoded = encodeURIComponent(businessName);
       const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=textquery&fields=place_id&key=${apiKey}`;
+      this.logger.log(`Calling Find Place API: ${url.replace(apiKey, 'REDACTED')}`);
       const response = await fetch(url);
-      const data = await response.json();
+      const raw = await response.text();
+      this.logger.log(`Find Place response: ${response.status} - ${raw.slice(0, 500)}`);
+      const data = JSON.parse(raw);
 
       if (data.status === 'OK' && data.candidates?.length > 0) {
         const placeId = data.candidates[0].place_id;
