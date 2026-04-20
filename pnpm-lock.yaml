@@ -78,8 +78,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       file-type:
-        specifier: ^22.0.0
-        version: 22.0.0
+        specifier: ^22.0.1
+        version: 22.0.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -199,8 +199,8 @@ importers:
         specifier: ^1.5.3
         version: 1.5.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@clerk/nextjs':
-        specifier: ^7.0.8
-        version: 7.0.8(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^7.1.0
+        version: 7.2.3(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -236,8 +236,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       '@types/node':
-        specifier: ^25.5.2
-        version: 25.5.2
+        specifier: ^25.6.0
+        version: 25.6.0
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -481,32 +481,20 @@ packages:
     resolution: {integrity: sha512-E4ir94gs9Cxh+v20SGVLXblb0coVUd2La5o1Lmz7olNOBimMEsZ7T6MpGFNJveEH1sQ+HhSf1a1uLm9pMiK/tg==}
     engines: {node: '>=20.9.0'}
 
-  '@clerk/nextjs@7.0.8':
-    resolution: {integrity: sha512-Suwl7Mox+Oiht1wqC/g1b7YdDlicciVJAP+YujgtHBHdcgQ7JgtOtXYV7xHJgBnMUZw23F2f64vPualm5TtPFg==}
+  '@clerk/nextjs@7.2.3':
+    resolution: {integrity: sha512-/+SBW09/Dz7pvIabzSKssHTdoGZn2n/k9u/VhIra700gfsymCAR57NLn7ztW6zjPdw5VMILOMTLqzyqxaal3og==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       next: ^16.2.2
       react: ^19.2.4
       react-dom: ^19.2.4
 
-  '@clerk/react@6.1.4':
-    resolution: {integrity: sha512-3qNlYn3j4kZmt50385jNuJqLOxmvPI8P6PBxj7cSJZbU+pxjk6T196gPMPZdLFpgQOHYzifMyAHxSD+bvsrmiw==}
+  '@clerk/react@6.4.2':
+    resolution: {integrity: sha512-l43pon5wcM0n4e3gnRP7MWdvAXAa3M7BOF6aeNwEuITxgy6MU6ypej9tPeGmXxPicL/Hd6E/VRgiEipEKDqyCQ==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       react: ^19.2.4
       react-dom: ^19.2.4
-
-  '@clerk/shared@4.4.0':
-    resolution: {integrity: sha512-3iBX7Svp2XrSIgFk4VtyVq5OZsGStkMGqVfTBbbiFCbSKQ745OfM8j/c2wgpq5QdyavesoeDA6YiMWlpZM9/ng==}
-    engines: {node: '>=20.9.0'}
-    peerDependencies:
-      react: ^19.2.4
-      react-dom: ^19.2.4
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
 
   '@clerk/shared@4.8.2':
     resolution: {integrity: sha512-kBFDNeLdiNZkOHavTkOB00NMuqsmOGgVtDlzCS0/yivxsCUZXk3AT6+UsTfeSBGV7QD80YxjeFMNSrpqnSv4Gg==}
@@ -1752,9 +1740,6 @@ packages:
 
   '@types/node@20.11.0':
     resolution: {integrity: sha512-o9bjXmDNcF7GbM4CNQpmi+TutCgap/K3w1JyKgxAjqx41zp9qlIAVFi0IhCNsJcXolEqLWhbFbEeL0PvYm4pcQ==}
-
-  '@types/node@25.5.2':
-    resolution: {integrity: sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg==}
 
   '@types/node@25.6.0':
     resolution: {integrity: sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ==}
@@ -3018,8 +3003,8 @@ packages:
     resolution: {integrity: sha512-Ievi/yy8DS3ygGvT47PjSfdFoX+2isQueoYP1cntFW1JLYAuS4GD7NUPGg4zv2iZfV52uDyk5w5Z0TdpRS6Q1g==}
     engines: {node: '>=20'}
 
-  file-type@22.0.0:
-    resolution: {integrity: sha512-cmBmnYo8Zymabm2+qAP7jTFbKF10bQpYmxoGfuZbRFRcq00BRddJdGNH/P7GA1EMpJy5yQbqa9B7yROb3z8Ziw==}
+  file-type@22.0.1:
+    resolution: {integrity: sha512-ww5Mhre0EE+jmBvOXTmXAbEMuZE7uX4a3+oRCQFNj8w++g3ev913N6tXQz0XTXbueQ5TWQfm6BdaViEHHn8bhA==}
     engines: {node: '>=22'}
 
   file-uri-to-path@1.0.0:
@@ -4983,9 +4968,6 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici-types@7.18.2:
-    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
-
   undici-types@7.19.2:
     resolution: {integrity: sha512-qYVnV5OEm2AW8cJMCpdV20CDyaN3g0AjDlOGf1OW4iaDEx8MwdtChUp4zu4H0VP3nDRF/8RKWH+IPp9uW0YGZg==}
 
@@ -5450,34 +5432,23 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/nextjs@7.0.8(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@clerk/nextjs@7.2.3(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@clerk/backend': 3.2.13(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@clerk/react': 6.1.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@clerk/shared': 4.4.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@clerk/react': 6.4.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@clerk/shared': 4.8.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next: 16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       server-only: 0.0.1
       tslib: 2.8.1
 
-  '@clerk/react@6.1.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@clerk/react@6.4.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@clerk/shared': 4.4.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@clerk/shared': 4.8.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       tslib: 2.8.1
-
-  '@clerk/shared@4.4.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@tanstack/query-core': 5.90.16
-      dequal: 2.0.3
-      glob-to-regexp: 0.4.1
-      js-cookie: 3.0.5
-      std-env: 3.10.0
-    optionalDependencies:
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
 
   '@clerk/shared@4.8.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
@@ -6720,10 +6691,6 @@ snapshots:
   '@types/node@20.11.0':
     dependencies:
       undici-types: 5.26.5
-
-  '@types/node@25.5.2':
-    dependencies:
-      undici-types: 7.18.2
 
   '@types/node@25.6.0':
     dependencies:
@@ -8247,7 +8214,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  file-type@22.0.0:
+  file-type@22.0.1:
     dependencies:
       '@tokenizer/inflate': 0.4.1
       strtok3: 10.3.5
@@ -9663,7 +9630,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 25.5.2
+      '@types/node': 25.6.0
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -10426,8 +10393,6 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@5.26.5: {}
-
-  undici-types@7.18.2: {}
 
   undici-types@7.19.2: {}
 
