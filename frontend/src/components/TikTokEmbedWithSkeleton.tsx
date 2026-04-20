@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SocialEmbedCard } from "./social-embed-card";
 
 interface TikTokEmbedWithSkeletonProps {
   className?: string;
@@ -23,29 +24,25 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
   }, [loaded]);
 
   return (
-    <div className={`relative w-full min-h-[360px] overflow-hidden rounded-lg ${className ?? ''}`}> 
-      {!loaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 rounded-xl border border-neutral-600 animate-pulse z-10">
-          <div className="bg-neutral-700 rounded-full w-16 h-16 mb-4" />
-          <div className="bg-neutral-700 h-6 w-40 rounded mb-2" />
-          <div className="bg-neutral-700 h-4 w-24 rounded mb-4" />
-          <div className="bg-neutral-700 h-32 w-64 rounded mb-2" />
-          <div className="bg-neutral-700 h-4 w-32 rounded" />
-        </div>
-      )}
-    <div ref={embedRef} className="w-full">
+    <SocialEmbedCard
+      platform="tiktok"
+      handle="@quikspitboise"
+      loading={!loaded}
+      className={className}
+    >
+      <div ref={embedRef} className="w-full">
         <blockquote
           className="tiktok-embed"
           cite="https://www.tiktok.com/@quikspitboise"
           data-unique-id="quikspitboise"
           data-embed-type="creator"
-      style={{ maxWidth: "100%", minWidth: 0, width: "100%", margin: "0 auto" }}
+          style={{ maxWidth: "100%", minWidth: 0, width: "100%", margin: "0 auto" }}
         >
           <section>
             <a target="_blank" href="https://www.tiktok.com/@quikspitboise?refer=creator_embed">@quikspitboise</a>
           </section>
         </blockquote>
       </div>
-    </div>
+    </SocialEmbedCard>
   );
 }
