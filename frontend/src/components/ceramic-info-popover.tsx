@@ -68,8 +68,8 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm sm:hidden"
             aria-hidden="true"
           />
-          <div className="fixed inset-x-4 top-[10%] z-50 sm:hidden">
-            <div className="bg-neutral-900 border border-neutral-600 rounded-xl shadow-2xl p-5 text-left max-h-[80vh] flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:hidden">
+            <div className="bg-neutral-900 border border-neutral-600 rounded-xl shadow-2xl p-5 text-left w-full max-w-sm max-h-[85vh] flex flex-col">
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-white font-semibold text-base">What is Ceramic Coating?</h4>
                 <button
