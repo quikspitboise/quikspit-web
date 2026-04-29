@@ -2,6 +2,7 @@
 
 import type { CeramicService } from './booking-data'
 import { getPaintCorrectionUpgradePrice } from './pricing-utils'
+import { CeramicInfoPopover } from '@/components/ceramic-info-popover'
 
 interface CeramicStepProps {
   ceramicServices: CeramicService[]
@@ -22,9 +23,10 @@ export function CeramicStep({
 
   return (
     <div>
-      <h3 className="text-white font-semibold text-lg mb-2">
+      <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2">
         Ceramic Coating & Paint Correction{' '}
         <span className="text-neutral-400 font-normal text-sm">(optional)</span>
+        <CeramicInfoPopover />
       </h3>
       <p className="text-neutral-400 text-sm mb-5">
         Protect and perfect your paint with ceramic coating and paint correction services.

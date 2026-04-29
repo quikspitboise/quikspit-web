@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton } from '@/components/clerk-ui';
 import { GalleryAdminClient } from '@/components/admin/gallery-admin-client';
 import { GlassCard } from '@/components/ui/glass-card';
 import { requireAdminPageAuth } from '@/lib/server/admin-auth';
@@ -15,6 +15,21 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminGalleryPage() {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return (
+      <main id="main-content" className="min-h-screen bg-transparent py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-xl text-center">
+            <h1 className="text-white text-2xl font-semibold mb-4">Auth not configured locally</h1>
+            <p className="text-neutral-400">
+              Set <code className="text-red-400">NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code> to use the admin panel.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   await requireAdminPageAuth();
   const items = await fetchAdminGalleryItems();
 

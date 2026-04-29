@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SignIn } from '@clerk/nextjs';
+import { SignIn } from '@/components/clerk-ui';
 
 export const metadata: Metadata = {
   title: 'Sign In',

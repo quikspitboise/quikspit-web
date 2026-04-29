@@ -19,6 +19,10 @@ export function isConfiguredAdminUser(userId: string | null | undefined): boolea
 }
 
 export async function requireAdminPageAuth() {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    notFound();
+  }
+
   const authObject = await auth();
 
   if (!isConfiguredAdminUser(authObject.userId)) {
@@ -32,6 +36,10 @@ export async function getAdminApiAuth(): Promise<{
   userId: string;
   token: string;
 } | null> {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return null;
+  }
+
   const authObject = await auth();
   const userId = authObject.userId;
 

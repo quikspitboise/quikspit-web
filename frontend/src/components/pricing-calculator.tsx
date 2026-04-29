@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Reveal } from '@/components/reveal'
+import { CeramicInfoPopover } from '@/components/ceramic-info-popover'
 import { buildBookingParams, type BookingSelection } from '@/components/cal-embed'
 
 // Types
@@ -438,9 +439,10 @@ export function PricingCalculator({
             {/* Ceramic Coating & Paint Correction */}
             <Reveal delay={0.15} skipOnRouteTransition>
                 <GlassCard className={`p-6 ${!ceramicEnabled ? 'opacity-60' : ''}`}>
-                    <h3 className="text-white font-semibold text-lg mb-2">
+                    <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2">
                         4. Ceramic Coating & Paint Correction{' '}
                         <span className="text-neutral-400 font-normal text-sm">(optional)</span>
+                        <CeramicInfoPopover />
                     </h3>
                     {!ceramicEnabled && (
                         <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-4">
