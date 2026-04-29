@@ -165,7 +165,7 @@ export default function Pricing() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Premium Services</span>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide">
                   CERAMIC COATING &amp; <span className="text-red-500">POLISH</span>
                 </FadeHeadline>
