@@ -49,10 +49,7 @@ export class GalleryController {
     @Req() request: AuthenticatedRequest,
     @Body() dto: CreateGalleryItemDto,
   ) {
-    const item = await this.galleryService.create(
-      request.clerkAuth!.userId,
-      dto,
-    );
+    const item = await this.galleryService.create(request.clerkAuth!.userId, dto);
 
     return { item };
   }

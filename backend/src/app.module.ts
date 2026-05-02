@@ -20,6 +20,9 @@ import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000
 import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
 import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
 
+const isProductionRuntime =
+  process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,9 +31,9 @@ import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/17400000
     TypeOrmModule.forRoot({
       ...getDatabaseConnectionOptions(),
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: !isProductionRuntime,
       logging: process.env.NODE_ENV === 'development',
-      migrationsRun: process.env.NODE_ENV === 'production',
+      migrationsRun: isProductionRuntime,
       migrations: [
         CreateGalleryItemsTable1740000000000,
         CreateAppSettingsTable1740000001000,

@@ -125,7 +125,24 @@ export class GalleryService implements OnModuleInit {
       updatedByUserId: adminUserId,
     });
 
-    const savedItem = await this.galleryRepository.save(item);
+    let savedItem: GalleryItemEntity;
+    try {
+      savedItem = await this.galleryRepository.save(item);
+    } catch (error) {
+      this.logger.error(
+        'Failed to save gallery metadata',
+        error instanceof Error ? error.stack : undefined,
+        {
+          adminUserId,
+          assetType: dto.assetType,
+          imagePublicId: item.imagePublicId,
+          beforePublicId: item.beforePublicId,
+          afterPublicId: item.afterPublicId,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      throw error;
+    }
     this.logger.log('Gallery item created', {
       galleryItemId: savedItem.id,
       adminUserId,
@@ -172,7 +189,25 @@ export class GalleryService implements OnModuleInit {
 
     item.updatedByUserId = adminUserId;
 
-    const savedItem = await this.galleryRepository.save(item);
+    let savedItem: GalleryItemEntity;
+    try {
+      savedItem = await this.galleryRepository.save(item);
+    } catch (error) {
+      this.logger.error(
+        'Failed to save replacement gallery metadata',
+        error instanceof Error ? error.stack : undefined,
+        {
+          galleryItemId: id,
+          adminUserId,
+          assetType: item.assetType,
+          imagePublicId: item.imagePublicId,
+          beforePublicId: item.beforePublicId,
+          afterPublicId: item.afterPublicId,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      throw error;
+    }
     this.logger.log('Gallery item updated', {
       galleryItemId: savedItem.id,
       adminUserId,

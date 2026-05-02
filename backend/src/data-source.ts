@@ -18,6 +18,9 @@ const missingEnvVars = requiredEnvVars.filter(
   (varName) => !process.env[varName],
 );
 
+const isProductionRuntime =
+  process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+
 if (missingEnvVars.length > 0) {
   throw new Error(
     `Missing required environment variables: ${missingEnvVars.join(', ')}. ` +
@@ -27,7 +30,7 @@ if (missingEnvVars.length > 0) {
 
 export const AppDataSource = new DataSource({
   ...getDatabaseConnectionOptions(),
-  synchronize: process.env.NODE_ENV !== 'production',
+  synchronize: !isProductionRuntime,
   logging: process.env.NODE_ENV === 'development',
   entities: [GalleryItemEntity, AppSettingEntity],
   migrations: [
