@@ -15,6 +15,7 @@ import { Throttle } from '@nestjs/throttler';
 import { AdminAllowlistGuard } from '../auth/admin-allowlist.guard';
 import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
 import type { AuthenticatedRequest } from '../auth/auth.types';
+import { LoggerService } from '../common/logger.service';
 import { CreateGalleryItemDto } from './dto/create-gallery-item.dto';
 import { ReorderGalleryItemsDto } from './dto/reorder-gallery-items.dto';
 import { UpdateGalleryItemDto } from './dto/update-gallery-item.dto';
@@ -25,7 +26,10 @@ import {
 
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {}
+  constructor(
+    private readonly galleryService: GalleryService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Get()
   async list(): Promise<{ items: GalleryItemDto[] }> {
@@ -49,6 +53,17 @@ export class GalleryController {
     @Req() request: AuthenticatedRequest,
     @Body() dto: CreateGalleryItemDto,
   ) {
+    this.logger.log('Admin gallery create request received', {
+      adminUserId: request.clerkAuth!.userId,
+      assetType: dto.assetType,
+      hasImageAsset: Boolean(dto.imageAsset),
+      hasBeforeAsset: Boolean(dto.beforeAsset),
+      hasAfterAsset: Boolean(dto.afterAsset),
+      imagePublicId: dto.imageAsset?.publicId,
+      beforePublicId: dto.beforeAsset?.publicId,
+      afterPublicId: dto.afterAsset?.publicId,
+    });
+
     const item = await this.galleryService.create(request.clerkAuth!.userId, dto);
 
     return { item };

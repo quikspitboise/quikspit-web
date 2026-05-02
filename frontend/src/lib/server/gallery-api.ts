@@ -143,6 +143,8 @@ export async function proxyAdminRequest(
       {
         message:
           'Gallery metadata could not be saved. Confirm the backend deployment includes the direct-upload gallery changes and the latest database migration has run.',
+        backendStatus: response.status,
+        backendBody: body.slice(0, 500),
       },
       { status: 502 },
     );
