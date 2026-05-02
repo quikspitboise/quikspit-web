@@ -8,6 +8,12 @@ import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
 import { parseBookingParams, type BookingSelection } from '@/components/cal-embed'
 import { BookingWizard } from '@/components/booking/booking-wizard'
+import {
+  DEFAULT_BOOKING_SETTINGS,
+  hasBookingDeposit,
+  normalizeBookingSettings,
+  type BookingSettings,
+} from '@/lib/booking-settings'
 
 /**
  * Toggle this to show/hide the hero section above the wizard.
@@ -22,45 +28,63 @@ const features = [
   { icon: '✨', title: 'Quality Guarantee', description: 'Satisfaction guaranteed' },
 ]
 
-const bookingFaqs = [
-  {
-    q: 'How far in advance should I book?',
-    a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
-  },
-  {
-    q: 'What if I need to reschedule or cancel?',
-    a: 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.',
-  },
-  {
-    q: 'Where do you provide service?',
-    a: 'We serve the greater Boise area and surrounding communities. Contact us to confirm service in your location.',
-  },
-  {
-    q: 'What payment methods do you accept?',
-    a: 'We accept all major credit cards, debit cards, and digital payments including Apple Pay and Google Pay.',
-  },
-]
+function getBookingFaqs(depositAmount: number) {
+  const cancellationAnswer = hasBookingDeposit(depositAmount)
+    ? 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.'
+    : 'You can reschedule or cancel your appointment with at least 24 hours notice. Contact us as soon as possible if your schedule changes.'
 
-const bookingFaqStructuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: bookingFaqs.map((faq) => ({
-    '@type': 'Question',
-    name: faq.q,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: faq.a,
+  return [
+    {
+      q: 'How far in advance should I book?',
+      a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
     },
-  })),
+    {
+      q: 'What if I need to reschedule or cancel?',
+      a: cancellationAnswer,
+    },
+    {
+      q: 'Where do you provide service?',
+      a: 'We serve the greater Boise area and surrounding communities. Contact us to confirm service in your location.',
+    },
+    {
+      q: 'What payment methods do you accept?',
+      a: 'We accept all major credit cards, debit cards, and digital payments including Apple Pay and Google Pay.',
+    },
+  ]
 }
 
 export default function Booking() {
+  const [bookingSettings, setBookingSettings] = useState<BookingSettings>(DEFAULT_BOOKING_SETTINGS)
   const [initialSelection, setInitialSelection] = useState<BookingSelection | null>(null)
   const [initialPackageSelection, setInitialPackageSelection] = useState<{
     categoryId: string
     packageId: string
   } | null>(null)
   const [paramsLoaded, setParamsLoaded] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadBookingSettings() {
+      try {
+        const response = await fetch('/api/settings/booking', {
+          cache: 'no-store',
+        })
+        if (!response.ok) return
+
+        const settings = normalizeBookingSettings(await response.json())
+        if (isMounted) setBookingSettings(settings)
+      } catch (error) {
+        console.warn('[Booking] Unable to load booking settings', error)
+      }
+    }
+
+    loadBookingSettings()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -74,6 +98,20 @@ export default function Booking() {
     }
     setParamsLoaded(true)
   }, [])
+
+  const bookingFaqs = getBookingFaqs(bookingSettings.depositAmount)
+  const bookingFaqStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: bookingFaqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  }
 
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
@@ -130,6 +168,7 @@ export default function Booking() {
               <BookingWizard
                 initialSelection={initialSelection}
                 initialPackageSelection={initialPackageSelection}
+                depositAmount={bookingSettings.depositAmount}
               />
             )}
           </div>

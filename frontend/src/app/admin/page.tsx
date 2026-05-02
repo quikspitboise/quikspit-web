@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { UserButton } from '@/components/clerk-ui';
+import { BookingSettingsAdmin } from '@/components/admin/booking-settings-admin';
 import { GalleryAdminClient } from '@/components/admin/gallery-admin-client';
 import { GlassCard } from '@/components/ui/glass-card';
 import { requireAdminPageAuth } from '@/lib/server/admin-auth';
+import { fetchAdminBookingSettings } from '@/lib/server/booking-settings-api';
 import { fetchAdminGalleryItems } from '@/lib/server/gallery-api';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +33,10 @@ export default async function AdminGalleryPage() {
   }
 
   await requireAdminPageAuth();
-  const items = await fetchAdminGalleryItems();
+  const [items, bookingSettings] = await Promise.all([
+    fetchAdminGalleryItems(),
+    fetchAdminBookingSettings(),
+  ]);
 
   return (
     <main id="main-content" className="min-h-screen bg-transparent py-16 lg:py-24">
@@ -53,6 +58,8 @@ export default async function AdminGalleryPage() {
               <UserButton />
             </div>
           </GlassCard>
+
+          <BookingSettingsAdmin initialSettings={bookingSettings} />
 
           <GalleryAdminClient initialItems={items} />
         </div>

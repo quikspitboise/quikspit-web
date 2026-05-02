@@ -2,15 +2,16 @@
 
 import type { BookingSelection } from './booking-data'
 import { getDurationEstimate } from './booking-data'
-import { DEPOSIT_AMOUNT } from '@/components/cal-embed'
+import { hasBookingDeposit } from '@/lib/booking-settings'
 
 interface ConfirmationStepProps {
   selection: BookingSelection
+  depositAmount: number
 }
 
-export function ConfirmationStep({ selection }: ConfirmationStepProps) {
-  const deposit = DEPOSIT_AMOUNT
-  const balance = selection.total - deposit
+export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepProps) {
+  const showDeposit = hasBookingDeposit(depositAmount)
+  const balance = Math.max(selection.total - depositAmount, 0)
   const addonList = selection.addons?.split(',').map((a) => a.trim()).filter(Boolean) || []
   const duration = getDurationEstimate(
     selection.category,
@@ -79,14 +80,18 @@ export function ConfirmationStep({ selection }: ConfirmationStepProps) {
               <span className="text-neutral-300">Total</span>
               <span className="text-white font-display text-lg">${selection.total}</span>
             </div>
-            <div className="flex justify-between text-xs mt-1">
-              <span className="text-neutral-500">Deposit paid</span>
-              <span className="text-green-400">${deposit}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-neutral-500">Balance at service</span>
-              <span className="text-neutral-400">${balance}</span>
-            </div>
+            {showDeposit && (
+              <>
+                <div className="flex justify-between text-xs mt-1">
+                  <span className="text-neutral-500">Deposit paid</span>
+                  <span className="text-green-400">${depositAmount}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-500">Balance at service</span>
+                  <span className="text-neutral-400">${balance}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

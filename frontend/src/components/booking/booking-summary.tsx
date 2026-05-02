@@ -3,21 +3,22 @@
 import { useState } from 'react'
 import type { BookingSelection } from './booking-data'
 import { getDurationEstimate } from './booking-data'
-import { DEPOSIT_AMOUNT } from '@/components/cal-embed'
+import { hasBookingDeposit } from '@/lib/booking-settings'
 
 interface BookingSummaryProps {
   selection: BookingSelection | null
+  depositAmount: number
   /** Called when user taps an edit link — jumps to that step */
   onEditStep?: (stepIndex: number) => void
 }
 
-export function BookingSummary({ selection, onEditStep }: BookingSummaryProps) {
+export function BookingSummary({ selection, depositAmount, onEditStep }: BookingSummaryProps) {
   const [mobileExpanded, setMobileExpanded] = useState(false)
 
   if (!selection) return null
 
-  const deposit = DEPOSIT_AMOUNT
-  const balance = selection.total - deposit
+  const showDeposit = hasBookingDeposit(depositAmount)
+  const balance = Math.max(selection.total - depositAmount, 0)
   const addonList = selection.addons?.split(',').map((a) => a.trim()).filter(Boolean) || []
   const duration = getDurationEstimate(
     selection.category,
@@ -104,14 +105,18 @@ export function BookingSummary({ selection, onEditStep }: BookingSummaryProps) {
           <span className="text-neutral-300 font-medium">Estimated Total</span>
           <span className="text-white font-display text-xl">${selection.total}</span>
         </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Deposit (due today)</span>
-          <span className="text-red-500 font-semibold">${deposit}</span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Balance (at service)</span>
-          <span className="text-neutral-400">${balance}</span>
-        </div>
+        {showDeposit && (
+          <>
+            <div className="flex justify-between text-xs">
+              <span className="text-neutral-500">Deposit (due today)</span>
+              <span className="text-red-500 font-semibold">${depositAmount}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-neutral-500">Balance (at service)</span>
+              <span className="text-neutral-400">${balance}</span>
+            </div>
+          </>
+        )}
       </div>
 
       <p className="text-neutral-600 text-xs">

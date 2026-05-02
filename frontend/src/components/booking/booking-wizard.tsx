@@ -11,7 +11,8 @@ import {
   isCeramicEligible,
 } from './booking-data'
 import { calculatePricing } from './pricing-utils'
-import { parseBookingParams, CalEmbed, DEPOSIT_AMOUNT } from '@/components/cal-embed'
+import { parseBookingParams, CalEmbed } from '@/components/cal-embed'
+import { hasBookingDeposit } from '@/lib/booking-settings'
 import { StepIndicator } from './step-indicator'
 import { BookingSummary } from './booking-summary'
 import { VehicleStep } from './vehicle-step'
@@ -28,6 +29,7 @@ interface BookingWizardProps {
   /** Pre-populate from URL params (deep-link from pricing page) */
   initialSelection?: BookingSelection | null
   initialPackageSelection?: { categoryId: string; packageId: string } | null
+  depositAmount: number
 }
 
 type StepId = 'vehicle' | 'package' | 'addons' | 'ceramic' | 'schedule' | 'confirmation'
@@ -42,7 +44,11 @@ interface StepDef {
 // COMPONENT
 // ============================================================================
 
-export function BookingWizard({ initialSelection, initialPackageSelection }: BookingWizardProps) {
+export function BookingWizard({
+  initialSelection,
+  initialPackageSelection,
+  depositAmount,
+}: BookingWizardProps) {
   // ---- State ----
   const [vehicleSize, setVehicleSize] = useState('car')
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null)
@@ -280,13 +286,14 @@ export function BookingWizard({ initialSelection, initialPackageSelection }: Boo
     return (
       <div ref={wizardRef} className="scroll-mt-6">
         <div className="max-w-2xl mx-auto">
-          <ConfirmationStep selection={currentSelection} />
+          <ConfirmationStep selection={currentSelection} depositAmount={depositAmount} />
         </div>
       </div>
     )
   }
 
   const sizeAdd = sizeAdjustments.find((s) => s.id === vehicleSize)?.add ?? 0
+  const showDeposit = hasBookingDeposit(depositAmount)
 
   return (
     <div ref={wizardRef} className="scroll-mt-6">
@@ -340,12 +347,21 @@ export function BookingWizard({ initialSelection, initialPackageSelection }: Boo
               {currentStep?.id === 'schedule' && (
                 <div>
                   <h3 className="text-white font-semibold text-lg mb-2">Choose Your Date & Time</h3>
-                  <p className="text-neutral-400 text-sm mb-5">
-                    Select a convenient time slot. A ${DEPOSIT_AMOUNT} deposit secures your appointment.
-                    Fully refundable if you cancel 24+ hours in advance.
-                  </p>
+                  {showDeposit ? (
+                    <p className="text-neutral-400 text-sm mb-5">
+                      Select a convenient time slot. A ${depositAmount} deposit secures your appointment.
+                      Fully refundable if you cancel 24+ hours in advance.
+                    </p>
+                  ) : (
+                    <p className="text-neutral-400 text-sm mb-5">
+                      Select a convenient time slot to reserve your appointment.
+                    </p>
+                  )}
                   <div className="bg-neutral-900/50 rounded-xl border border-neutral-700 p-3 min-h-[600px]">
-                    <CalEmbed selection={currentSelection ?? undefined} />
+                    <CalEmbed
+                      selection={currentSelection ?? undefined}
+                      depositAmount={depositAmount}
+                    />
                   </div>
                 </div>
               )}
@@ -389,7 +405,11 @@ export function BookingWizard({ initialSelection, initialPackageSelection }: Boo
         </div>
 
         {/* Sidebar summary (desktop) + bottom bar (mobile) */}
-        <BookingSummary selection={currentSelection} onEditStep={handleEditStep} />
+        <BookingSummary
+          selection={currentSelection}
+          depositAmount={depositAmount}
+          onEditStep={handleEditStep}
+        />
       </div>
 
       {/* Bottom padding on mobile for the fixed bottom bar */}

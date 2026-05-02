@@ -13,9 +13,11 @@ import { ContactModule } from './contact/contact.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { SettingsModule } from './settings/settings.module';
 import { HealthController } from './health.controller';
 import { getDatabaseConnectionOptions } from './database.config';
 import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
+import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
 
 @Module({
   imports: [
@@ -28,7 +30,10 @@ import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
       migrationsRun: process.env.NODE_ENV === 'production',
-      migrations: [CreateGalleryItemsTable1740000000000],
+      migrations: [
+        CreateGalleryItemsTable1740000000000,
+        CreateAppSettingsTable1740000001000,
+      ],
     }),
     LoggerModule,
     AuthModule,
@@ -44,6 +49,7 @@ import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000
     GalleryModule,
     InvoiceModule,
     ReviewsModule,
+    SettingsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

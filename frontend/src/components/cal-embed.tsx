@@ -13,7 +13,7 @@
  * - Stripe integration configured in Cal.com dashboard
  * 
  * CUSTOMIZATION:
- * - Modify DEPOSIT_AMOUNTS to change per-category deposits
+ * - Change the booking deposit from the admin booking settings panel
  * - Modify EVENT_SLUGS to change Cal.com event routing
  * - Modify THEME_CONFIG to adjust embed appearance
  */
@@ -22,6 +22,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Cal, { getCalApi } from '@calcom/embed-react';
+import { hasBookingDeposit } from '@/lib/booking-settings';
 
 // ============================================================================
 // CONFIGURATION - Modify these values to customize behavior
@@ -43,12 +44,6 @@ export const EVENT_SLUGS = {
     exterior: 'exterior',
     default: 'full-detail',
 } as const;
-
-/**
- * Flat deposit amount (in USD)
- * This should match the Stripe price configured in Cal.com
- */
-export const DEPOSIT_AMOUNT = 50;
 
 /**
  * Theme configuration for the Cal.com embed
@@ -98,6 +93,8 @@ export interface CalEmbedProps {
     className?: string;
     /** Callback fired when the calendar embed is ready */
     onReady?: () => void;
+    /** Deposit amount configured by admin */
+    depositAmount?: number;
 }
 
 // ============================================================================
@@ -112,17 +109,10 @@ export function getEventSlug(category: string): string {
 }
 
 /**
- * Get the deposit amount (flat rate)
- */
-export function getDepositAmount(): number {
-    return DEPOSIT_AMOUNT;
-}
-
-/**
  * Format booking selection into a notes string for Cal.com
  * This appears in the booking notes field
  */
-export function formatBookingNotes(selection: BookingSelection): string {
+export function formatBookingNotes(selection: BookingSelection, depositAmount = 0): string {
     const lines: string[] = [
         '📋 SERVICE SUMMARY',
         '━━━━━━━━━━━━━━━━━━━',
@@ -166,10 +156,11 @@ export function formatBookingNotes(selection: BookingSelection): string {
     lines.push('━━━━━━━━━━━━━━━━━━━');
     lines.push(`💰 ESTIMATED TOTAL: $${selection.total}`);
 
-    const deposit = getDepositAmount();
-    const balance = selection.total - deposit;
-    lines.push(`💳 Deposit (today): $${deposit}`);
-    lines.push(`📅 Balance (at service): $${balance}`);
+    if (hasBookingDeposit(depositAmount)) {
+        const balance = Math.max(selection.total - depositAmount, 0);
+        lines.push(`💳 Deposit (today): $${depositAmount}`);
+        lines.push(`📅 Balance (at service): $${balance}`);
+    }
 
     return lines.join('\n');
 }
@@ -243,7 +234,13 @@ export function parseBookingParams(searchParams: URLSearchParams): BookingSelect
  * // With pricing calculator selection
  * <CalEmbed selection={bookingSelection} />
  */
-export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalEmbedProps) {
+export function CalEmbed({
+    selection,
+    eventSlug,
+    className = '',
+    onReady,
+    depositAmount = 0,
+}: CalEmbedProps) {
     const [readyEmbedKey, setReadyEmbedKey] = useState<string | null>(null);
 
     // Determine which Cal.com event to show
@@ -259,11 +256,11 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
         };
 
         if (selection) {
-            config.notes = formatBookingNotes(selection);
+            config.notes = formatBookingNotes(selection, depositAmount);
         }
 
         return config;
-    }, [selection]);
+    }, [selection, depositAmount]);
 
     const selectionSignature = useMemo(() => {
         if (!selection) return 'default';
@@ -278,10 +275,11 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
             selection.paintCorrection || '',
             selection.total.toString(),
             selection.packageName || '',
+            depositAmount.toString(),
         ]
             .map((part) => encodeURIComponent(part))
             .join('__');
-    }, [selection]);
+    }, [selection, depositAmount]);
 
     // Remount the Cal iframe whenever the booking details change.
     const embedKey = useMemo(
@@ -359,15 +357,20 @@ export function CalEmbed({ selection, eventSlug, className = '', onReady }: CalE
 interface ServiceSummaryProps {
     selection: BookingSelection;
     className?: string;
+    depositAmount?: number;
 }
 
 /**
  * Displays a summary of selected services with pricing breakdown
  * Shows deposit amount and balance due at service
  */
-export function ServiceSummary({ selection, className = '' }: ServiceSummaryProps) {
-    const deposit = getDepositAmount();
-    const balance = selection.total - deposit;
+export function ServiceSummary({
+    selection,
+    className = '',
+    depositAmount = 0,
+}: ServiceSummaryProps) {
+    const showDeposit = hasBookingDeposit(depositAmount);
+    const balance = Math.max(selection.total - depositAmount, 0);
     const addonList = selection.addons?.split(',').map(a => a.trim()).filter(Boolean) || [];
 
     return (
@@ -423,15 +426,19 @@ export function ServiceSummary({ selection, className = '' }: ServiceSummaryProp
                     <span className="text-white font-display text-2xl">${selection.total}</span>
                 </div>
 
-                <div className="flex justify-between text-sm">
-                    <span className="text-neutral-400">Deposit (due today)</span>
-                    <span className="text-red-500 font-semibold">${deposit}</span>
-                </div>
+                {showDeposit && (
+                    <>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-neutral-400">Deposit (due today)</span>
+                            <span className="text-red-500 font-semibold">${depositAmount}</span>
+                        </div>
 
-                <div className="flex justify-between text-sm">
-                    <span className="text-neutral-400">Balance (at service)</span>
-                    <span className="text-neutral-300">${balance}</span>
-                </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-neutral-400">Balance (at service)</span>
+                            <span className="text-neutral-300">${balance}</span>
+                        </div>
+                    </>
+                )}
             </div>
 
             <p className="text-neutral-500 text-xs mt-4">

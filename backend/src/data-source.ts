@@ -2,7 +2,9 @@ import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { getDatabaseConnectionOptions } from './database.config';
 import { GalleryItemEntity } from './gallery/entities/gallery-item.entity';
+import { AppSettingEntity } from './settings/entities/app-setting.entity';
 import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
+import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
 
 config();
 
@@ -26,8 +28,11 @@ export const AppDataSource = new DataSource({
   ...getDatabaseConnectionOptions(),
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
-  entities: [GalleryItemEntity],
-  migrations: [CreateGalleryItemsTable1740000000000],
+  entities: [GalleryItemEntity, AppSettingEntity],
+  migrations: [
+    CreateGalleryItemsTable1740000000000,
+    CreateAppSettingsTable1740000001000,
+  ],
   subscribers: [],
 });
 
