@@ -18,6 +18,7 @@ import { HealthController } from './health.controller';
 import { getDatabaseConnectionOptions } from './database.config';
 import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
 import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
+import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-
       migrations: [
         CreateGalleryItemsTable1740000000000,
         CreateAppSettingsTable1740000001000,
+        AddGalleryCloudinaryMetadata1740000002000,
       ],
     }),
     LoggerModule,

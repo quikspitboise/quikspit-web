@@ -11,6 +11,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   return proxyAdminRequest(request, '/gallery/admin/items', {
     method: 'POST',
-    body: await request.formData(),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: await request.text(),
   });
 }

@@ -9,12 +9,8 @@ import {
   Patch,
   Post,
   Req,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { Throttle } from '@nestjs/throttler';
 import { AdminAllowlistGuard } from '../auth/admin-allowlist.guard';
 import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
@@ -25,28 +21,7 @@ import { UpdateGalleryItemDto } from './dto/update-gallery-item.dto';
 import {
   GalleryItemDto,
   GalleryService,
-  type GalleryUploadFiles,
 } from './gallery.service';
-
-const galleryUploadInterceptor = FileFieldsInterceptor(
-  [
-    { name: 'image', maxCount: 1 },
-    { name: 'beforeImage', maxCount: 1 },
-    { name: 'afterImage', maxCount: 1 },
-  ],
-  {
-    storage: memoryStorage(),
-    fileFilter: (req, file, callback) => {
-      if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-        return callback(new Error('Only image files are allowed'), false);
-      }
-      callback(null, true);
-    },
-    limits: {
-      fileSize: 5 * 1024 * 1024,
-    },
-  },
-);
 
 @Controller('gallery')
 export class GalleryController {
@@ -70,16 +45,13 @@ export class GalleryController {
   @UseGuards(ClerkAuthGuard, AdminAllowlistGuard)
   @Post('admin/items')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(galleryUploadInterceptor)
   async create(
     @Req() request: AuthenticatedRequest,
     @Body() dto: CreateGalleryItemDto,
-    @UploadedFiles() files: GalleryUploadFiles,
   ) {
     const item = await this.galleryService.create(
       request.clerkAuth!.userId,
       dto,
-      files,
     );
 
     return { item };
@@ -105,16 +77,19 @@ export class GalleryController {
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @UseGuards(ClerkAuthGuard, AdminAllowlistGuard)
   @Post('admin/items/:id/assets')
-  @UseInterceptors(galleryUploadInterceptor)
   async replaceAssets(
     @Param('id') id: string,
     @Req() request: AuthenticatedRequest,
-    @UploadedFiles() files: GalleryUploadFiles,
+    @Body() dto: UpdateGalleryItemDto,
   ) {
     const item = await this.galleryService.replaceAssets(
       id,
       request.clerkAuth!.userId,
-      files,
+      {
+        imageAsset: dto.imageAsset,
+        beforeAsset: dto.beforeAsset,
+        afterAsset: dto.afterAsset,
+      },
     );
 
     return { item };

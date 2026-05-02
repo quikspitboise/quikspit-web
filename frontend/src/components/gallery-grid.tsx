@@ -59,6 +59,7 @@ function GalleryCard({
 }) {
   const prefersReducedMotion = useReducedMotion()
   const isComparison = !!(item.beforeUrl && item.afterUrl)
+  const itemAlt = item.altText || item.title
 
   return (
     <motion.div
@@ -88,8 +89,8 @@ function GalleryCard({
             <ComparisonSlider
               beforeUrl={item.beforeUrl!}
               afterUrl={item.afterUrl!}
-              altBefore={`${item.title} - before detailing`}
-              altAfter={`${item.title} - after detailing`}
+              altBefore={`${itemAlt} - before detailing`}
+              altAfter={`${itemAlt} - after detailing`}
             />
             {/* Badge */}
             <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-red-600/90 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white tracking-wide uppercase shadow-lg">
@@ -118,7 +119,7 @@ function GalleryCard({
             <div className="relative aspect-4/3 overflow-hidden">
               <CldImage
                 src={item.imageUrl}
-                alt={item.title}
+                alt={itemAlt}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
@@ -401,8 +402,8 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                       <ComparisonSlider
                         beforeUrl={activeItem.beforeUrl}
                         afterUrl={activeItem.afterUrl}
-                        altBefore={`${activeItem.title} - before detailing`}
-                        altAfter={`${activeItem.title} - after detailing`}
+                        altBefore={`${activeItem.altText || activeItem.title} - before detailing`}
+                        altAfter={`${activeItem.altText || activeItem.title} - after detailing`}
                         initialPosition={50}
                         imageFit="contain"
                         sizes="(max-width: 768px) 100vw, 90vw"
@@ -426,7 +427,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                     >
                       <CldImage
                         src={activeItem.imageUrl}
-                        alt={activeItem.title}
+                        alt={activeItem.altText || activeItem.title}
                         fill
                         sizes="(max-width: 1920px) 100vw, 1920px"
                         className={`transition-transform duration-300 ease-out ${

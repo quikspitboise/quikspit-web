@@ -14,8 +14,10 @@ import { CreateGalleryItemDto } from './dto/create-gallery-item.dto';
 import { ReorderGalleryItemsDto } from './dto/reorder-gallery-items.dto';
 import { UpdateGalleryItemDto } from './dto/update-gallery-item.dto';
 import { DEFAULT_GALLERY_ITEMS } from './default-gallery-items';
+import { CloudinaryAssetDto } from './dto/cloudinary-asset.dto';
 import {
   GalleryAssetType,
+  GalleryCloudinaryAsset,
   GalleryItemEntity,
 } from './entities/gallery-item.entity';
 
@@ -23,6 +25,7 @@ export interface GalleryItemDto {
   id: string;
   title: string;
   description?: string;
+  altText?: string;
   categories?: string[];
   tags?: string[];
   beforeUrl?: string;
@@ -36,6 +39,10 @@ export interface GalleryAdminItemDto extends GalleryItemDto {
   tags: string[];
   assetType: GalleryAssetType;
   displayOrder: number;
+  isVisible: boolean;
+  imagePublicId?: string | null;
+  beforePublicId?: string | null;
+  afterPublicId?: string | null;
   updatedAt: string;
   createdByUserId?: string | null;
   updatedByUserId?: string | null;
@@ -63,6 +70,9 @@ export class GalleryService implements OnModuleInit {
 
   async list(): Promise<GalleryItemDto[]> {
     const items = await this.galleryRepository.find({
+      where: {
+        isVisible: true,
+      },
       order: {
         displayOrder: 'ASC',
         createdAt: 'ASC',
@@ -86,40 +96,30 @@ export class GalleryService implements OnModuleInit {
   async create(
     adminUserId: string,
     dto: CreateGalleryItemDto,
-    files: GalleryUploadFiles,
   ): Promise<GalleryAdminItemDto> {
-    const imageFile = files.image?.[0];
-    const beforeImageFile = files.beforeImage?.[0];
-    const afterImageFile = files.afterImage?.[0];
-
-    this.validateFilesForAssetType(dto.assetType, {
-      imageFile,
-      beforeImageFile,
-      afterImageFile,
+    const directUploadAssets = this.resolveDirectUploadAssets(dto.assetType, {
+      imageAsset: dto.imageAsset,
+      beforeAsset: dto.beforeAsset,
+      afterAsset: dto.afterAsset,
     });
-
-    await this.validateFiles([imageFile, beforeImageFile, afterImageFile]);
 
     const nextDisplayOrder = await this.resolveDisplayOrder(dto.displayOrder);
-    const uploadKey = this.buildUploadKey(dto.title);
-
-    const uploadedAssets = await this.uploadAssets(dto.assetType, {
-      imageFile,
-      beforeImageFile,
-      afterImageFile,
-      uploadKey,
-    });
 
     const item = this.galleryRepository.create({
       id: randomUUID(),
       title: dto.title,
       description: dto.description ?? null,
+      altText: dto.altText ?? null,
       categories: this.normalizeCategories(dto.categories, dto.assetType),
       tags: this.normalizeStringList(dto.tags),
       assetType: dto.assetType,
-      imagePublicId: uploadedAssets.imagePublicId,
-      beforePublicId: uploadedAssets.beforePublicId,
-      afterPublicId: uploadedAssets.afterPublicId,
+      imagePublicId: directUploadAssets.imageAsset?.publicId ?? null,
+      beforePublicId: directUploadAssets.beforeAsset?.publicId ?? null,
+      afterPublicId: directUploadAssets.afterAsset?.publicId ?? null,
+      imageAsset: directUploadAssets.imageAsset,
+      beforeAsset: directUploadAssets.beforeAsset,
+      afterAsset: directUploadAssets.afterAsset,
+      isVisible: dto.isVisible ?? true,
       displayOrder: nextDisplayOrder,
       createdByUserId: adminUserId,
       updatedByUserId: adminUserId,
@@ -150,6 +150,10 @@ export class GalleryService implements OnModuleInit {
       item.description = dto.description ?? null;
     }
 
+    if (dto.altText !== undefined) {
+      item.altText = dto.altText ?? null;
+    }
+
     if (dto.categories !== undefined) {
       item.categories = this.normalizeCategories(dto.categories, item.assetType);
     }
@@ -160,6 +164,10 @@ export class GalleryService implements OnModuleInit {
 
     if (dto.displayOrder !== undefined) {
       item.displayOrder = dto.displayOrder;
+    }
+
+    if (dto.isVisible !== undefined) {
+      item.isVisible = dto.isVisible;
     }
 
     item.updatedByUserId = adminUserId;
@@ -176,35 +184,30 @@ export class GalleryService implements OnModuleInit {
   async replaceAssets(
     id: string,
     adminUserId: string,
-    files: GalleryUploadFiles,
+    assets?: {
+      imageAsset?: CloudinaryAssetDto;
+      beforeAsset?: CloudinaryAssetDto;
+      afterAsset?: CloudinaryAssetDto;
+    },
   ): Promise<GalleryAdminItemDto> {
     const item = await this.findOneOrThrow(id);
-    const imageFile = files.image?.[0];
-    const beforeImageFile = files.beforeImage?.[0];
-    const afterImageFile = files.afterImage?.[0];
-
-    this.validateFilesForAssetType(item.assetType, {
-      imageFile,
-      beforeImageFile,
-      afterImageFile,
+    const directUploadAssets = this.resolveDirectUploadAssets(item.assetType, {
+      imageAsset: assets?.imageAsset,
+      beforeAsset: assets?.beforeAsset,
+      afterAsset: assets?.afterAsset,
     });
-
-    await this.validateFiles([imageFile, beforeImageFile, afterImageFile]);
 
     const previousPublicIds = this.getTrackedPublicIds(item);
-    const uploadedAssets = await this.uploadAssets(item.assetType, {
-      imageFile,
-      beforeImageFile,
-      afterImageFile,
-      uploadKey: this.buildUploadKey(item.title),
-    });
 
     item.imagePublicId =
-      uploadedAssets.imagePublicId ?? item.imagePublicId ?? null;
+      directUploadAssets.imageAsset?.publicId ?? item.imagePublicId ?? null;
     item.beforePublicId =
-      uploadedAssets.beforePublicId ?? item.beforePublicId ?? null;
+      directUploadAssets.beforeAsset?.publicId ?? item.beforePublicId ?? null;
     item.afterPublicId =
-      uploadedAssets.afterPublicId ?? item.afterPublicId ?? null;
+      directUploadAssets.afterAsset?.publicId ?? item.afterPublicId ?? null;
+    item.imageAsset = directUploadAssets.imageAsset ?? item.imageAsset ?? null;
+    item.beforeAsset = directUploadAssets.beforeAsset ?? item.beforeAsset ?? null;
+    item.afterAsset = directUploadAssets.afterAsset ?? item.afterAsset ?? null;
     item.updatedByUserId = adminUserId;
 
     const savedItem = await this.galleryRepository.save(item);
@@ -273,9 +276,10 @@ export class GalleryService implements OnModuleInit {
 
   async remove(id: string, adminUserId: string): Promise<void> {
     const item = await this.findOneOrThrow(id);
+    const publicIds = this.getTrackedPublicIds(item);
 
-    await this.deleteTrackedPublicIds(this.getTrackedPublicIds(item));
     await this.galleryRepository.remove(item);
+    await this.deleteTrackedPublicIds(publicIds);
 
     this.logger.log('Gallery item deleted', {
       galleryItemId: id,
@@ -293,12 +297,17 @@ export class GalleryService implements OnModuleInit {
       this.galleryRepository.create({
         ...item,
         description: item.description ?? null,
-        imagePublicId: item.imagePublicId ?? null,
-        beforePublicId: item.beforePublicId ?? null,
-        afterPublicId: item.afterPublicId ?? null,
-        displayOrder: index,
-        createdByUserId: null,
-        updatedByUserId: null,
+      imagePublicId: item.imagePublicId ?? null,
+      beforePublicId: item.beforePublicId ?? null,
+      afterPublicId: item.afterPublicId ?? null,
+      imageAsset: null,
+      beforeAsset: null,
+      afterAsset: null,
+      altText: null,
+      isVisible: true,
+      displayOrder: index,
+      createdByUserId: null,
+      updatedByUserId: null,
       }),
     );
 
@@ -376,6 +385,75 @@ export class GalleryService implements OnModuleInit {
         'Comparison gallery items cannot include a single image file',
       );
     }
+  }
+
+  private resolveDirectUploadAssets(
+    assetType: GalleryAssetType,
+    assets: {
+      imageAsset?: CloudinaryAssetDto;
+      beforeAsset?: CloudinaryAssetDto;
+      afterAsset?: CloudinaryAssetDto;
+    },
+  ): {
+    imageAsset: GalleryCloudinaryAsset | null;
+    beforeAsset: GalleryCloudinaryAsset | null;
+    afterAsset: GalleryCloudinaryAsset | null;
+  } {
+    if (assetType === GalleryAssetType.SINGLE) {
+      if (!assets.imageAsset) {
+        throw new BadRequestException(
+          'A single gallery item requires Cloudinary image metadata',
+        );
+      }
+
+      if (assets.beforeAsset || assets.afterAsset) {
+        throw new BadRequestException(
+          'Single gallery items cannot include before/after assets',
+        );
+      }
+
+      return {
+        imageAsset: this.normalizeCloudinaryAsset(assets.imageAsset),
+        beforeAsset: null,
+        afterAsset: null,
+      };
+    }
+
+    if (!assets.beforeAsset || !assets.afterAsset) {
+      throw new BadRequestException(
+        'A comparison gallery item requires before and after Cloudinary metadata',
+      );
+    }
+
+    if (assets.imageAsset) {
+      throw new BadRequestException(
+        'Comparison gallery items cannot include a single image asset',
+      );
+    }
+
+    return {
+      imageAsset: null,
+      beforeAsset: this.normalizeCloudinaryAsset(assets.beforeAsset),
+      afterAsset: this.normalizeCloudinaryAsset(assets.afterAsset),
+    };
+  }
+
+  private normalizeCloudinaryAsset(
+    asset: CloudinaryAssetDto,
+  ): GalleryCloudinaryAsset {
+    if (!asset.publicId.startsWith('quikspit/gallery/')) {
+      throw new BadRequestException('Gallery assets must be uploaded to the gallery folder');
+    }
+
+    return {
+      publicId: asset.publicId,
+      secureUrl: asset.secureUrl,
+      width: asset.width,
+      height: asset.height,
+      format: asset.format,
+      bytes: asset.bytes,
+      originalFilename: asset.originalFilename ?? null,
+    };
   }
 
   private async resolveDisplayOrder(requestedOrder?: number): Promise<number> {
@@ -474,11 +552,13 @@ export class GalleryService implements OnModuleInit {
         continue;
       }
 
-      const deleted = await this.cloudinaryService.deleteFile(publicId);
-      if (!deleted) {
-        throw new BadRequestException(
-          `Unable to delete gallery asset ${publicId}`,
-        );
+      try {
+        await this.cloudinaryService.deleteFile(publicId);
+      } catch (error) {
+        this.logger.warn('Unable to delete gallery asset from Cloudinary', {
+          publicId,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
   }
@@ -557,11 +637,12 @@ export class GalleryService implements OnModuleInit {
       id: item.id,
       title: item.title,
       description: item.description ?? undefined,
+      altText: item.altText ?? undefined,
       categories: this.resolveStoredCategories(item),
       tags: item.tags ?? [],
-      imageUrl: item.imagePublicId ?? undefined,
-      beforeUrl: item.beforePublicId ?? undefined,
-      afterUrl: item.afterPublicId ?? undefined,
+      imageUrl: item.imagePublicId ?? item.imageAsset?.secureUrl ?? undefined,
+      beforeUrl: item.beforePublicId ?? item.beforeAsset?.secureUrl ?? undefined,
+      afterUrl: item.afterPublicId ?? item.afterAsset?.secureUrl ?? undefined,
       createdAt: item.createdAt.toISOString(),
     };
   }
@@ -573,6 +654,10 @@ export class GalleryService implements OnModuleInit {
       tags: item.tags ?? [],
       assetType: item.assetType,
       displayOrder: item.displayOrder,
+      isVisible: item.isVisible,
+      imagePublicId: item.imagePublicId,
+      beforePublicId: item.beforePublicId,
+      afterPublicId: item.afterPublicId,
       updatedAt: item.updatedAt.toISOString(),
       createdByUserId: item.createdByUserId,
       updatedByUserId: item.updatedByUserId,

@@ -13,6 +13,9 @@ export async function POST(request: Request, context: RouteContext) {
 
   return proxyAdminRequest(request, `/gallery/admin/items/${id}/assets`, {
     method: 'POST',
-    body: await request.formData(),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: await request.text(),
   });
 }

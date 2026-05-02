@@ -4,6 +4,7 @@ export type GalleryItem = {
   id: string;
   title: string;
   description?: string;
+  altText?: string;
   categories?: string[];
   tags?: string[];
   beforeUrl?: string;
@@ -17,6 +18,10 @@ export type GalleryAdminItem = GalleryItem & {
   tags: string[];
   assetType: GalleryAssetType;
   displayOrder: number;
+  isVisible: boolean;
+  imagePublicId?: string | null;
+  beforePublicId?: string | null;
+  afterPublicId?: string | null;
   updatedAt: string;
   createdByUserId?: string | null;
   updatedByUserId?: string | null;

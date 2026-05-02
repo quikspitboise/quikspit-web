@@ -12,6 +12,16 @@ export enum GalleryAssetType {
   COMPARISON = 'comparison',
 }
 
+export type GalleryCloudinaryAsset = {
+  publicId: string;
+  secureUrl: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+  originalFilename?: string | null;
+};
+
 @Entity({ name: 'gallery_items' })
 @Index(['displayOrder'])
 export class GalleryItemEntity {
@@ -23,6 +33,9 @@ export class GalleryItemEntity {
 
   @Column({ type: 'text', nullable: true })
   description!: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  altText!: string | null;
 
   @Column({ type: 'jsonb', default: () => "'[]'" })
   categories!: string[];
@@ -41,6 +54,18 @@ export class GalleryItemEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   afterPublicId!: string | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  imageAsset!: GalleryCloudinaryAsset | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  beforeAsset!: GalleryCloudinaryAsset | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  afterAsset!: GalleryCloudinaryAsset | null;
+
+  @Column({ type: 'boolean', default: true })
+  isVisible!: boolean;
 
   @Column({ type: 'integer', default: 0 })
   displayOrder!: number;
