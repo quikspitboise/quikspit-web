@@ -212,6 +212,8 @@ function CardThumbnail({ item }: { item: GalleryAdminItem }) {
                 sizes="200px"
                 crop="fill"
                 gravity="auto"
+                format="auto"
+                quality="auto"
                 className="object-cover"
               />
             ) : (
@@ -228,6 +230,8 @@ function CardThumbnail({ item }: { item: GalleryAdminItem }) {
                 sizes="200px"
                 crop="fill"
                 gravity="auto"
+                format="auto"
+                quality="auto"
                 className="object-cover"
               />
             ) : (
@@ -253,6 +257,8 @@ function CardThumbnail({ item }: { item: GalleryAdminItem }) {
           sizes="300px"
           crop="fill"
           gravity="auto"
+          format="auto"
+          quality="auto"
           className="object-cover"
         />
       ) : (

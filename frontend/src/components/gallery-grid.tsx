@@ -122,6 +122,8 @@ function GalleryCard({
                 alt={itemAlt}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                format="auto"
+                quality="auto"
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
             </div>
@@ -430,6 +432,8 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                         alt={activeItem.altText || activeItem.title}
                         fill
                         sizes="(max-width: 1920px) 100vw, 1920px"
+                        format="auto"
+                        quality="auto"
                         className={`transition-transform duration-300 ease-out ${
                           isZoomed ? 'scale-[2.5]' : 'scale-100'
                         } object-contain`}

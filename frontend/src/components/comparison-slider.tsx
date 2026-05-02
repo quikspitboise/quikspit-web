@@ -35,11 +35,11 @@ export function ComparisonSlider({
 	return (
 		<div className={`group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light ${className}`.trim()}>
 			{/* After image as base layer */}
-			<CldImage src={afterUrl} alt={altAfter} fill sizes={sizes} className={imageClassName} priority={false} />
+			<CldImage src={afterUrl} alt={altAfter} fill sizes={sizes} format="auto" quality="auto" className={imageClassName} priority={false} />
 
 			{/* Before image clipped to position (keeps full size, clips using CSS) */}
 			<div className="absolute inset-0 pointer-events-none" style={clipStyle} aria-hidden>
-				<CldImage src={beforeUrl} alt={altBefore} fill sizes={sizes} className={imageClassName} />
+				<CldImage src={beforeUrl} alt={altBefore} fill sizes={sizes} format="auto" quality="auto" className={imageClassName} />
 			</div>
 
 			{/* Divider + handle */}
