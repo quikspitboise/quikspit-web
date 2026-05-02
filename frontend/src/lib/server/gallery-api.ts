@@ -127,6 +127,27 @@ export async function proxyAdminRequest(
   const body = await response.text();
   const contentType = response.headers.get('content-type') ?? 'application/json';
 
+  if (
+    !response.ok &&
+    method !== 'GET' &&
+    path.startsWith('/gallery/admin/') &&
+    response.status >= 500
+  ) {
+    console.error('Admin gallery backend request failed', {
+      path,
+      status: response.status,
+      body: body.slice(0, 500),
+    });
+
+    return NextResponse.json(
+      {
+        message:
+          'Gallery metadata could not be saved. Confirm the backend deployment includes the direct-upload gallery changes and the latest database migration has run.',
+      },
+      { status: 502 },
+    );
+  }
+
   return new NextResponse(body, {
     status: response.status,
     headers: {
