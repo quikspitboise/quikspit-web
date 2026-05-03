@@ -103,7 +103,10 @@ export class GalleryService implements OnModuleInit {
       afterAsset: dto.afterAsset,
     });
 
-    const nextDisplayOrder = await this.resolveDisplayOrder(dto.displayOrder);
+    const nextDisplayOrder = await this.resolveDisplayOrder(
+      dto.displayOrder,
+      adminUserId,
+    );
 
     const item = this.galleryRepository.create({
       id: randomUUID(),
@@ -491,18 +494,37 @@ export class GalleryService implements OnModuleInit {
     };
   }
 
-  private async resolveDisplayOrder(requestedOrder?: number): Promise<number> {
+  private async resolveDisplayOrder(
+    requestedOrder?: number,
+    adminUserId?: string,
+  ): Promise<number> {
     if (requestedOrder !== undefined) {
       return requestedOrder;
     }
 
-    const lastItem = await this.galleryRepository.findOne({
-      order: {
-        displayOrder: 'DESC',
-      },
-    });
+    try {
+      const result = await this.galleryRepository
+        .createQueryBuilder('galleryItem')
+        .select('MAX(galleryItem.displayOrder)', 'maxDisplayOrder')
+        .getRawOne<{ maxDisplayOrder: string | number | null }>();
 
-    return lastItem ? lastItem.displayOrder + 1 : 0;
+      const maxDisplayOrder =
+        typeof result?.maxDisplayOrder === 'number'
+          ? result.maxDisplayOrder
+          : Number(result?.maxDisplayOrder ?? -1);
+
+      return Number.isFinite(maxDisplayOrder) ? maxDisplayOrder + 1 : 0;
+    } catch (error) {
+      this.logger.error(
+        'Failed to resolve next gallery display order',
+        error instanceof Error ? error.stack : undefined,
+        {
+          adminUserId,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      throw error;
+    }
   }
 
   private async uploadAssets(
