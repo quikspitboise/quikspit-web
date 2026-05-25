@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddGalleryCloudinaryMetadata1740000002000
-  implements MigrationInterface
-{
+export class AddGalleryCloudinaryMetadata1740000002000 implements MigrationInterface {
   name = 'AddGalleryCloudinaryMetadata1740000002000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

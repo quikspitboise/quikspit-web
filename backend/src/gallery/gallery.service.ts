@@ -175,7 +175,10 @@ export class GalleryService implements OnModuleInit {
     }
 
     if (dto.categories !== undefined) {
-      item.categories = this.normalizeCategories(dto.categories, item.assetType);
+      item.categories = this.normalizeCategories(
+        dto.categories,
+        item.assetType,
+      );
     }
 
     if (dto.tags !== undefined) {
@@ -244,7 +247,8 @@ export class GalleryService implements OnModuleInit {
     item.afterPublicId =
       directUploadAssets.afterAsset?.publicId ?? item.afterPublicId ?? null;
     item.imageAsset = directUploadAssets.imageAsset ?? item.imageAsset ?? null;
-    item.beforeAsset = directUploadAssets.beforeAsset ?? item.beforeAsset ?? null;
+    item.beforeAsset =
+      directUploadAssets.beforeAsset ?? item.beforeAsset ?? null;
     item.afterAsset = directUploadAssets.afterAsset ?? item.afterAsset ?? null;
     item.updatedByUserId = adminUserId;
 
@@ -335,17 +339,17 @@ export class GalleryService implements OnModuleInit {
       this.galleryRepository.create({
         ...item,
         description: item.description ?? null,
-      imagePublicId: item.imagePublicId ?? null,
-      beforePublicId: item.beforePublicId ?? null,
-      afterPublicId: item.afterPublicId ?? null,
-      imageAsset: null,
-      beforeAsset: null,
-      afterAsset: null,
-      altText: null,
-      isVisible: true,
-      displayOrder: index,
-      createdByUserId: null,
-      updatedByUserId: null,
+        imagePublicId: item.imagePublicId ?? null,
+        beforePublicId: item.beforePublicId ?? null,
+        afterPublicId: item.afterPublicId ?? null,
+        imageAsset: null,
+        beforeAsset: null,
+        afterAsset: null,
+        altText: null,
+        isVisible: true,
+        displayOrder: index,
+        createdByUserId: null,
+        updatedByUserId: null,
       }),
     );
 
@@ -480,7 +484,9 @@ export class GalleryService implements OnModuleInit {
     asset: CloudinaryAssetDto,
   ): GalleryCloudinaryAsset {
     if (!asset.publicId.startsWith('quikspit/gallery/')) {
-      throw new BadRequestException('Gallery assets must be uploaded to the gallery folder');
+      throw new BadRequestException(
+        'Gallery assets must be uploaded to the gallery folder',
+      );
     }
 
     return {
@@ -645,7 +651,9 @@ export class GalleryService implements OnModuleInit {
       return normalizedCategories;
     }
 
-    return [assetType === GalleryAssetType.COMPARISON ? 'comparison' : 'showcase'];
+    return [
+      assetType === GalleryAssetType.COMPARISON ? 'comparison' : 'showcase',
+    ];
   }
 
   private inferLegacyCategories(item: GalleryItemEntity): string[] {
@@ -681,11 +689,7 @@ export class GalleryService implements OnModuleInit {
 
   private normalizeStringList(values: string[] | undefined): string[] {
     return Array.from(
-      new Set(
-        (values ?? [])
-          .map((value) => value.trim())
-          .filter(Boolean),
-      ),
+      new Set((values ?? []).map((value) => value.trim()).filter(Boolean)),
     );
   }
 
@@ -698,7 +702,8 @@ export class GalleryService implements OnModuleInit {
       categories: this.resolveStoredCategories(item),
       tags: item.tags ?? [],
       imageUrl: item.imagePublicId ?? item.imageAsset?.secureUrl ?? undefined,
-      beforeUrl: item.beforePublicId ?? item.beforeAsset?.secureUrl ?? undefined,
+      beforeUrl:
+        item.beforePublicId ?? item.beforeAsset?.secureUrl ?? undefined,
       afterUrl: item.afterPublicId ?? item.afterAsset?.secureUrl ?? undefined,
       createdAt: item.createdAt.toISOString(),
     };

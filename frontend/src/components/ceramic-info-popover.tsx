@@ -58,7 +58,7 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
             clipRule="evenodd"
           />
         </svg>
-        <span className="text-xs font-medium">What's this?</span>
+        <span className="text-xs font-medium">What&apos;s this?</span>
       </button>
 
       {open && (

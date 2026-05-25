@@ -1,4 +1,3 @@
-import { FileValidationService } from '../common/file-validation.service';
 import { GalleryService } from './gallery.service';
 import { GalleryAssetType } from './entities/gallery-item.entity';
 
@@ -6,6 +5,7 @@ describe('GalleryService', () => {
   const repositoryMock = {
     count: jest.fn(),
     create: jest.fn((entity) => entity),
+    createQueryBuilder: jest.fn(),
     find: jest.fn(),
     findOne: jest.fn(),
     save: jest.fn(),
@@ -18,6 +18,7 @@ describe('GalleryService', () => {
   };
 
   const loggerMock = {
+    error: jest.fn(),
     log: jest.fn(),
   };
 
@@ -34,15 +35,9 @@ describe('GalleryService', () => {
   });
 
   it('creates a single-image gallery item and persists the uploaded Cloudinary asset', async () => {
-    jest
-      .spyOn(FileValidationService, 'validateImageFile')
-      .mockResolvedValue(undefined);
-
-    repositoryMock.findOne.mockResolvedValue({
-      displayOrder: 2,
-    });
-    cloudinaryMock.uploadBuffer.mockResolvedValue({
-      publicId: 'quikspit/gallery/new-item-single',
+    repositoryMock.createQueryBuilder.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue({ maxDisplayOrder: 2 }),
     });
     repositoryMock.save.mockImplementation(async (entity) => ({
       ...entity,
@@ -50,28 +45,23 @@ describe('GalleryService', () => {
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     }));
 
-    const file = {
-      buffer: Buffer.from('fake-image-data'),
-      size: 1024,
-      originalname: 'detail.png',
-      mimetype: 'image/png',
-    } as Express.Multer.File;
-
-    const item = await service.create(
-      'user_owner',
-      {
-        title: 'Wheel detail',
-        description: 'Freshly cleaned wheels',
-        categories: ['exterior', 'showcase'],
-        tags: ['wheels', 'detail'],
-        assetType: GalleryAssetType.SINGLE,
+    const item = await service.create('user_owner', {
+      title: 'Wheel detail',
+      description: 'Freshly cleaned wheels',
+      categories: ['exterior', 'showcase'],
+      tags: ['wheels', 'detail'],
+      assetType: GalleryAssetType.SINGLE,
+      imageAsset: {
+        publicId: 'quikspit/gallery/new-item-single',
+        secureUrl: 'https://res.cloudinary.com/demo/image/upload/new-item.jpg',
+        width: 1200,
+        height: 800,
+        format: 'jpg',
+        bytes: 1024,
       },
-      {
-        image: [file],
-      },
-    );
+    });
 
-    expect(cloudinaryMock.uploadBuffer).toHaveBeenCalledTimes(1);
+    expect(cloudinaryMock.uploadBuffer).not.toHaveBeenCalled();
     expect(repositoryMock.save).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Wheel detail',

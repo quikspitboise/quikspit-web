@@ -116,10 +116,7 @@ function configureMiddleware(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      if (
-        allowedOrigins.includes(origin) ||
-        allowedOrigins.includes('*')
-      ) {
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true);
       }
 

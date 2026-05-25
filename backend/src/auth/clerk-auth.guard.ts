@@ -1,8 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { AuthenticatedRequest } from './auth.types';
 
@@ -12,7 +8,8 @@ export class ClerkAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    request.clerkAuth = await this.authService.authenticateClerkRequest(request);
+    request.clerkAuth =
+      await this.authService.authenticateClerkRequest(request);
     return true;
   }
 }

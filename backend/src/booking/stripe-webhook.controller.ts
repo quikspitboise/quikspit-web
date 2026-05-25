@@ -191,9 +191,7 @@ export class StripeWebhookController {
   /**
    * Handle completed checkout session
    */
-  private async handleCheckoutSessionCompleted(
-    session: StripeCheckoutSession,
-  ) {
+  private async handleCheckoutSessionCompleted(session: StripeCheckoutSession) {
     const bookingId = session.metadata?.bookingId;
 
     this.logger.log('Checkout session completed', {

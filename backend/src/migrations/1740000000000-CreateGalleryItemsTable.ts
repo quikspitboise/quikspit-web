@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateGalleryItemsTable1740000000000
-  implements MigrationInterface
-{
+export class CreateGalleryItemsTable1740000000000 implements MigrationInterface {
   name = 'CreateGalleryItemsTable1740000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -33,7 +31,9 @@ export class CreateGalleryItemsTable1740000000000
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_gallery_items_displayOrder"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "IDX_gallery_items_displayOrder"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "gallery_items"`);
   }
 }

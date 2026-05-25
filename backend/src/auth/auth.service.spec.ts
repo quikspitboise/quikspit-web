@@ -15,6 +15,7 @@ describe('AuthService', () => {
     typeof createClerkClient
   >;
   const loggerMock = {
+    error: jest.fn(),
     warn: jest.fn(),
   };
 

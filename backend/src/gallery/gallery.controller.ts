@@ -19,10 +19,7 @@ import { LoggerService } from '../common/logger.service';
 import { CreateGalleryItemDto } from './dto/create-gallery-item.dto';
 import { ReorderGalleryItemsDto } from './dto/reorder-gallery-items.dto';
 import { UpdateGalleryItemDto } from './dto/update-gallery-item.dto';
-import {
-  GalleryItemDto,
-  GalleryService,
-} from './gallery.service';
+import { GalleryItemDto, GalleryService } from './gallery.service';
 
 @Controller('gallery')
 export class GalleryController {
@@ -64,7 +61,10 @@ export class GalleryController {
       afterPublicId: dto.afterAsset?.publicId,
     });
 
-    const item = await this.galleryService.create(request.clerkAuth!.userId, dto);
+    const item = await this.galleryService.create(
+      request.clerkAuth!.userId,
+      dto,
+    );
 
     return { item };
   }

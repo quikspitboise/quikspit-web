@@ -5,8 +5,12 @@ import { SmsService } from '../common/sms.service';
 import { CreateInvoiceDto, SendInvoiceDto } from './dto/create-invoice.dto';
 
 type StripeClient = ReturnType<typeof Stripe>;
-type StripeCustomerCreateParams = Parameters<StripeClient['customers']['create']>[0];
-type StripeInvoiceCreateParams = Parameters<StripeClient['invoices']['create']>[0];
+type StripeCustomerCreateParams = Parameters<
+  StripeClient['customers']['create']
+>[0];
+type StripeInvoiceCreateParams = Parameters<
+  StripeClient['invoices']['create']
+>[0];
 type StripeInvoice = Awaited<ReturnType<StripeClient['invoices']['retrieve']>>;
 
 /**

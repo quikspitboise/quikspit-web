@@ -9,7 +9,10 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { normalizeOptionalString, normalizeRequiredString } from './transformers';
+import {
+  normalizeOptionalString,
+  normalizeRequiredString,
+} from './transformers';
 
 export class CloudinaryAssetDto {
   @Transform(({ value }) => normalizeRequiredString(value))

@@ -1,3 +1,4 @@
 packages:
   - frontend
   - backend
+minimumReleaseAge: 10080

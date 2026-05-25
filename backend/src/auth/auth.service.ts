@@ -99,9 +99,7 @@ export class AuthService {
       userId: authObject.userId,
       sessionId: authObject.sessionId ?? null,
       authorizedParty:
-        typeof sessionClaims?.azp === 'string'
-          ? sessionClaims.azp
-          : undefined,
+        typeof sessionClaims?.azp === 'string' ? sessionClaims.azp : undefined,
     };
   }
 
@@ -151,9 +149,12 @@ export class AuthService {
     }
 
     if (!adminUserIds.includes(userId)) {
-      this.logger.warn('Authenticated Clerk user is not on the admin allowlist', {
-        userId,
-      });
+      this.logger.warn(
+        'Authenticated Clerk user is not on the admin allowlist',
+        {
+          userId,
+        },
+      );
       throw new NotFoundException('Resource not found');
     }
   }
