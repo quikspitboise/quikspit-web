@@ -1,4 +1,4 @@
-import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions';
 
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
   if (value === undefined) {
@@ -25,7 +25,7 @@ function shouldUseSsl(): boolean {
   return process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
 }
 
-function getSslConfig(): PostgresConnectionOptions['ssl'] {
+function getSslConfig(): PostgresConnectionCredentialsOptions['ssl'] {
   if (!shouldUseSsl()) {
     return false;
   }
@@ -36,17 +36,9 @@ function getSslConfig(): PostgresConnectionOptions['ssl'] {
   };
 }
 
-export function getDatabaseConnectionOptions(): Pick<
-  PostgresConnectionOptions,
-  | 'type'
-  | 'url'
-  | 'host'
-  | 'port'
-  | 'username'
-  | 'password'
-  | 'database'
-  | 'ssl'
-> {
+export function getDatabaseConnectionOptions(): PostgresConnectionCredentialsOptions & {
+  type: 'postgres';
+} {
   const url = process.env.DATABASE_URL;
 
   if (url) {
