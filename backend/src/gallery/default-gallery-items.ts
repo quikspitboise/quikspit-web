@@ -115,15 +115,12 @@ export const DEFAULT_GALLERY_ITEMS: DefaultGalleryItemSeed[] = [
     assetType: GalleryAssetType.SINGLE,
     imagePublicId: 'IMG_5244_pdadbl',
   },
-  ...Array.from(
-    { length: 9 },
-    (_, index): DefaultGalleryItemSeed => ({
-      id: `showcase-${index + 1}`,
-      title: 'Professional Detailing Results',
-      categories: ['exterior'],
-      tags: ['showcase', 'exterior'],
-      assetType: GalleryAssetType.SINGLE,
-      imagePublicId: `quikspit/gallery/ex_${index + 1}`,
-    }),
-  ),
+  ...Array.from({ length: 9 }, (_, index): DefaultGalleryItemSeed => ({
+    id: `showcase-${index + 1}`,
+    title: 'Professional Detailing Results',
+    categories: ['exterior'],
+    tags: ['showcase', 'exterior'],
+    assetType: GalleryAssetType.SINGLE,
+    imagePublicId: `quikspit/gallery/ex_${index + 1}`,
+  })),
 ];

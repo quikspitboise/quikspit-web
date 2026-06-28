@@ -91,9 +91,7 @@ export class AuthService {
     }
 
     const sessionClaims = authObject.sessionClaims as
-      | { azp?: string }
-      | null
-      | undefined;
+      { azp?: string } | null | undefined;
 
     return {
       userId: authObject.userId,
