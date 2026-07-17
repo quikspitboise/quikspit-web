@@ -58,6 +58,7 @@ result/
 *.gcov
 shell.nix
 quickspit-shine/shell.nix
+.direnv/
 
 # Next.js
 .next/
