@@ -18,7 +18,7 @@
     "clean": "rm -rf node_modules frontend/node_modules backend/node_modules"
   },
   "devDependencies": {
-    "concurrently": "^10.0.3",
+    "concurrently": "^10.0.5",
     "eslint": "^9.39.4",
     "typescript": "^6.0.3"
   },
