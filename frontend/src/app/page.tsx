@@ -1,42 +1,87 @@
 'use client'
 
-import Link from 'next/link'
-import Script from 'next/script';
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { VideoHero } from '@/components/ui/video-hero';
-import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline';
-import { GlassCard, FeatureCard } from '@/components/ui/glass-card';
-import { MagneticButton } from '@/components/ui/magnetic-button';
-import { SectionTransition, AnimatedSection } from '@/components/ui/section-transition';
-import InstagramEmbedWithSkeleton from '../components/InstagramEmbedWithSkeleton';
-import TikTokEmbedWithSkeleton from '../components/TikTokEmbedWithSkeleton';
-import { ReviewsSection } from '@/components/reviews-section';
-import { fetchReviews, type ReviewsData } from '@/lib/reviews';
+import Script from 'next/script'
+import dynamic from 'next/dynamic'
+import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { VideoHero } from '@/components/ui/video-hero'
+import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
+import { GlassCard, FeatureCard } from '@/components/ui/glass-card'
+import { MagneticButton } from '@/components/ui/magnetic-button'
+import { SectionTransition, AnimatedSection } from '@/components/ui/section-transition'
+import { Reveal } from '@/components/reveal'
+import { ReviewsSection } from '@/components/reviews-section'
+import { fetchReviews, type ReviewsData } from '@/lib/reviews'
+
+// Heavy third-party embeds: code-split and loaded after hydration. The embed
+// components also defer their scripts until they are near the viewport.
+const InstagramEmbed = dynamic(() => import('../components/InstagramEmbedWithSkeleton'), {
+  ssr: false,
+  loading: () => <EmbedSkeleton />,
+})
+const TikTokEmbed = dynamic(() => import('../components/TikTokEmbedWithSkeleton'), {
+  ssr: false,
+  loading: () => <EmbedSkeleton />,
+})
+
+function EmbedSkeleton() {
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-neutral-900/60 overflow-hidden" aria-hidden="true">
+      <div className="h-[3px] bg-white/10" />
+      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.06]">
+        <div className="w-5 h-5 rounded bg-white/10 animate-pulse" />
+        <div className="h-4 w-28 rounded bg-white/10 animate-pulse" />
+      </div>
+      <div className="min-h-[360px] p-6 space-y-3">
+        <div className="h-3 w-full rounded bg-white/5 animate-pulse" />
+        <div className="h-3 w-5/6 rounded bg-white/5 animate-pulse" />
+        <div className="h-3 w-4/6 rounded bg-white/5 animate-pulse" />
+      </div>
+    </div>
+  )
+}
 
 const SparkleIcon = () => (
-  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
   </svg>
-);
+)
 
 const ShieldIcon = () => (
-  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
   </svg>
-);
+)
 
 const DiamondIcon = () => (
-  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
   </svg>
-);
+)
 
 const TruckIcon = () => (
-  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
   </svg>
-);
+)
+
+const services = [
+  {
+    icon: <SparkleIcon />,
+    title: 'Exterior and interior',
+    description: 'Hand wash, decontamination, and a full interior clean. Covers paint, wheels, glass, trim, and the whole cabin.',
+  },
+  {
+    icon: <ShieldIcon />,
+    title: 'Ceramic coatings',
+    description: 'Graphene ceramic coating applied after paint correction. Water beads off, UV damage slows, and washes get easier for years.',
+  },
+  {
+    icon: <DiamondIcon />,
+    title: 'Packages for every car',
+    description: 'Silver, Gold, and Platinum tiers for each service. Add-ons and ceramic protection slot in where you want them.',
+  },
+]
 
 export default function Home() {
   const [reviewsData, setReviewsData] = useState<ReviewsData>({
@@ -45,21 +90,20 @@ export default function Home() {
     totalReviews: 127,
     reviews: [],
     reviewLink: '',
-  });
+  })
 
   useEffect(() => {
-    fetchReviews().then(setReviewsData);
-  }, []);
+    fetchReviews().then(setReviewsData)
+  }, [])
 
-  const rating = reviewsData.rating;
-  const totalReviews = reviewsData.totalReviews;
+  const { rating, totalReviews } = reviewsData
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "QuikSpit Auto Detailing",
     "image": "https://quikspitboise.com/og-image.jpg",
-    "description": "Professional mobile car detailing services that come to you. Experience premium detailing with expert techniques and professional-grade equipment.",
+    "description": "Mobile auto detailing in Boise, ID. Exterior, interior, ceramic coating, and paint correction services at your home or office.",
     "@id": "https://quikspitboise.com",
     "url": "https://quikspitboise.com",
     "telephone": "+1-208-960-4970",
@@ -117,10 +161,7 @@ export default function Home() {
         }
       ]
     }
-  };
-
-  const servicesRef = useRef<HTMLDivElement>(null);
-  const servicesInView = useInView(servicesRef, { once: true, margin: '-100px' });
+  }
 
   return (
     <>
@@ -130,51 +171,40 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <main id="main-content" className="bg-transparent">
-        {/* Ambient glow effects */}
-        <div className="ambient-glow ambient-glow-1" aria-hidden="true" />
-        <div className="ambient-glow ambient-glow-2" aria-hidden="true" />
+        {/* The one fixed red glow; everything else stays quiet */}
+        <div className="ambient-glow" aria-hidden="true" />
 
-        {/* Hero Section with Video Background */}
-        <VideoHero
-          overlayOpacity={0.7}
-        >
+        {/* Hero */}
+        <VideoHero overlayOpacity={0.7}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto text-center pt-20 lg:pt-32">
-              {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm mb-8 badge-pulse"
+                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm mb-8"
               >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-60" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                </span>
-                <span className="text-sm text-white/80 tracking-wide font-medium">Mobile Detailing in Boise, ID</span>
+                <span className="inline-flex rounded-full h-2 w-2 bg-red-500" aria-hidden="true" />
+                <span className="text-sm text-white/80 tracking-wide font-medium">Mobile detailing in Boise, ID</span>
               </motion.div>
 
-              {/* Main Headline */}
               <AnimatedHeadline
-                text="PROFESSIONAL MOBILE DETAILING"
+                text="Professional mobile detailing"
                 as="h1"
                 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 leading-[0.9]"
                 delay={0.3}
                 splitBy="word"
               />
 
-              {/* Subheadline */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="text-lg sm:text-xl lg:text-2xl text-white/70 mb-10 max-w-3xl mx-auto font-light leading-relaxed"
               >
-                We bring showroom-quality detailing directly to you.
-                Experience the difference of professional-grade care without leaving home.
+                We come to your home or office, clean the car inside and out, and leave the paint protected. You do nothing but park.
               </motion.p>
 
-              {/* CTA Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -182,227 +212,143 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               >
                 <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
-                  Book Service Now
+                  Book now
                 </MagneticButton>
-                <MagneticButton href="/contact" variant="secondary" size="lg">
-                  Got Questions?
+                <MagneticButton href="/pricing" variant="secondary" size="lg">
+                  See pricing
                 </MagneticButton>
               </motion.div>
 
-              {/* Trust Indicators */}
-              <motion.div
+              <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 1.3 }}
-                className="mt-16 flex flex-wrap justify-center gap-4 sm:gap-6"
+                className="mt-14 text-sm text-white/50"
               >
-                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
-                  <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <span className="text-sm text-white/60 font-medium">{rating} Rating</span>
-                </div>
-                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
-                  <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm text-white/60 font-medium">100% Satisfaction</span>
-                </div>
-                <div className="glass-pill flex items-center gap-2.5 px-4 py-2.5">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm text-white/60 font-medium">Same-Day Available</span>
-                </div>
-              </motion.div>
+                Same-day slots when open · Free travel in the Boise area · Card, cash, or Venmo
+              </motion.p>
             </div>
           </div>
         </VideoHero>
 
-        {/* Services Section - Bento Grid */}
-        <section className="py-24 lg:py-32 relative overflow-hidden">
-          {/* Background accents */}
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-red-600/[0.03] rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-red-600/[0.02] rounded-full blur-[100px] pointer-events-none" />
-
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-            {/* Section Header */}
-            <div className="text-center mb-16 lg:mb-20">
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block"
-              >
-                What We Offer
-              </motion.span>
+        {/* Services */}
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 lg:mb-16">
               <FadeHeadline as="h2" className="font-display text-4xl sm:text-5xl lg:text-6xl text-white tracking-wide">
-                PREMIUM SERVICES
+                What we do
               </FadeHeadline>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-neutral-400 text-lg mt-6 max-w-2xl mx-auto"
-              >
-                Professional detailing services designed to exceed your expectations
-              </motion.p>
+              <Reveal delay={0.15} skipOnRouteTransition>
+                <p className="text-neutral-400 text-lg mt-6 max-w-2xl mx-auto">
+                  Three ways to book: a full detail inside and out, protective coatings, or a package tier that fits the car and the budget.
+                </p>
+              </Reveal>
             </div>
 
-            {/* Bento Grid */}
-            <div ref={servicesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FeatureCard
-                icon={<SparkleIcon />}
-                title="EXTERIOR & INTERIOR"
-                description="Complete auto restoration bringing your car back to factory-fresh condition. Thorough cleaning, decontamination, and protection."
-                delay={0}
-              />
-
-              <FeatureCard
-                icon={<ShieldIcon />}
-                title="CERAMIC COATINGS"
-                description="Unparalleled hydrophobics, UV protection, and gloss lasting years. Professional-grade coatings for ultimate paint protection."
-                delay={0.1}
-              />
-
-              <FeatureCard
-                icon={<DiamondIcon />}
-                title="PREMIUM PACKAGES"
-                description="Comprehensive full-service packages combining interior and exterior detailing with ceramic protection for the ultimate experience."
-                delay={0.2}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, i) => (
+                <Reveal key={service.title} delay={i * 0.08} skipOnRouteTransition className="h-full">
+                  <FeatureCard
+                    icon={service.icon}
+                    title={service.title}
+                    description={service.description}
+                  />
+                </Reveal>
+              ))}
             </div>
 
-            {/* Mobile Service Highlight */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-8"
-            >
-              <GlassCard className="p-8 lg:p-10" gradient="red">
+            <Reveal delay={0.15} skipOnRouteTransition className="mt-8">
+              <GlassCard className="p-8 lg:p-10" gradient="red" hover={false}>
                 <div className="flex flex-col lg:flex-row items-center gap-8">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-600/30">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-600/30" aria-hidden="true">
                     <TruckIcon />
                   </div>
                   <div className="flex-grow text-center lg:text-left">
-                    <h3 className="font-display text-3xl text-white mb-2 tracking-wide">WE COME TO YOU</h3>
+                    <h3 className="font-display text-3xl text-white mb-2 tracking-wide">We come to you</h3>
                     <p className="text-neutral-400 text-lg max-w-2xl">
-                      No need to drop off your car anywhere. Our mobile service brings professional detailing directly to your home, office, or anywhere in the Boise area.
+                      No drop-off, no waiting room. We detail at your home or office anywhere in the Boise area.
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    <MagneticButton href="/pricing" variant="primary">
-                      View Pricing
+                    <MagneticButton href="/pricing" variant="secondary">
+                      See pricing
                     </MagneticButton>
                   </div>
                 </div>
               </GlassCard>
-            </motion.div>
+            </Reveal>
           </div>
         </section>
 
-        <SectionTransition variant="line" />
+        <SectionTransition />
 
-        {/* Google Reviews Section */}
+        {/* Google reviews */}
         <AnimatedSection className="py-16 lg:py-24">
           <ReviewsSection />
         </AnimatedSection>
 
-        <SectionTransition variant="dots" />
+        <SectionTransition />
 
-        {/* Social Proof & CTA Section */}
+        {/* Social embeds and CTA */}
         <AnimatedSection className="py-16 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Section Header */}
             <div className="text-center mb-12">
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block"
-              >
-                Follow Our Work
-              </motion.span>
               <FadeHeadline as="h2" className="font-display text-4xl sm:text-5xl text-white tracking-wide">
-                SEE THE RESULTS
+                See the results
               </FadeHeadline>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-              {/* Instagram Embed */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <InstagramEmbedWithSkeleton />
-              </motion.div>
+              <Reveal delay={0.1} skipOnRouteTransition>
+                <InstagramEmbed />
+              </Reveal>
 
-              {/* Center CTA */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-center py-8"
-              >
+              <Reveal delay={0.2} skipOnRouteTransition className="text-center py-8">
                 <div className="font-display text-5xl lg:text-6xl text-white mb-4 tracking-wide leading-tight">
-                  READY TO<br />
-                  <span className="text-gradient-red text-6xl lg:text-7xl">SHINE?</span>
+                  Ready for<br />
+                  <span className="text-red-500 text-6xl lg:text-7xl">a clean car?</span>
                 </div>
                 <p className="text-neutral-400 text-lg mb-8 max-w-md mx-auto">
-                  Book your mobile detailing service today and experience the QuikSpit difference.
+                  Pick a package and a time. We bring everything to you.
                 </p>
                 <div className="flex flex-col gap-4">
                   <MagneticButton href="/booking#design-your-detail" variant="primary" size="lg">
-                    Schedule Service
+                    Book now
                   </MagneticButton>
-                  <Link
+                  <a
                     href="tel:+12089604970"
-                    className="text-white/60 hover:text-white transition-colors text-sm"
+                    className="text-white/60 hover:text-white transition-colors text-sm py-2"
                   >
                     Or call (208) 960-4970
-                  </Link>
+                  </a>
                 </div>
-              </motion.div>
+              </Reveal>
 
-              {/* TikTok Embed */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <TikTokEmbedWithSkeleton />
-              </motion.div>
+              <Reveal delay={0.3} skipOnRouteTransition>
+                <TikTokEmbed />
+              </Reveal>
             </div>
           </div>
         </AnimatedSection>
 
-        <SectionTransition variant="dots" />
+        <SectionTransition />
 
         {/* Final CTA */}
-        <AnimatedSection className="py-24 lg:py-32">
+        <AnimatedSection className="py-16 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <GlassCard className="text-center py-16 lg:py-20" gradient="red" spotlight>
+            <GlassCard className="text-center py-16 lg:py-20" gradient="red" hover={false}>
               <FadeHeadline as="h2" className="font-display text-4xl sm:text-5xl lg:text-6xl text-white tracking-wide mb-6">
-                QUESTIONS? WE&apos;VE GOT ANSWERS
+                Questions?
               </FadeHeadline>
               <p className="text-neutral-400 text-lg max-w-2xl mx-auto mb-10">
-                Curious about something? Whether it&apos;s about our services, your specific vehicle, or anything else—we&apos;re happy to chat.
+                Call or text (208) 960-4970, or send a message. We usually reply within a day.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <MagneticButton href="/contact" variant="primary" size="lg">
-                  Let&apos;s Talk
+                  Get in touch
                 </MagneticButton>
                 <MagneticButton href="/gallery" variant="secondary" size="lg">
-                  View Gallery
+                  See the gallery
                 </MagneticButton>
               </div>
             </GlassCard>
@@ -410,5 +356,5 @@ export default function Home() {
         </AnimatedSection>
       </main>
     </>
-  );
+  )
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useInView, Variants } from 'framer-motion';
+import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion';
 import { useRef, useMemo } from 'react';
 
 interface AnimatedHeadlineProps {
@@ -9,7 +9,6 @@ interface AnimatedHeadlineProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4';
   delay?: number;
   splitBy?: 'word' | 'character';
-  gradient?: boolean;
   once?: boolean;
 }
 
@@ -47,11 +46,11 @@ export function AnimatedHeadline({
   as: Component = 'h1',
   delay = 0,
   splitBy = 'word',
-  gradient = false,
   once = true,
 }: AnimatedHeadlineProps) {
   const ref = useRef<HTMLHeadingElement>(null);
   const isInView = useInView(ref, { once, margin: '-50px' });
+  const prefersReducedMotion = useReducedMotion();
 
   const items = useMemo(() => {
     if (splitBy === 'character') {
@@ -67,7 +66,10 @@ export function AnimatedHeadline({
   }, [text, splitBy]);
 
   const baseClasses = `font-display uppercase tracking-wide ${className}`;
-  const gradientClasses = gradient ? 'text-gradient' : '';
+
+  if (prefersReducedMotion) {
+    return <Component className={baseClasses}>{text}</Component>;
+  }
 
   return (
     <motion.div
@@ -77,7 +79,7 @@ export function AnimatedHeadline({
       animate={isInView ? 'visible' : 'hidden'}
       style={{ perspective: 1000, transitionDelay: `${delay}s` }}
     >
-      <Component className={`${baseClasses} ${gradientClasses}`}>
+      <Component className={baseClasses}>
         {items.map(({ char, key }) => (
           <motion.span
             key={key}
@@ -110,6 +112,11 @@ export function FadeHeadline({
 }: FadeHeadlineProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <Component className={className}>{children}</Component>;
+  }
 
   return (
     <motion.div

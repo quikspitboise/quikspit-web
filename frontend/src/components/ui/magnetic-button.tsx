@@ -1,18 +1,40 @@
-'use client';
+'use client'
 
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useRef, MouseEvent, ReactNode } from 'react';
-import Link from 'next/link';
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+import type { MouseEvent, ReactNode } from 'react'
 
 interface MagneticButtonProps {
-  children: ReactNode;
-  className?: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  href?: string;
-  onClick?: () => void;
-  disabled?: boolean;
-  magneticStrength?: number;
+  children: ReactNode
+  className?: string
+  variant?: 'primary' | 'secondary' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  href?: string
+  onClick?: () => void
+  disabled?: boolean
+  magneticStrength?: number
+}
+
+/**
+ * The magnetic hover effect only makes sense with a fine pointer (mouse)
+ * and when the user has not asked for reduced motion. Everywhere else the
+ * button renders as a plain link/button with no motion wrappers or
+ * mousemove listeners.
+ */
+function useMagneticEnabled() {
+  const prefersReducedMotion = useReducedMotion()
+  const [finePointer, setFinePointer] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(pointer: fine)')
+    const update = () => setFinePointer(mediaQuery.matches)
+    update()
+    mediaQuery.addEventListener('change', update)
+    return () => mediaQuery.removeEventListener('change', update)
+  }, [])
+
+  return finePointer && !prefersReducedMotion
 }
 
 export function MagneticButton({
@@ -25,41 +47,41 @@ export function MagneticButton({
   disabled = false,
   magneticStrength = 0.3,
 }: MagneticButtonProps) {
-  const ref = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const magnetic = useMagneticEnabled()
+  const anchorRef = useRef<HTMLAnchorElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
 
-  const springConfig = { damping: 20, stiffness: 300 };
-  const xSpring = useSpring(x, springConfig);
-  const ySpring = useSpring(y, springConfig);
+  const springConfig = { damping: 20, stiffness: 300 }
+  const xSpring = useSpring(x, springConfig)
+  const ySpring = useSpring(y, springConfig)
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!ref.current || disabled) return;
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
-    x.set(distanceX * magneticStrength);
-    y.set(distanceY * magneticStrength);
-  };
+    if (disabled) return
+    const el = href ? anchorRef.current : buttonRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    x.set((e.clientX - (rect.left + rect.width / 2)) * magneticStrength)
+    y.set((e.clientY - (rect.top + rect.height / 2)) * magneticStrength)
+  }
 
   const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
+    x.set(0)
+    y.set(0)
+  }
 
   const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
+    sm: 'px-5 py-3 text-sm',
     md: 'px-6 py-3 text-base',
     lg: 'px-8 py-4 text-lg',
-  };
+  }
 
   const variantClasses = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
     ghost: 'bg-transparent hover:bg-white/5 text-white border border-transparent hover:border-white/10 rounded-xl transition-all duration-300',
-  };
+  }
 
   const baseClasses = `
     inline-flex items-center justify-center gap-2
@@ -68,81 +90,39 @@ export function MagneticButton({
     ${sizeClasses[size]}
     ${variantClasses[variant]}
     ${className}
-  `;
-
-  const content = (
-    <motion.span className="relative z-10 flex items-center gap-2">
-      {children}
-    </motion.span>
-  );
+  `
 
   if (href) {
+    const link = (
+      <Link href={href} ref={anchorRef} className={baseClasses}>
+        {children}
+      </Link>
+    )
+    if (!magnetic) return link
     return (
       <motion.div
         style={{ x: xSpring, y: ySpring }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <Link
-          href={href}
-          ref={ref as React.RefObject<HTMLAnchorElement>}
-          className={baseClasses}
-        >
-          {content}
-        </Link>
+        {link}
       </motion.div>
-    );
+    )
   }
 
+  const button = (
+    <button ref={buttonRef} className={baseClasses} onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  )
+  if (!magnetic) return button
   return (
     <motion.div
       style={{ x: xSpring, y: ySpring }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <button
-        ref={ref as React.RefObject<HTMLButtonElement>}
-        className={baseClasses}
-        onClick={onClick}
-        disabled={disabled}
-      >
-        {content}
-      </button>
+      {button}
     </motion.div>
-  );
-}
-
-// Icon button variant
-interface IconButtonProps {
-  children: ReactNode;
-  onClick?: () => void;
-  className?: string;
-  ariaLabel: string;
-}
-
-export function IconButton({
-  children,
-  onClick,
-  className = '',
-  ariaLabel,
-}: IconButtonProps) {
-  return (
-    <motion.button
-      className={`
-        w-12 h-12 rounded-xl
-        bg-white/5 hover:bg-white/10
-        border border-white/10 hover:border-red-600/50
-        flex items-center justify-center
-        text-white/70 hover:text-white
-        transition-all duration-300
-        ${className}
-      `}
-      onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      aria-label={ariaLabel}
-    >
-      {children}
-    </motion.button>
-  );
+  )
 }

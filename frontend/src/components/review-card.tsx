@@ -35,7 +35,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
   const isTruncatable = review.text.length > MAX_CHARS;
 
   return (
-    <GlassCard className="h-full flex flex-col" hover={true} spotlight={true} padding="md">
+    <GlassCard className="h-full flex flex-col" hover={true} padding="md">
       <div className="flex items-center gap-3 mb-4">
         <div className="relative">
           <img
@@ -81,7 +81,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
         {isTruncatable && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-red-400 hover:text-red-300 text-sm font-medium mt-2 transition-colors"
+            className="text-red-400 hover:text-red-300 text-sm font-medium mt-2 px-1 py-1.5 -ml-1 transition-colors"
           >
             {expanded ? 'Read less' : 'Read more'}
           </button>

@@ -100,10 +100,10 @@ function GalleryCard({
               </svg>
               Before &amp; After
             </span>
-            {/* Clickable overlay for lightbox on comparison cards */}
+            {/* Lightbox button on comparison cards */}
             <button
               type="button"
-              className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-medium py-2 px-3 rounded-lg transition-all"
+              className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-medium py-2.5 px-3.5 rounded-lg transition-all"
               onClick={(e) => { e.stopPropagation(); onOpen(index) }}
               aria-label={`Enlarge ${item.title}`}
             >
@@ -357,7 +357,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                   <div className="flex items-center gap-2">
                     <motion.button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
+                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
                       onClick={() => setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1)))}
                       aria-label="Previous"
                       whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
@@ -368,7 +368,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                     </motion.button>
                     <motion.button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
+                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
                       onClick={() => setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1)))}
                       aria-label="Next"
                       whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
@@ -381,7 +381,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                       ref={closeBtnRef}
                       type="button"
                       onClick={onClose}
-                      className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/10 hover:bg-red-600 text-white transition-all"
+                      className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-white/10 hover:bg-red-600 text-white transition-all"
                       aria-label="Close"
                       whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
                     >

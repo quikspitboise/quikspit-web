@@ -34,9 +34,11 @@ export function Navigation() {
 
   return (
     <>
-      {/* Scroll Progress Bar */}
+      {/* Scroll Progress Bar — pinned to the very top of the viewport so the
+          hairline stays visible above the opaque safe-area strip on notched
+          iPhones, matching the reference ScrollProgress (top-0). */}
       <motion.div
-        className="fixed top-[var(--nav-safe-offset)] left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
+        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
         style={{ scaleX: scrollYProgress }}
       />
       
@@ -44,7 +46,7 @@ export function Navigation() {
         className={`
           fixed top-0 left-0 right-0 z-50
           pt-[var(--nav-safe-offset)]
-          transition-all duration-500 ease-out
+          transition-[background-color,border-color,box-shadow] duration-500 ease-out
           bg-black border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
           ${scrolled 
             ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
@@ -54,6 +56,13 @@ export function Navigation() {
         `}
         initial={false}
       >
+        {/* Opaque safe-area backing: paints the notch/status strip solid black
+            so scrolled page content can never show through above the logo bar
+            on iOS, regardless of the translucent gradient/blur layers below. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[var(--nav-safe-offset)] bg-black"
+        />
         <div
           aria-hidden="true"
           className="

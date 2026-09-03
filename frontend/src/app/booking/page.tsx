@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Script from 'next/script'
 import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
 import { GlassCard } from '@/components/ui/glass-card'
-import { MagneticButton } from '@/components/ui/magnetic-button'
 import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
 import { parseBookingParams, type BookingSelection } from '@/components/cal-embed'
 import { BookingWizard } from '@/components/booking/booking-wizard'
@@ -20,13 +19,6 @@ import {
  * Useful for A/B testing: set false to make the wizard immediately visible.
  */
 const SHOW_HERO = true
-
-const features = [
-  { icon: '🕐', title: 'Flexible Scheduling', description: 'Book anytime that works for you' },
-  { icon: '📍', title: 'Mobile Service', description: 'We come to your location' },
-  { icon: '💳', title: 'Secure Payment', description: 'Safe, encrypted transactions' },
-  { icon: '✨', title: 'Quality Guarantee', description: 'Satisfaction guaranteed' },
-]
 
 function getBookingFaqs(depositAmount: number) {
   const cancellationAnswer = hasBookingDeposit(depositAmount)
@@ -121,46 +113,39 @@ export default function Booking() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(bookingFaqStructuredData) }}
       />
 
-      {/* Hero Section (toggleable for A/B testing) */}
+      {/* Hero (toggleable for A/B testing) */}
       {SHOW_HERO && (
         <>
-          <section className="relative py-20 lg:py-28 overflow-hidden">
-            <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-1/4 left-0 w-[400px] h-[400px] bg-red-600/3 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <section className="relative py-20 lg:py-28">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-4xl mx-auto text-center">
                 <AnimatedHeadline
-                  text="BOOK YOUR DETAIL"
+                  text="Book your detail"
                   as="h1"
                   className="text-5xl sm:text-6xl lg:text-7xl text-white mb-6"
                   splitBy="word"
                 />
                 <FadeHeadline as="p" delay={0.3} className="text-xl text-neutral-400 max-w-2xl mx-auto mb-10">
-                  Design your perfect detail package, pick your time, and we&apos;ll bring the showroom to you.
+                  Choose a package, add extras, and pick a time. We come to you.
                 </FadeHeadline>
-                <MagneticButton href="#design-your-detail" variant="primary" size="lg">
-                  Get Started
-                </MagneticButton>
               </div>
             </div>
           </section>
 
-          <SectionTransition variant="line" />
+          <SectionTransition />
         </>
       )}
 
-      {/* Booking Wizard */}
-      <AnimatedSection id="design-your-detail" className="py-16 lg:py-24 scroll-mt-6">
+      {/* Booking wizard */}
+      <AnimatedSection id="design-your-detail" className="py-16 lg:py-24 scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10">
-              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Design & Book</span>
               <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide mb-4">
-                DESIGN YOUR <span className="text-red-500">DETAIL</span>
+                Design your <span className="text-red-500">detail</span>
               </FadeHeadline>
               <p className="text-neutral-400 max-w-2xl mx-auto">
-                Build your package, add extras, and schedule — all in one place.
+                Build your package, add extras, and pick a time in one place.
               </p>
             </div>
 
@@ -175,35 +160,15 @@ export default function Booking() {
         </div>
       </AnimatedSection>
 
-      <SectionTransition variant="dots" />
+      <SectionTransition />
 
-      {/* Features Grid */}
-      <AnimatedSection className="py-12 lg:py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-              {features.map((feature) => (
-                <GlassCard key={feature.title} className="p-4 lg:p-5 text-center" hover>
-                  <span className="text-2xl lg:text-3xl mb-2 lg:mb-3 block">{feature.icon}</span>
-                  <h3 className="font-semibold text-white text-sm lg:text-base mb-1">{feature.title}</h3>
-                  <p className="text-neutral-400 text-xs lg:text-sm">{feature.description}</p>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <SectionTransition variant="dots" />
-
-      {/* FAQ Section */}
+      {/* FAQ */}
       <AnimatedSection className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <span className="text-red-500 text-sm uppercase tracking-[0.2em] font-medium mb-4 block">Questions?</span>
               <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide">
-                BOOKING FAQ
+                Booking FAQ
               </FadeHeadline>
             </div>
 

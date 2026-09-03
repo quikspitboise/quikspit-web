@@ -83,7 +83,10 @@ export function VideoHero({
   return (
     <div
       ref={containerRef}
-      className={`relative min-h-screen overflow-hidden ${className}`}
+      // min-h-screen is the fallback; 100dvh tracks the visible viewport on
+      // iOS Safari as its toolbar shows/hides, keeping the hero exactly
+      // viewport-sized below the fixed header.
+      className={`relative min-h-screen supports-[min-height:100dvh]:min-h-[100dvh] overflow-hidden ${className}`}
     >
       {/* Background Media */}
       <motion.div
@@ -196,7 +199,7 @@ export function VideoHero({
 
       {/* Content */}
       <motion.div
-        className="relative z-20 min-h-screen flex flex-col justify-center"
+        className="relative z-20 min-h-screen supports-[min-height:100dvh]:min-h-[100dvh] flex flex-col justify-center"
         style={{ opacity }}
       >
         {children}

@@ -33,7 +33,7 @@ export function ComparisonSlider({
 	}, [])
 
 	return (
-		<div className={`group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-neutral-600 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light ${className}`.trim()}>
+		<div className={`group relative w-full aspect-4/3 rounded-xl overflow-hidden border border-white/10 bg-brand-charcoal-light focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2 focus-within:ring-offset-brand-charcoal-light ${className}`.trim()}>
 			{/* After image as base layer */}
 			<CldImage src={afterUrl} alt={altAfter} fill sizes={sizes} format="auto" quality="auto" className={imageClassName} priority={false} />
 

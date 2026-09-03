@@ -46,7 +46,7 @@ export function GalleryGridSkeleton() {
 export function GalleryPageSkeleton() {
   return (
     <main id="main-content" className="min-h-screen bg-transparent">
-      <section className="relative overflow-hidden py-28 lg:py-40">
+      <section className="relative overflow-hidden py-20 lg:py-28">
         <div className="absolute left-1/2 top-1/3 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-red-600/6 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-red-600/3 blur-[100px] pointer-events-none" />
 
@@ -72,7 +72,7 @@ export function GalleryPageSkeleton() {
         </div>
       </section>
 
-      <SectionTransition variant="line" />
+      <SectionTransition />
 
       <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
