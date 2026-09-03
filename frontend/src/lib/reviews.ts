@@ -1,4 +1,5 @@
 import { buildBackendApiUrl } from './backend-api';
+import { createTimeoutSignal } from './fetch-with-timeout';
 
 export interface Review {
   authorName: string;
@@ -35,6 +36,7 @@ export async function fetchReviews(): Promise<ReviewsData> {
     try {
       const response = await fetch(buildBackendApiUrl('/reviews'), {
         cache: 'no-store',
+        signal: createTimeoutSignal(),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = (await response.json()) as ReviewsData;

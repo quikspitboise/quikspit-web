@@ -15,7 +15,8 @@
   ],
   "functions": {
     "api/serverless.js": {
-      "includeFiles": "dist/**"
+      "includeFiles": "dist/**",
+      "maxDuration": 30
     }
   }
 }

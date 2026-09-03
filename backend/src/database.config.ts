@@ -1,4 +1,5 @@
 import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions';
+import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions';
 
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
   if (value === undefined) {
@@ -36,16 +37,35 @@ function getSslConfig(): PostgresConnectionCredentialsOptions['ssl'] {
   };
 }
 
-export function getDatabaseConnectionOptions(): PostgresConnectionCredentialsOptions & {
-  type: 'postgres';
-} {
+function getServerlessPoolingOptions() {
+  if (!process.env.VERCEL) {
+    return {};
+  }
+
+  // Serverless instances must fail fast instead of stalling past the function
+  // maxDuration, and must hold a tiny pool so concurrent cold starts cannot
+  // exhaust the database connection limit (Neon-friendly).
+  return {
+    poolSize: 1,
+    connectTimeoutMS: 10000,
+    extra: {
+      idleTimeoutMillis: 30000,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+    },
+  };
+}
+
+export function getDatabaseConnectionOptions(): PostgresDataSourceOptions {
   const url = process.env.DATABASE_URL;
+  const pooling = getServerlessPoolingOptions();
 
   if (url) {
     return {
       type: 'postgres',
       url,
       ssl: getSslConfig(),
+      ...pooling,
     };
   }
 
@@ -57,5 +77,6 @@ export function getDatabaseConnectionOptions(): PostgresConnectionCredentialsOpt
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     ssl: getSslConfig(),
+    ...pooling,
   };
 }

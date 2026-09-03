@@ -3,6 +3,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { GALLERY_ITEMS } from '@/data/gallery';
 import { buildBackendApiUrl } from '../backend-api';
+import { createTimeoutSignal } from '../fetch-with-timeout';
 import type { GalleryAdminItem, GalleryItem } from '../gallery';
 import { getAdminApiAuth } from './admin-auth';
 
@@ -49,13 +50,18 @@ export async function fetchPublicGalleryItems(): Promise<PublicGalleryItemsResul
   try {
     const response = await fetch(buildBackendApiUrl('/gallery'), {
       next: { revalidate: 60 },
+      signal: createTimeoutSignal(),
     });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch gallery items: ${response.status}`);
     }
 
-    const data = (await response.json()) as { items: GalleryItem[] };
+    const data = (await response.json()) as { items?: GalleryItem[] };
+    if (!data || !Array.isArray(data.items)) {
+      throw new Error('Invalid gallery payload: expected { items: GalleryItem[] }');
+    }
+
     return {
       items: data.items,
       source: 'api',
@@ -77,6 +83,7 @@ export async function fetchAdminGalleryItems(): Promise<GalleryAdminItem[]> {
 
   const response = await fetch(buildBackendApiUrl('/gallery/admin/items'), {
     cache: 'no-store',
+    signal: createTimeoutSignal(),
     headers: {
       Authorization: `Bearer ${adminAuth.token}`,
       Accept: 'application/json',
@@ -122,6 +129,7 @@ export async function proxyAdminRequest(
     method,
     headers,
     cache: 'no-store',
+    signal: init.signal ?? createTimeoutSignal(),
   });
 
   const body = await response.text();

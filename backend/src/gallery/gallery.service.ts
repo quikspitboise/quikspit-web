@@ -21,6 +21,10 @@ import {
   GalleryItemEntity,
 } from './entities/gallery-item.entity';
 
+// Cross-instance mutex so concurrent cold starts cannot double-seed the
+// default gallery items (released automatically at transaction end).
+const GALLERY_SEED_ADVISORY_LOCK_KEY = 729510483721;
+
 export interface GalleryItemDto {
   id: string;
   title: string;
@@ -64,8 +68,20 @@ export class GalleryService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    await this.seedDefaultsIfEmpty();
-    await this.backfillMissingCategories();
+    try {
+      await this.seedDefaultsIfEmpty();
+      await this.backfillMissingCategories();
+    } catch (error) {
+      // Bootstrap seeding is best-effort: a DB hiccup must never prevent the
+      // module (and therefore public GETs) from starting.
+      this.logger.error(
+        'Gallery bootstrap seed/backfill failed; serving existing data',
+        error instanceof Error ? error.stack : undefined,
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+    }
   }
 
   async list(): Promise<GalleryItemDto[]> {
@@ -330,32 +346,39 @@ export class GalleryService implements OnModuleInit {
   }
 
   private async seedDefaultsIfEmpty(): Promise<void> {
-    const currentCount = await this.galleryRepository.count();
-    if (currentCount > 0) {
-      return;
-    }
+    await this.galleryRepository.manager.transaction(async (manager) => {
+      await manager.query('SELECT pg_advisory_xact_lock($1)', [
+        GALLERY_SEED_ADVISORY_LOCK_KEY,
+      ]);
 
-    const seededItems = DEFAULT_GALLERY_ITEMS.map((item, index) =>
-      this.galleryRepository.create({
-        ...item,
-        description: item.description ?? null,
-        imagePublicId: item.imagePublicId ?? null,
-        beforePublicId: item.beforePublicId ?? null,
-        afterPublicId: item.afterPublicId ?? null,
-        imageAsset: null,
-        beforeAsset: null,
-        afterAsset: null,
-        altText: null,
-        isVisible: true,
-        displayOrder: index,
-        createdByUserId: null,
-        updatedByUserId: null,
-      }),
-    );
+      const repository = manager.getRepository(GalleryItemEntity);
+      const currentCount = await repository.count();
+      if (currentCount > 0) {
+        return;
+      }
 
-    await this.galleryRepository.save(seededItems);
-    this.logger.log('Seeded default gallery items', {
-      count: seededItems.length,
+      const seededItems = DEFAULT_GALLERY_ITEMS.map((item, index) =>
+        repository.create({
+          ...item,
+          description: item.description ?? null,
+          imagePublicId: item.imagePublicId ?? null,
+          beforePublicId: item.beforePublicId ?? null,
+          afterPublicId: item.afterPublicId ?? null,
+          imageAsset: null,
+          beforeAsset: null,
+          afterAsset: null,
+          altText: null,
+          isVisible: true,
+          displayOrder: index,
+          createdByUserId: null,
+          updatedByUserId: null,
+        }),
+      );
+
+      await repository.save(seededItems);
+      this.logger.log('Seeded default gallery items', {
+        count: seededItems.length,
+      });
     });
   }
 

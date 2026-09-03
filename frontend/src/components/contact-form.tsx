@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { buildBackendApiUrl } from '@/lib/backend-api'
+import { createTimeoutSignal } from '@/lib/fetch-with-timeout'
 import { Reveal } from '@/components/reveal'
 
 interface ValidationErrors {
@@ -133,6 +134,8 @@ export function ContactForm() {
       const res = await fetch(buildBackendApiUrl('/contact'), {
         method: 'POST',
         body: formData,
+        // File uploads need headroom for slow connections.
+        signal: createTimeoutSignal(30_000),
       })
       if (!res.ok) throw new Error('Failed to send message')
       setSuccess(true)

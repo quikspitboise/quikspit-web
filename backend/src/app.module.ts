@@ -33,7 +33,14 @@ const isProductionRuntime =
       autoLoadEntities: true,
       synchronize: !isProductionRuntime,
       logging: process.env.NODE_ENV === 'development',
-      migrationsRun: isProductionRuntime,
+      // Migrations must only run at deploy time via `pnpm --filter backend
+      // migration:run`; running them on every Vercel cold start risks DB lock
+      // contention and function timeouts.
+      migrationsRun: false,
+      // Nest defaults (10 attempts x 3s delay) can stall a cold start past the
+      // serverless maxDuration; fail fast and let the next invocation retry.
+      retryAttempts: 2,
+      retryDelay: 500,
       migrations: [
         CreateGalleryItemsTable1740000000000,
         CreateAppSettingsTable1740000001000,
@@ -46,7 +53,10 @@ const isProductionRuntime =
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 10,
+        // Public page loads fan out across several API routes and Next.js ISR
+        // revalidations share egress IPs, so 10/min per IP caused 429s; admin
+        // routes keep their stricter per-route @Throttle overrides.
+        limit: 60,
       },
     ]),
     ContactModule,

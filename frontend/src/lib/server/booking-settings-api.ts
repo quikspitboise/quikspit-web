@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { buildBackendApiUrl } from '../backend-api';
+import { createTimeoutSignal } from '../fetch-with-timeout';
 import {
   DEFAULT_BOOKING_SETTINGS,
   normalizeBookingSettings,
@@ -12,6 +13,7 @@ export async function fetchPublicBookingSettings(): Promise<BookingSettings> {
   try {
     const response = await fetch(buildBackendApiUrl('/settings/booking'), {
       cache: 'no-store',
+      signal: createTimeoutSignal(),
       headers: {
         Accept: 'application/json',
       },
@@ -36,6 +38,7 @@ export async function fetchAdminBookingSettings(): Promise<BookingSettings> {
 
   const response = await fetch(buildBackendApiUrl('/settings/admin/booking'), {
     cache: 'no-store',
+    signal: createTimeoutSignal(),
     headers: {
       Authorization: `Bearer ${adminAuth.token}`,
       Accept: 'application/json',

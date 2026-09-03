@@ -15,7 +15,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (!app) {
       appPromise ??= createApp();
-      app = await appPromise;
+
+      try {
+        app = await appPromise;
+      } catch (bootstrapError) {
+        // Drop the poisoned promise so the next invocation retries bootstrap
+        // instead of failing instantly forever.
+        appPromise = null;
+        throw bootstrapError;
+      }
     }
 
     return app(req, res);
