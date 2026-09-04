@@ -1,6 +1,9 @@
 import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions';
 import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions';
 
+// Static side-effect import: TypeORM loads the pg driver via dynamic require(), which Vercel's function file-tracer cannot see. Without this, pg is missing from the serverless bundle and every cold start crashes with DriverPackageNotInstalledError.
+import 'pg';
+
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
   if (value === undefined) {
     return undefined;
