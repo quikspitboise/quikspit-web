@@ -34,9 +34,18 @@ export function Navigation() {
 
   return (
     <>
-      <motion.nav 
+      {/* Scroll Progress Bar — pinned to the very top of the viewport so the
+          hairline stays visible above the opaque safe-area strip on notched
+          iPhones, matching the reference ScrollProgress (top-0). */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none fixed top-0 left-0 right-0 h-[3px] z-[100] bg-gradient-to-r from-red-600 to-red-500 origin-left"
+        style={{ scaleX: scrollYProgress }}
+      />
+      <motion.nav
         className={`
           fixed top-0 left-0 right-0 z-50
+          [transform:translateZ(0)]
           pt-[var(--nav-safe-offset)]
           transition-[background-color,border-color,box-shadow] duration-500 ease-out
           bg-black border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
@@ -62,15 +71,6 @@ export function Navigation() {
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-[var(--nav-safe-offset)] bg-black"
-        />
-        {/* Scroll progress hairline — anchored to the bottom edge of the
-            safe-area strip, inside the header itself: it travels with the
-            header on every platform, so it can never detach from it or hide
-            behind the iOS status bar. On desktop the offset resolves to 0. */}
-        <motion.div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-[var(--nav-safe-offset)] h-[3px] z-10 bg-gradient-to-r from-red-600 to-red-500 origin-left"
-          style={{ scaleX: scrollYProgress }}
         />
         <div
           aria-hidden="true"
