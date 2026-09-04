@@ -40,6 +40,10 @@
 html {
   color-scheme: dark;
   background-color: #000000;
+  /* overflow-x is clipped at the root, never on body: a body-level
+     overflow-x makes iOS Safari treat body as a scroll container and
+     misplace position:fixed descendants during toolbar show/hide. */
+  overflow-x: hidden;
   overscroll-behavior-y: none;
 }
 
@@ -51,7 +55,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
   overscroll-behavior-y: none;
 }
 

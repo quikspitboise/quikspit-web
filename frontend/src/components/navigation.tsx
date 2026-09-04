@@ -34,14 +34,6 @@ export function Navigation() {
 
   return (
     <>
-      {/* Scroll Progress Bar — pinned to the very top of the viewport so the
-          hairline stays visible above the opaque safe-area strip on notched
-          iPhones, matching the reference ScrollProgress (top-0). */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-red-600 to-red-500 origin-left z-[100]"
-        style={{ scaleX: scrollYProgress }}
-      />
-      
       <motion.nav 
         className={`
           fixed top-0 left-0 right-0 z-50
@@ -56,12 +48,29 @@ export function Navigation() {
         `}
         initial={false}
       >
+        {/* Over-viewport black backing: iOS Safari transiently misplaces the
+            whole fixed layer while revealing the URL toolbar on scroll-up
+            (WebKit bug 297779 family). Painting solid black far above the
+            header means any such offset exposes black, never page content. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-full h-[50vh] bg-black"
+        />
         {/* Opaque safe-area backing: paints the notch/status strip solid black
             so scrolled page content can never show through above the logo bar
             on iOS, regardless of the translucent gradient/blur layers below. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-[var(--nav-safe-offset)] bg-black"
+        />
+        {/* Scroll progress hairline — anchored to the bottom edge of the
+            safe-area strip, inside the header itself: it travels with the
+            header on every platform, so it can never detach from it or hide
+            behind the iOS status bar. On desktop the offset resolves to 0. */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-[var(--nav-safe-offset)] h-[3px] z-10 bg-gradient-to-r from-red-600 to-red-500 origin-left"
+          style={{ scaleX: scrollYProgress }}
         />
         <div
           aria-hidden="true"
