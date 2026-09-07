@@ -55,6 +55,8 @@ export function AccessibleDialog({
     document.body.style.overflow = 'hidden'
 
     const focusInitialElement = () => {
+      if (dialogRef.current?.contains(document.activeElement)) return
+
       const initial = initialFocusRef?.current
       if (initial) {
         initial.focus()

@@ -1,5 +1,5 @@
-import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions';
-import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions';
+import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions.js';
+import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions.js';
 import { readFileSync } from 'node:fs';
 
 // Static side-effect import: TypeORM loads the pg driver via dynamic require(), which Vercel's function file-tracer cannot see. Without this, pg is missing from the serverless bundle and every cold start crashes with DriverPackageNotInstalledError.
@@ -32,14 +32,19 @@ function shouldUseSsl(): boolean {
 
 function getSslConfig(): PostgresConnectionCredentialsOptions['ssl'] {
   if (process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false') {
-    throw new Error('Database certificate verification cannot be disabled; configure DB_SSL_CA or DB_SSL_CA_FILE');
+    throw new Error(
+      'Database certificate verification cannot be disabled; configure DB_SSL_CA or DB_SSL_CA_FILE',
+    );
   }
   if (!shouldUseSsl()) {
     return false;
   }
 
-  const ca = process.env.DB_SSL_CA?.replace(/\\n/g, '\n') ||
-    (process.env.DB_SSL_CA_FILE ? readFileSync(process.env.DB_SSL_CA_FILE, 'utf8') : undefined);
+  const ca =
+    process.env.DB_SSL_CA?.replace(/\\n/g, '\n') ||
+    (process.env.DB_SSL_CA_FILE
+      ? readFileSync(process.env.DB_SSL_CA_FILE, 'utf8')
+      : undefined);
   return { rejectUnauthorized: true, ...(ca ? { ca } : {}) };
 }
 
@@ -62,11 +67,21 @@ function getDatabaseUrl(): string | undefined {
   if (!process.env.DATABASE_URL) return undefined;
   const url = new URL(process.env.DATABASE_URL);
   if (!['postgres:', 'postgresql:'].includes(url.protocol)) {
-    throw new Error('DATABASE_URL must use the postgres or postgresql protocol');
+    throw new Error(
+      'DATABASE_URL must use the postgres or postgresql protocol',
+    );
   }
   // pg parses these after the explicit SSL object and otherwise replaces its CA
   // and verification policy. Keep all TLS configuration in one place.
-  for (const key of ['ssl', 'sslmode', 'sslcert', 'sslkey', 'sslrootcert', 'sslpassword', 'uselibpqcompat']) {
+  for (const key of [
+    'ssl',
+    'sslmode',
+    'sslcert',
+    'sslkey',
+    'sslrootcert',
+    'sslpassword',
+    'uselibpqcompat',
+  ]) {
     url.searchParams.delete(key);
   }
   return url.toString();
@@ -77,10 +92,15 @@ export function getSchemaSynchronization(): boolean {
   const hostname = process.env.DATABASE_URL
     ? new URL(process.env.DATABASE_URL).hostname
     : process.env.DB_HOST;
-  if (process.env.NODE_ENV !== 'development' || process.env.VERCEL ||
-      process.env.DB_DISPOSABLE !== 'true' ||
-      !['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname || '')) {
-    throw new Error('DB_SYNCHRONIZE requires a disposable localhost database and NODE_ENV=development');
+  if (
+    process.env.NODE_ENV !== 'development' ||
+    process.env.VERCEL ||
+    process.env.DB_DISPOSABLE !== 'true' ||
+    !['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname || '')
+  ) {
+    throw new Error(
+      'DB_SYNCHRONIZE requires a disposable localhost database and NODE_ENV=development',
+    );
   }
   return true;
 }

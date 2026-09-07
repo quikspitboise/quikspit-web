@@ -6,7 +6,9 @@ import { PostgresThrottlerStorage } from './postgres-throttler.storage';
 import { ProviderCacheService } from './provider-cache.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RequestLimitEntity, ProviderCacheEntity])],
+  imports: [
+    TypeOrmModule.forFeature([RequestLimitEntity, ProviderCacheEntity]),
+  ],
   providers: [PostgresThrottlerStorage, ProviderCacheService],
   exports: [PostgresThrottlerStorage, ProviderCacheService],
 })

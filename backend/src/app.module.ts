@@ -15,7 +15,10 @@ import { InvoiceModule } from './invoice/invoice.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SettingsModule } from './settings/settings.module';
 import { HealthController } from './health.controller';
-import { getDatabaseConnectionOptions, getSchemaSynchronization } from './database.config';
+import {
+  getDatabaseConnectionOptions,
+  getSchemaSynchronization,
+} from './database.config';
 import { DATABASE_MIGRATIONS } from './database.registry';
 import { RuntimeModule } from './runtime/runtime.module';
 import { PostgresThrottlerStorage } from './runtime/postgres-throttler.storage';

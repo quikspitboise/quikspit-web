@@ -21,11 +21,15 @@ export class HealthController {
   async ready() {
     let timeout: ReturnType<typeof setTimeout>;
     try {
-      if (!this.dataSource.isInitialized) throw new Error('Database unavailable');
+      if (!this.dataSource.isInitialized)
+        throw new Error('Database unavailable');
       await Promise.race([
         this.dataSource.query('SELECT 1'),
         new Promise<never>((_, reject) => {
-          timeout = setTimeout(() => reject(new Error('Readiness deadline exceeded')), 1500);
+          timeout = setTimeout(
+            () => reject(new Error('Readiness deadline exceeded')),
+            1500,
+          );
         }),
       ]);
       return { status: 'ready' };

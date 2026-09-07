@@ -4,7 +4,7 @@ test.describe('review items 8-12', () => {
   test('booking renders its metadata and keeps Cal out of the initial route', async ({ page }) => {
     await page.goto('/booking', { waitUntil: 'domcontentloaded' })
 
-    await expect(page).toHaveTitle('Book a detail')
+    await expect(page).toHaveTitle('Book a detail | QuikSpit Auto Detailing')
     await expect(page.getByRole('heading', { name: 'Book your detail' })).toBeVisible()
     await expect(page.locator('iframe[src*="cal.com"]')).toHaveCount(0)
   })
@@ -21,9 +21,9 @@ test.describe('review items 8-12', () => {
     await expect(dialog).toBeVisible()
     const slider = dialog.getByRole('slider')
     await slider.focus()
-    await expect(slider).toHaveAttribute('aria-valuenow', '50')
+    await expect(slider).toHaveValue('50')
     await page.keyboard.press('ArrowRight')
-    await expect(slider).toHaveAttribute('aria-valuenow', '51')
+    await expect(slider).toHaveValue('51')
 
     await page.keyboard.press('Escape')
     await expect(dialog).toHaveCount(0)

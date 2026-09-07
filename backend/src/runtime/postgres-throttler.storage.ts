@@ -15,6 +15,8 @@ export class PostgresThrottlerStorage implements ThrottlerStorage {
     blockDuration: number,
     _throttlerName: string,
   ): Promise<Awaited<ReturnType<ThrottlerStorage['increment']>>> {
+    void _throttlerName;
+
     // The row update serializes requests across all API instances. A blocked
     // request cannot extend the block indefinitely, and expiry starts a new window.
     const rows: Array<{
@@ -51,14 +53,18 @@ export class PostgresThrottlerStorage implements ThrottlerStorage {
       this.nextCleanupAt = Date.now() + 60_000;
       // Bound cleanup work even after a long idle period. It never changes a
       // live counter and its failure must not turn an allowed request into a 500.
-      await this.dataSource.query(
-        `DELETE FROM request_limits WHERE key IN (
+      await this.dataSource
+        .query(
+          `DELETE FROM request_limits WHERE key IN (
            SELECT key FROM request_limits
            WHERE expires_at < now() - interval '1 hour'
              AND (blocked_until IS NULL OR blocked_until < now())
            LIMIT 1000
          )`,
-      ).catch(() => { this.nextCleanupAt = Date.now() + 10_000; });
+        )
+        .catch(() => {
+          this.nextCleanupAt = Date.now() + 10_000;
+        });
     }
 
     const row = rows[0];

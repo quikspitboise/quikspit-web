@@ -18,11 +18,13 @@ export class ProviderCacheService {
         'SELECT value, expires_at, expires_at > now() AS fresh FROM provider_cache WHERE key = $1',
         [key],
       );
-    return rows[0] ? {
-      value: rows[0].value,
-      expiresAt: new Date(rows[0].expires_at).getTime(),
-      fresh: rows[0].fresh,
-    } : null;
+    return rows[0]
+      ? {
+          value: rows[0].value,
+          expiresAt: new Date(rows[0].expires_at).getTime(),
+          fresh: rows[0].fresh,
+        }
+      : null;
   }
 
   async claim(key: string, leaseMs = 30_000): Promise<string | null> {
@@ -39,7 +41,12 @@ export class ProviderCacheService {
     return rows[0]?.lease_owner ?? null;
   }
 
-  async complete<T>(key: string, owner: string, value: T, ttl: number): Promise<void> {
+  async complete<T>(
+    key: string,
+    owner: string,
+    value: T,
+    ttl: number,
+  ): Promise<void> {
     await this.dataSource.query(
       `UPDATE provider_cache SET value = $3::jsonb,
          expires_at = now() + $4 * interval '1 millisecond',

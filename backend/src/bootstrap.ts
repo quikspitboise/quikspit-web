@@ -7,7 +7,10 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { LoggerService } from './common/logger.service';
 import { configureCsrfProtection } from './common/csrf-protection';
-import { canonicalHttpsRedirect, configureProxyTrust } from './common/http-policy';
+import {
+  canonicalHttpsRedirect,
+  configureProxyTrust,
+} from './common/http-policy';
 
 function getAllowedOrigins(): string[] {
   const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')

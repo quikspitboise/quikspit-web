@@ -1,6 +1,9 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { getDatabaseConnectionOptions, getSchemaSynchronization } from './database.config';
+import {
+  getDatabaseConnectionOptions,
+  getSchemaSynchronization,
+} from './database.config';
 import { DATABASE_ENTITIES, DATABASE_MIGRATIONS } from './database.registry';
 
 config();

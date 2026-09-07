@@ -8,7 +8,9 @@ export class CreateRuntimeState1788652800000 implements MigrationInterface {
       expires_at timestamptz NOT NULL,
       blocked_until timestamptz
     )`);
-    await queryRunner.query('CREATE INDEX request_limits_expiry_idx ON request_limits (expires_at)');
+    await queryRunner.query(
+      'CREATE INDEX request_limits_expiry_idx ON request_limits (expires_at)',
+    );
     await queryRunner.query(`CREATE TABLE provider_cache (
       key varchar(160) PRIMARY KEY,
       value jsonb,

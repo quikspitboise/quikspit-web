@@ -11,7 +11,10 @@ async function createApp(): Promise<express.Express> {
   return nestApp.getHttpAdapter().getInstance() as express.Express;
 }
 
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse,
+) {
   try {
     if (!app) {
       appPromise ??= createApp();

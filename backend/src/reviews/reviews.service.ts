@@ -232,10 +232,15 @@ export class ReviewsService {
 
   private async refreshReviews(): Promise<ReviewsData | null> {
     const controller = new AbortController();
-    const cacheKey = 'google-reviews:' + createHash('sha256')
-      .update(this.configService.get<string>('GOOGLE_PLACE_ID') ||
-        this.configService.get<string>('GOOGLE_BUSINESS_PHONE') || 'quikspit-boise')
-      .digest('hex');
+    const cacheKey =
+      'google-reviews:' +
+      createHash('sha256')
+        .update(
+          this.configService.get<string>('GOOGLE_PLACE_ID') ||
+            this.configService.get<string>('GOOGLE_BUSINESS_PHONE') ||
+            'quikspit-boise',
+        )
+        .digest('hex');
     let lease: string | null = null;
     const deadline = setTimeout(
       () =>
@@ -246,13 +251,20 @@ export class ReviewsService {
     try {
       if (this.sharedCache) {
         const cached = await this.beforeDeadline(
-          () => this.sharedCache.read<ReviewsData>(cacheKey), controller.signal,
+          () => this.sharedCache.read<ReviewsData>(cacheKey),
+          controller.signal,
         );
         if (cached?.value) {
-          this.cache = { data: cached.value, timestamp: cached.expiresAt - this.CACHE_TTL };
+          this.cache = {
+            data: cached.value,
+            timestamp: cached.expiresAt - this.CACHE_TTL,
+          };
           if (cached.fresh) return cached.value;
         }
-        lease = await this.beforeDeadline(() => this.sharedCache.claim(cacheKey), controller.signal);
+        lease = await this.beforeDeadline(
+          () => this.sharedCache.claim(cacheKey),
+          controller.signal,
+        );
         if (!lease) return this.cache?.data ?? null;
       }
       const apiKey = this.configService.get('GOOGLE_PLACES_API_KEY');
@@ -268,9 +280,7 @@ export class ReviewsService {
       const data = await this.fetchJson(url, controller.signal);
 
       if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-        throw new Error(
-          'Google Places returned an unsuccessful response',
-        );
+        throw new Error('Google Places returned an unsuccessful response');
       }
 
       const result: ReviewsData = {
@@ -295,7 +305,8 @@ export class ReviewsService {
 
       if (this.sharedCache && lease) {
         await this.beforeDeadline(
-          () => this.sharedCache.complete(cacheKey, lease, result, this.CACHE_TTL),
+          () =>
+            this.sharedCache.complete(cacheKey, lease, result, this.CACHE_TTL),
           controller.signal,
         );
         lease = null;
@@ -320,22 +331,37 @@ export class ReviewsService {
     } finally {
       if (this.sharedCache && lease && !controller.signal.aborted) {
         await this.beforeDeadline(
-          () => this.sharedCache.fail(cacheKey, lease), controller.signal,
-        ).catch(() => this.logger.warn('Reviews cache lease will expire automatically'));
+          () => this.sharedCache.fail(cacheKey, lease),
+          controller.signal,
+        ).catch(() =>
+          this.logger.warn('Reviews cache lease will expire automatically'),
+        );
       }
       clearTimeout(deadline);
     }
   }
 
-  private beforeDeadline<T>(work: () => Promise<T>, signal: AbortSignal): Promise<T> {
+  private beforeDeadline<T>(
+    work: () => Promise<T>,
+    signal: AbortSignal,
+  ): Promise<T> {
     this.throwIfAborted(signal);
     return new Promise<T>((resolve, reject) => {
-      const abort = () => { cleanup(); reject(signal.reason); };
+      const abort = () => {
+        cleanup();
+        reject(signal.reason);
+      };
       const cleanup = () => signal.removeEventListener('abort', abort);
       signal.addEventListener('abort', abort, { once: true });
       work().then(
-        (value) => { cleanup(); resolve(value); },
-        (error) => { cleanup(); reject(error); },
+        (value) => {
+          cleanup();
+          resolve(value);
+        },
+        (error) => {
+          cleanup();
+          reject(error);
+        },
       );
     });
   }

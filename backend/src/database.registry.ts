@@ -7,7 +7,12 @@ import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-
 import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
 import { CreateRuntimeState1788652800000 } from './migrations/1788652800000-CreateRuntimeState';
 
-export const DATABASE_ENTITIES = [GalleryItemEntity, AppSettingEntity, ProviderCacheEntity, RequestLimitEntity];
+export const DATABASE_ENTITIES = [
+  GalleryItemEntity,
+  AppSettingEntity,
+  ProviderCacheEntity,
+  RequestLimitEntity,
+];
 export const DATABASE_MIGRATIONS = [
   CreateGalleryItemsTable1740000000000,
   CreateAppSettingsTable1740000001000,
