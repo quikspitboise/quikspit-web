@@ -59,37 +59,40 @@ ALLOWED_ORIGINS=http://localhost:3000
 
 ---
 
-### 3. CSRF Protection (CRITICAL - Fixed)
+### 3. CSRF protection and API authentication
 
-**Issue**: No CSRF tokens or SameSite cookie configuration
+`src/common/csrf-protection.ts` configures `csrf-csrf` through bootstrap.
+Set `ENABLE_CSRF=true` and a random, deployment-managed `CSRF_SECRET` in
+production. Startup fails when enabled protection has no secret. Production
+also requires explicit `ALLOWED_ORIGINS`; wildcard origins are not supported.
 
-**Solution**:
-- Installed `csurf` package for CSRF protection
-- Configured CSRF middleware with secure cookie settings
-- Added `/api/csrf-token` endpoint for frontend to retrieve tokens
-- Made CSRF configurable via `ENABLE_CSRF` environment variable (disabled by default for dev convenience)
+Unsafe methods use double-submit token validation by default. Three narrowly
+scoped request types have independent protection:
 
-**Configuration** (`backend/src/main.ts`):
-```typescript
-const csrfProtection = csurf({
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
-});
-```
+- `POST /api/webhooks/stripe` verifies the Stripe signature over the raw request
+  body in its controller. Stripe does not send browser CSRF tokens.
+- The enumerated invoice, gallery-admin, and booking-settings mutations accept
+  an explicit `Authorization: Bearer ...` header. Both Clerk token verification
+  and the administrator allowlist still run. Cookies cannot authenticate these
+  routes. The Next.js admin proxy separately rejects cross-origin mutations
+  before forwarding its server-obtained bearer token.
+- Anonymous `POST /api/contact` and `POST /api/bookings` browser submissions
+  require an Origin exactly matching `ALLOWED_ORIGINS` to use the token-free
+  path. These endpoints do not use cookie identity. Missing, null, or untrusted
+  origins must supply a valid CSRF cookie and token instead. Rate limiting and
+  input/upload validation remain necessary for public endpoint abuse.
 
-**Frontend Integration**:
-When CSRF is enabled, frontend must:
-1. Fetch CSRF token: `GET /api/csrf-token`
-2. Include token in POST/PUT/PATCH/DELETE requests via `X-CSRF-Token` header or `_csrf` field
+For other mutations, obtain a token from `GET /api/csrf-token`, retain the
+returned `_csrf` cookie, and send the returned token in the `X-CSRF-Token`
+header. Body fields are not accepted as tokens. The cookie is HTTP-only,
+SameSite Strict, and Secure in production; clients using cookies must account
+for same-site deployment and browser credentials settings.
 
-**Environment Variable**:
-```bash
-# Set to 'true' in production
-ENABLE_CSRF=true
-```
+Keep the bearer-route list aligned with controller guards. A new route is
+token-protected by default; converting an exempt route to cookie authentication
+requires removing its exemption. HTTP regression tests in
+`src/common/csrf-protection.spec.ts` exercise signed/altered webhooks, public
+multipart submissions, real administrator guards, and the default token flow.
 
 ---
 

@@ -7,11 +7,18 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InvoiceService } from './invoice.service';
-import { CreateInvoiceDto, SendInvoiceDto } from './dto/create-invoice.dto';
+import {
+  CreateInvoiceDto,
+  SendInvoiceDto,
+  SendInvoiceRequestDto,
+} from './dto/create-invoice.dto';
 import { LoggerService } from '../common/logger.service';
+import { AdminAllowlistGuard } from '../auth/admin-allowlist.guard';
+import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
 
 /**
  * Invoice Controller
@@ -25,6 +32,7 @@ import { LoggerService } from '../common/logger.service';
  * - GET /api/invoices/config - Get current invoice configuration
  */
 @Controller('invoices')
+@UseGuards(ClerkAuthGuard, AdminAllowlistGuard)
 export class InvoiceController {
   constructor(
     private readonly invoiceService: InvoiceService,
@@ -72,7 +80,7 @@ export class InvoiceController {
   @HttpCode(HttpStatus.OK)
   async sendInvoice(
     @Param('id') invoiceId: string,
-    @Body() body: Omit<SendInvoiceDto, 'invoiceId'>,
+    @Body() body: SendInvoiceRequestDto,
   ) {
     this.logger.log('Sending invoice', { invoiceId });
 
@@ -97,8 +105,16 @@ export class InvoiceController {
   }
 
   /**
-   * Get invoice details by ID
+   * Get current invoice configuration
    */
+  @Get('config')
+  getConfig() {
+    return {
+      success: true,
+      data: this.invoiceService.getConfig(),
+    };
+  }
+
   @Get(':id')
   async getInvoice(@Param('id') invoiceId: string) {
     this.logger.log('Retrieving invoice', { invoiceId });
@@ -129,17 +145,6 @@ export class InvoiceController {
         created: invoice.created,
         dueDate: invoice.due_date,
       },
-    };
-  }
-
-  /**
-   * Get current invoice configuration
-   */
-  @Get('config')
-  getConfig() {
-    return {
-      success: true,
-      data: this.invoiceService.getConfig(),
     };
   }
 }

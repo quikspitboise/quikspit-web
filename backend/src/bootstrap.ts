@@ -4,14 +4,25 @@ import express from 'express';
 import { join } from 'path';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { doubleCsrf } from 'csrf-csrf';
 import { AppModule } from './app.module';
 import { LoggerService } from './common/logger.service';
+import { configureCsrfProtection } from './common/csrf-protection';
 
 function getAllowedOrigins(): string[] {
-  return process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3000'];
+  const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (configuredOrigins.length > 0) {
+    return configuredOrigins;
+  }
+
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+    throw new Error('ALLOWED_ORIGINS must be configured in production');
+  }
+
+  return ['http://localhost:3000'];
 }
 
 function configureMiddleware(
@@ -77,46 +88,13 @@ function configureMiddleware(
 
   app.use(cookieParser());
 
-  const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
-    getSecret: () =>
-      process.env.CSRF_SECRET || 'default-csrf-secret-change-in-production',
-    cookieName: '_csrf',
-    cookieOptions: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-    },
-    size: 64,
-    ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-    getSessionIdentifier: (req) => req.cookies?.sessionId || 'anonymous',
-  });
-
-  if (process.env.ENABLE_CSRF === 'true') {
-    app.use(doubleCsrfProtection);
-    logger.log('CSRF Protection enabled');
-  } else {
-    logger.warn(
-      'CSRF Protection is DISABLED - enable in production with ENABLE_CSRF=true',
-    );
-  }
-
-  app.use(
-    (
-      req: express.Request,
-      _res: express.Response,
-      next: express.NextFunction,
-    ) => {
-      req.app.locals.generateCsrfToken = generateCsrfToken;
-      next();
-    },
-  );
+  configureCsrfProtection(app, logger, allowedOrigins);
 
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -133,6 +111,7 @@ function configureMiddleware(
 export async function createNestApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    rawBody: true,
   });
 
   const logger = app.get(LoggerService);

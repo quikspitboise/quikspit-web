@@ -29,7 +29,10 @@ export class ReviewsService {
   private isConfigured = false;
   private cache: ReviewsCache | null = null;
   private resolvedPlaceId: string | null = null;
+  private refreshPromise: Promise<ReviewsData | null> | null = null;
   private readonly CACHE_TTL = 24 * 60 * 60 * 1000;
+  private readonly REQUEST_TIMEOUT_MS = 8000;
+  private readonly OVERALL_TIMEOUT_MS = 25000;
 
   constructor(
     private readonly configService: ConfigService,
@@ -49,20 +52,18 @@ export class ReviewsService {
     apiKey: string,
     input: string,
     inputtype: string,
+    signal: AbortSignal,
   ): Promise<string | null> {
     const encoded = encodeURIComponent(input);
     const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encoded}&inputtype=${inputtype}&fields=place_id,name&locationbias=circle:50000@43.60,-116.20&key=${apiKey}`;
-    console.log(`[Reviews] FindPlace (${inputtype}): "${input}"`);
-    const response = await fetch(url);
-    const raw = await response.text();
-    console.log(`[Reviews] FindPlace response: ${raw.slice(0, 500)}`);
-    const data = JSON.parse(raw);
+    this.logger.debug(`Reviews FindPlace request (${inputtype})`);
+    const data = await this.fetchJson(url, signal);
 
     if (data.status === 'OK' && data.candidates?.length > 0) {
       return data.candidates[0].place_id;
     }
-    console.log(
-      `[Reviews] FindPlace failed: ${data.status} - ${data.error_message || 'No candidates'}`,
+    this.logger.debug(
+      `Reviews FindPlace failed: ${data.status} - ${data.error_message || 'No candidates'}`,
     );
     return null;
   }
@@ -70,20 +71,18 @@ export class ReviewsService {
   private async tryTextSearch(
     apiKey: string,
     query: string,
+    signal: AbortSignal,
   ): Promise<string | null> {
     const encoded = encodeURIComponent(query);
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encoded}&location=43.60,-116.20&radius=50000&key=${apiKey}`;
-    console.log(`[Reviews] TextSearch: "${query}"`);
-    const response = await fetch(url);
-    const raw = await response.text();
-    console.log(`[Reviews] TextSearch response: ${raw.slice(0, 500)}`);
-    const data = JSON.parse(raw);
+    this.logger.debug('Reviews TextSearch request');
+    const data = await this.fetchJson(url, signal);
 
     if (data.status === 'OK' && data.results?.length > 0) {
       return data.results[0].place_id;
     }
-    console.log(
-      `[Reviews] TextSearch failed: ${data.status} - ${data.error_message || 'No results'}`,
+    this.logger.debug(
+      `Reviews TextSearch failed: ${data.status} - ${data.error_message || 'No results'}`,
     );
     return null;
   }
@@ -91,30 +90,31 @@ export class ReviewsService {
   private async tryNearbySearch(
     apiKey: string,
     keyword: string,
+    signal: AbortSignal,
   ): Promise<string | null> {
     const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=${encodeURIComponent(keyword)}&location=43.603582,-116.4087469&radius=5000&key=${apiKey}`;
-    console.log(`[Reviews] NearbySearch: "${keyword}"`);
-    const response = await fetch(url);
-    const raw = await response.text();
-    console.log(`[Reviews] NearbySearch response: ${raw.slice(0, 500)}`);
-    const data = JSON.parse(raw);
+    this.logger.debug('Reviews NearbySearch request');
+    const data = await this.fetchJson(url, signal);
 
     if (data.status === 'OK' && data.results?.length > 0) {
       return data.results[0].place_id;
     }
-    console.log(
-      `[Reviews] NearbySearch failed: ${data.status} - ${data.error_message || 'No results'}`,
+    this.logger.debug(
+      `Reviews NearbySearch failed: ${data.status} - ${data.error_message || 'No results'}`,
     );
     return null;
   }
 
-  private async resolvePlaceId(apiKey: string): Promise<string | null> {
+  private async resolvePlaceId(
+    apiKey: string,
+    signal: AbortSignal,
+  ): Promise<string | null> {
     if (this.resolvedPlaceId) return this.resolvedPlaceId;
 
     const explicitPlaceId = this.configService.get('GOOGLE_PLACE_ID');
     if (explicitPlaceId) {
       this.resolvedPlaceId = explicitPlaceId;
-      console.log(`[Reviews] Using explicit Place ID: ${explicitPlaceId}`);
+      this.logger.debug('Using configured Google Place ID');
       return explicitPlaceId;
     }
 
@@ -127,7 +127,7 @@ export class ReviewsService {
     }> = [
       {
         label: 'phone',
-        method: () => this.tryFindPlace(apiKey, phone, 'phonenumber'),
+        method: () => this.tryFindPlace(apiKey, phone, 'phonenumber', signal),
       },
       {
         label: 'text-full',
@@ -136,44 +136,59 @@ export class ReviewsService {
             apiKey,
             'QuikSpit Auto Detailing Boise ID',
             'textquery',
+            signal,
           ),
       },
       {
         label: 'text-short',
         method: () =>
-          this.tryFindPlace(apiKey, 'QuikSpit Auto Detailing', 'textquery'),
+          this.tryFindPlace(
+            apiKey,
+            'QuikSpit Auto Detailing',
+            'textquery',
+            signal,
+          ),
       },
       {
         label: 'text-brand',
-        method: () => this.tryFindPlace(apiKey, 'QuikSpit Boise', 'textquery'),
+        method: () =>
+          this.tryFindPlace(apiKey, 'QuikSpit Boise', 'textquery', signal),
       },
       {
         label: 'textsearch-full',
         method: () =>
-          this.tryTextSearch(apiKey, 'QuikSpit Auto Detailing Boise Idaho'),
+          this.tryTextSearch(
+            apiKey,
+            'QuikSpit Auto Detailing Boise Idaho',
+            signal,
+          ),
       },
       {
         label: 'nearby-quikspit',
-        method: () => this.tryNearbySearch(apiKey, 'QuikSpit'),
+        method: () => this.tryNearbySearch(apiKey, 'QuikSpit', signal),
       },
       {
         label: 'nearby-detailing',
-        method: () => this.tryNearbySearch(apiKey, 'QuikSpit Auto Detailing'),
+        method: () =>
+          this.tryNearbySearch(apiKey, 'QuikSpit Auto Detailing', signal),
       },
     ];
 
     for (const attempt of attempts) {
       try {
+        this.throwIfAborted(signal);
         const placeId = await attempt.method();
         if (placeId) {
+          this.throwIfAborted(signal);
           this.resolvedPlaceId = placeId;
-          console.log(
-            `[Reviews] Resolved Place ID: ${placeId} via ${attempt.label}`,
-          );
+          this.logger.debug(`Resolved Google Place ID via ${attempt.label}`);
           return placeId;
         }
       } catch (error) {
-        console.log(`[Reviews] ${attempt.label} error: ${error}`);
+        if (signal.aborted) {
+          throw error;
+        }
+        this.logger.debug(`Reviews ${attempt.label} lookup failed`);
       }
     }
 
@@ -181,18 +196,54 @@ export class ReviewsService {
     return null;
   }
 
-  async getReviews(): Promise<ReviewsData | null> {
-    if (!this.isConfigured) {
-      return null;
+  private async fetchJson(url: string, signal: AbortSignal): Promise<any> {
+    this.throwIfAborted(signal);
+    const controller = new AbortController();
+    const abortRequest = () => controller.abort(signal.reason);
+
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+    } else {
+      signal.addEventListener('abort', abortRequest, { once: true });
     }
 
-    if (this.cache && Date.now() - this.cache.timestamp < this.CACHE_TTL) {
-      return this.cache.data;
+    const timeout = setTimeout(
+      () => controller.abort(),
+      this.REQUEST_TIMEOUT_MS,
+    );
+
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) {
+        throw new Error(`Google Places API returned ${response.status}`);
+      }
+
+      return await response.json();
+    } finally {
+      clearTimeout(timeout);
+      signal.removeEventListener('abort', abortRequest);
     }
+  }
+
+  private throwIfAborted(signal: AbortSignal): void {
+    if (signal.aborted) {
+      throw (
+        signal.reason ?? new Error('Google Reviews refresh deadline exceeded')
+      );
+    }
+  }
+
+  private async refreshReviews(): Promise<ReviewsData | null> {
+    const controller = new AbortController();
+    const deadline = setTimeout(
+      () =>
+        controller.abort(new Error('Google Reviews refresh deadline exceeded')),
+      this.OVERALL_TIMEOUT_MS,
+    );
 
     try {
       const apiKey = this.configService.get('GOOGLE_PLACES_API_KEY');
-      const placeId = await this.resolvePlaceId(apiKey);
+      const placeId = await this.resolvePlaceId(apiKey, controller.signal);
 
       if (!placeId) {
         this.logger.error('No Place ID available — cannot fetch reviews');
@@ -201,12 +252,7 @@ export class ReviewsService {
 
       const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&key=${apiKey}`;
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Google Places API returned ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await this.fetchJson(url, controller.signal);
 
       if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
         throw new Error(
@@ -253,6 +299,39 @@ export class ReviewsService {
       }
 
       return null;
+    } finally {
+      clearTimeout(deadline);
     }
+  }
+
+  async getReviews(): Promise<ReviewsData | null> {
+    if (!this.isConfigured) {
+      return null;
+    }
+
+    if (this.cache && Date.now() - this.cache.timestamp < this.CACHE_TTL) {
+      return this.cache.data;
+    }
+
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    const refreshPromise = this.refreshReviews();
+    this.refreshPromise = refreshPromise;
+    void refreshPromise.then(
+      () => {
+        if (this.refreshPromise === refreshPromise) {
+          this.refreshPromise = null;
+        }
+      },
+      () => {
+        if (this.refreshPromise === refreshPromise) {
+          this.refreshPromise = null;
+        }
+      },
+    );
+
+    return refreshPromise;
   }
 }

@@ -16,7 +16,10 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
-    if (!keyByPath || prefersReducedMotion) return
+    if (!keyByPath || prefersReducedMotion) {
+      setIsTransitioning(false)
+      return
+    }
     setIsTransitioning(true)
     const t = setTimeout(() => setIsTransitioning(false), 320)
     return () => clearTimeout(t)
@@ -28,7 +31,7 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
       // Avoid initial fade on first mount; rely on child reveals
       initial={false}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] }}
       style={{ width: '100%', willChange: 'opacity' }}
     >
       {children}
@@ -49,5 +52,4 @@ export function PageTransition({ children, keyByPath = true }: PageTransitionPro
 }
 
 export default PageTransition
-
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Component, ReactNode } from 'react'
+import React, { Component, createRef, ReactNode } from 'react'
 import Link from 'next/link'
 
 interface ErrorBoundaryProps {
@@ -14,6 +14,8 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  private readonly fallbackRef = createRef<HTMLDivElement>()
+
   constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = {
@@ -23,7 +25,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static getDerivedStateFromError(_error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
     return { hasError: true }
@@ -42,6 +43,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     // Example: logErrorToService(error, errorInfo)
   }
 
+  componentDidUpdate(_previousProps: ErrorBoundaryProps, previousState: ErrorBoundaryState) {
+    if (!previousState.hasError && this.state.hasError) {
+      this.fallbackRef.current?.focus()
+    }
+  }
+
   handleReset = () => {
     this.setState({
       hasError: false,
@@ -53,7 +60,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-transparent flex items-center justify-center px-4">
+        <div
+          ref={this.fallbackRef}
+          className="min-h-screen bg-transparent flex items-center justify-center px-4"
+          role="alert"
+          tabIndex={-1}
+        >
           <div className="max-w-2xl w-full bg-brand-charcoal-light border border-neutral-600 rounded-xl shadow-2xl p-8 sm:p-12 text-center">
             {/* Error Icon */}
             <div className="w-20 h-20 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -78,7 +90,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               Oops! Something Went Wrong
             </h1>
             <p className="text-lg text-neutral-300 mb-8">
-              We encountered an unexpected error. Don&apos;t worry, our team has been notified and we&apos;re working on it.
+              An unexpected error interrupted this page. Try again or use one of the links below.
             </p>
 
             {/* Error Details (only in development) */}
@@ -101,6 +113,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
+                type="button"
                 onClick={this.handleReset}
                 className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
               >
@@ -108,12 +121,14 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               </button>
               <Link
                 href="/"
+                onClick={this.handleReset}
                 className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800 inline-block"
               >
                 Go Home
               </Link>
               <Link
                 href="/contact"
+                onClick={this.handleReset}
                 className="border-2 border-neutral-600 text-neutral-300 hover:border-red-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800 inline-block"
               >
                 Contact Support

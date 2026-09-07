@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { buildBackendApiUrl } from '@/lib/backend-api'
 import { createTimeoutSignal } from '@/lib/fetch-with-timeout'
 import { Reveal } from '@/components/reveal'
@@ -12,6 +12,44 @@ interface ValidationErrors {
   image?: string
 }
 
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+const IMAGE_ACCEPT = '.jpg,.jpeg,.png,.gif,' + ALLOWED_IMAGE_TYPES.join(',')
+const FIELD_ORDER: Array<keyof ValidationErrors> = ['name', 'email', 'message', 'image']
+
+async function getResponseErrorMessage(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json()
+
+    if (body && typeof body === 'object' && 'message' in body) {
+      const message = body.message
+
+      if (Array.isArray(message)) {
+        const messages = message.filter((item): item is string => typeof item === 'string')
+        if (messages.length > 0) return messages.join(' ')
+      }
+
+      if (typeof message === 'string' && message.trim()) return message
+    }
+  } catch {
+    // The server may return an empty or non-JSON error response.
+  }
+
+  return `We couldn't send your message (status ${response.status}). Please try again.`
+}
+
+function getSubmissionErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+      return 'The request took too long. Please check your connection and try again.'
+    }
+
+    if (error.message && error.message !== 'Failed to fetch') return error.message
+  }
+
+  return "We couldn't send your message. Please check your connection and try again."
+}
+
 export function ContactForm() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [image, setImage] = useState<File | null>(null)
@@ -20,6 +58,9 @@ export function ContactForm() {
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState<{[key: string]: boolean}>({})
+  const formRef = useRef<HTMLFormElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const submittingRef = useRef(false)
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -31,9 +72,6 @@ export function ContactForm() {
       case 'name':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
           return 'Name is required'
-        }
-        if (typeof value === 'string' && value.trim().length < 2) {
-          return 'Name must be at least 2 characters'
         }
         break
       case 'email':
@@ -48,19 +86,14 @@ export function ContactForm() {
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
           return 'Message is required'
         }
-        if (typeof value === 'string' && value.trim().length < 10) {
-          return 'Message must be at least 10 characters'
-        }
         break
       case 'image':
         if (value && value instanceof File) {
-          const maxSize = 5 * 1024 * 1024 // 5MB
-          if (value.size > maxSize) {
-            return 'Image must be smaller than 5MB'
+          if (value.size > MAX_IMAGE_SIZE_BYTES) {
+            return 'Image must be 5MB or smaller'
           }
-          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
-          if (!allowedTypes.includes(value.type)) {
-            return 'Only JPG, PNG, and GIF images are allowed'
+          if (!ALLOWED_IMAGE_TYPES.includes(value.type)) {
+            return 'Only JPG, JPEG, PNG, or GIF images are allowed'
           }
         }
         break
@@ -70,16 +103,16 @@ export function ContactForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setForm({ ...form, [name]: value })
+    setForm(prev => ({ ...prev, [name]: value }))
     
     // Real-time validation
     if (touched[name]) {
-      const error = validateField(name, value)
+      const error = validateField(name as keyof ValidationErrors, value)
       setValidationErrors(prev => ({ ...prev, [name]: error }))
     }
   }
 
-  const handleBlur = (fieldName: string) => {
+  const handleBlur = (fieldName: keyof ValidationErrors) => {
     setTouched(prev => ({ ...prev, [fieldName]: true }))
     const value = fieldName === 'image' ? image : form[fieldName as keyof typeof form]
     const error = validateField(fieldName, value)
@@ -103,12 +136,24 @@ export function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (submittingRef.current || loading) return
+    submittingRef.current = true
+
+    const trimmedForm = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      message: form.message.trim(),
+    }
+    setForm(trimmedForm)
+    setError(null)
+    setSuccess(false)
     
     // Validate all fields
     const errors: ValidationErrors = {
-      name: validateField('name', form.name),
-      email: validateField('email', form.email),
-      message: validateField('message', form.message),
+      name: validateField('name', trimmedForm.name),
+      email: validateField('email', trimmedForm.email),
+      message: validateField('message', trimmedForm.message),
       image: validateField('image', image),
     }
     
@@ -118,18 +163,23 @@ export function ContactForm() {
     // Check if there are any errors
     if (Object.values(errors).some(error => error !== undefined)) {
       setError('Please fix the errors above before submitting')
+      const firstInvalidField = FIELD_ORDER.find(field => errors[field] !== undefined)
+      if (firstInvalidField) {
+        formRef.current
+          ?.querySelector<HTMLElement>(`[name="${firstInvalidField}"]`)
+          ?.focus()
+      }
+      submittingRef.current = false
       return
     }
     
     setLoading(true)
-    setError(null)
-    setSuccess(false)
     
     try {
       const formData = new FormData()
-      formData.append('name', form.name)
-      formData.append('email', form.email)
-      formData.append('message', form.message)
+      formData.append('name', trimmedForm.name)
+      formData.append('email', trimmedForm.email)
+      formData.append('message', trimmedForm.message)
       if (image) formData.append('image', image)
       const res = await fetch(buildBackendApiUrl('/contact'), {
         method: 'POST',
@@ -137,21 +187,19 @@ export function ContactForm() {
         // File uploads need headroom for slow connections.
         signal: createTimeoutSignal(30_000),
       })
-      if (!res.ok) throw new Error('Failed to send message')
+      if (!res.ok) throw new Error(await getResponseErrorMessage(res))
       setSuccess(true)
       setForm({ name: '', email: '', message: '' })
       setImage(null)
       setValidationErrors({})
       setTouched({})
       
-      // Reset file input
-      const fileInput = document.getElementById('image') as HTMLInputElement
-      if (fileInput) fileInput.value = ''
+      if (fileInputRef.current) fileInputRef.current.value = ''
     } catch (err: unknown) {
-      const error = err as Error
-      setError(error.message || 'Something went wrong. Please try again.')
+      setError(getSubmissionErrorMessage(err))
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
@@ -178,7 +226,14 @@ export function ContactForm() {
           {error}
         </div>
       )}
-      <form className="space-y-6" onSubmit={handleSubmit} encType="multipart/form-data" noValidate>
+      <form
+        ref={formRef}
+        className="space-y-6"
+        onSubmit={handleSubmit}
+        encType="multipart/form-data"
+        noValidate
+        aria-busy={loading}
+      >
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
             Full Name <span className="text-red-600" aria-label="required">*</span>
@@ -194,6 +249,7 @@ export function ContactForm() {
               validationErrors.name && touched.name ? 'border-red-500' : 'border-neutral-600'
             }`}
             placeholder="Your full name"
+            autoComplete="name"
             required
             aria-required="true"
             aria-invalid={validationErrors.name && touched.name ? 'true' : 'false'}
@@ -220,6 +276,7 @@ export function ContactForm() {
               validationErrors.email && touched.email ? 'border-red-500' : 'border-neutral-600'
             }`}
             placeholder="your.email@example.com"
+            autoComplete="email"
             required
             aria-required="true"
             aria-invalid={validationErrors.email && touched.email ? 'true' : 'false'}
@@ -246,6 +303,7 @@ export function ContactForm() {
               validationErrors.message && touched.message ? 'border-red-500' : 'border-neutral-600'
             }`}
             placeholder="Tell us how we can help you..."
+            autoComplete="off"
             required
             aria-required="true"
             aria-invalid={validationErrors.message && touched.message ? 'true' : 'false'}
@@ -265,7 +323,8 @@ export function ContactForm() {
             type="file"
             id="image"
             name="image"
-            accept="image/*"
+            ref={fileInputRef}
+            accept={IMAGE_ACCEPT}
             onChange={handleFileChange}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 ${
               validationErrors.image && touched.image ? 'border-red-500' : 'border-neutral-600'
@@ -279,7 +338,7 @@ export function ContactForm() {
             </p>
           ) : (
             <p id="image-hint" className="mt-1 text-xs text-neutral-400">
-              Maximum file size: 5MB. Accepted formats: JPG, PNG, GIF
+              Maximum file size: 5MB. Accepted formats: JPG, JPEG, PNG, GIF
             </p>
           )}
         </div>
@@ -288,6 +347,7 @@ export function ContactForm() {
             type="submit"
             className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
             disabled={loading}
+            aria-busy={loading}
           >
             {loading ? 'Sending...' : 'Send Message'}
           </button>

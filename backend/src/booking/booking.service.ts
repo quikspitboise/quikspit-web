@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { LoggerService } from '../common/logger.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 
@@ -93,7 +94,7 @@ export class BookingService {
     const servicePrice = this.calculateServicePrice(bookingData.serviceType);
 
     const newBooking: Booking = {
-      id: Date.now().toString(),
+      id: randomUUID(),
       ...bookingData,
       status: 'pending',
       totalAmount: servicePrice,
@@ -112,8 +113,17 @@ export class BookingService {
     return newBooking;
   }
 
-  async processStripePayment(booking: Booking): Promise<any> {
-    this.logger.log('Processing payment via Stripe webhook');
+  async processStripePayment(booking: Booking): Promise<{
+    paymentId: null;
+    status: 'pending';
+    amount: number;
+    currency: 'usd';
+    bookingId: string;
+    processedAt: string;
+  }> {
+    this.logger.log('Payment remains pending; no Stripe payment was created', {
+      bookingId: booking.id,
+    });
 
     // SECURITY: Payment processing should be handled via Stripe webhooks
     // 1. Frontend creates a Stripe Checkout session or PaymentIntent
@@ -127,20 +137,14 @@ export class BookingService {
     // NEVER expose STRIPE_SECRET_KEY in client code or comments
     // Key rotation plan: Use Stripe Dashboard to roll keys quarterly
 
-    // Placeholder payment result for development
     const paymentResult = {
-      paymentId: `pi_${Date.now()}`,
-      status: 'succeeded',
+      paymentId: null,
+      status: 'pending' as const,
       amount: booking.totalAmount,
-      currency: 'usd',
+      currency: 'usd' as const,
       bookingId: booking.id,
       processedAt: new Date().toISOString(),
     };
-
-    this.logger.log('Payment processed (placeholder)', {
-      paymentId: paymentResult.paymentId,
-      bookingId: booking.id,
-    });
 
     return paymentResult;
   }

@@ -15,6 +15,18 @@ export interface PricingBreakdown {
   grandTotal: number
 }
 
+/** Keep the chosen correction level valid when coating is added or removed. */
+export function normalizePaintCorrection(
+  selectedId: string | null,
+  coatingSelected: boolean,
+): string | null {
+  if (selectedId === 'paint-correction-2' || selectedId === 'paint-correction-2-upgrade') {
+    return coatingSelected ? 'paint-correction-2-upgrade' : 'paint-correction-2'
+  }
+  if (selectedId === 'paint-correction-1' && !coatingSelected) return selectedId
+  return null
+}
+
 /**
  * Calculate the full pricing breakdown given current selections.
  */
@@ -45,20 +57,21 @@ export function calculatePricing(opts: {
 
   // Ceramic / paint correction total
   const upgradePrice = getPaintCorrectionUpgradePrice(ceramicList)
+  const correctionId = normalizePaintCorrection(
+    opts.selectedPaintCorrection,
+    opts.ceramicCoatingSelected,
+  )
   let ceramicTotal = 0
 
   if (opts.ceramicCoatingSelected) {
     const coating = ceramicList.find((s) => s.id === 'graphene-coating')
     if (coating) ceramicTotal += coating.price
-    if (opts.selectedPaintCorrection === 'paint-correction-2-upgrade') {
+    if (correctionId === 'paint-correction-2-upgrade') {
       ceramicTotal += upgradePrice
     }
   } else {
-    if (
-      opts.selectedPaintCorrection &&
-      opts.selectedPaintCorrection !== 'paint-correction-2-upgrade'
-    ) {
-      const correction = ceramicList.find((s) => s.id === opts.selectedPaintCorrection)
+    if (correctionId) {
+      const correction = ceramicList.find((s) => s.id === correctionId)
       if (correction) ceramicTotal += correction.price
     }
   }

@@ -10,8 +10,8 @@ import {
   ceramicServices,
   isCeramicEligible,
 } from './booking-data'
-import { calculatePricing } from './pricing-utils'
-import { parseBookingParams, CalEmbed } from '@/components/cal-embed'
+import { calculatePricing, normalizePaintCorrection } from './pricing-utils'
+import { CalEmbed } from '@/components/cal-embed'
 import { hasBookingDeposit } from '@/lib/booking-settings'
 import { StepIndicator } from './step-indicator'
 import { BookingSummary } from './booking-summary'
@@ -58,6 +58,7 @@ export function BookingWizard({
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [bookingConfirmed, setBookingConfirmed] = useState(false)
   const wizardRef = useRef<HTMLDivElement>(null)
+  const initialValues = useRef({ initialSelection, initialPackageSelection })
 
   // ---- Derived ----
   const ceramicEnabled = isCeramicEligible(selectedPackage)
@@ -134,12 +135,13 @@ export function BookingWizard({
       total: pricing.grandTotal,
       packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
     }
-  }, [selectedPackage, vehicleSize, selectedAddons, ceramicCoatingSelected, selectedPaintCorrection, ceramicServices, pricing.grandTotal])
+  }, [selectedPackage, vehicleSize, selectedAddons, ceramicCoatingSelected, selectedPaintCorrection, pricing.grandTotal])
 
   // ---- Initialize from URL params ----
   useEffect(() => {
+    const { initialSelection, initialPackageSelection } = initialValues.current
     if (initialSelection) {
-      setVehicleSize(initialSelection.size || 'car')
+      setVehicleSize(sizeAdjustments.some((size) => size.id === initialSelection.size) ? initialSelection.size : 'car')
 
       const pkg = allPackagesFlat.find(
         (p) => p.categoryId === initialSelection.category && p.id === initialSelection.tier
@@ -151,22 +153,19 @@ export function BookingWizard({
           initialSelection.addons
             .split(',')
             .map((a) => a.trim())
-            .filter(Boolean)
+            .filter((name) => addons.some((addon) => addon.name === name))
         )
       )
 
-      const hasCeramic = Boolean(initialSelection.ceramic)
+      const eligible = isCeramicEligible(pkg ?? null)
+      const hasCeramic = eligible && ceramicServices.some(
+        (service) => service.id === 'graphene-coating' && service.name === initialSelection.ceramic
+      )
       setCeramicCoatingSelected(hasCeramic)
 
-      if (initialSelection.paintCorrection) {
+      if (eligible && initialSelection.paintCorrection) {
         const match = ceramicServices.find((s) => s.name === initialSelection.paintCorrection)
-        if (match) {
-          if (hasCeramic && match.id === 'paint-correction-2') {
-            setSelectedPaintCorrection('paint-correction-2-upgrade')
-          } else {
-            setSelectedPaintCorrection(match.id)
-          }
-        }
+        setSelectedPaintCorrection(normalizePaintCorrection(match?.id ?? null, hasCeramic))
       }
     } else if (initialPackageSelection) {
       const pkg = allPackagesFlat.find(
@@ -241,8 +240,10 @@ export function BookingWizard({
   }, [])
 
   const toggleCeramic = useCallback(() => {
-    setCeramicCoatingSelected((prev) => !prev)
-  }, [])
+    const nextCoatingSelected = !ceramicCoatingSelected
+    setCeramicCoatingSelected(nextCoatingSelected)
+    setSelectedPaintCorrection((current) => normalizePaintCorrection(current, nextCoatingSelected))
+  }, [ceramicCoatingSelected])
 
   const selectPaintCorrection = useCallback(
     (id: string | null) => {
@@ -268,18 +269,6 @@ export function BookingWizard({
     setBookingConfirmed(true)
     scrollToTop()
   }, [scrollToTop])
-
-  // Listen for Cal.com postMessage events
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      // Cal.com sends booking success events via postMessage
-      if (event.data?.type === 'CAL:bookingSuccessful' || event.data?.action === 'bookingSuccessful') {
-        handleBookingSuccess()
-      }
-    }
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [handleBookingSuccess])
 
   // ---- Render ----
   if (bookingConfirmed && currentSelection) {
@@ -361,6 +350,7 @@ export function BookingWizard({
                     <CalEmbed
                       selection={currentSelection ?? undefined}
                       depositAmount={depositAmount}
+                      onBookingSuccessful={handleBookingSuccess}
                     />
                   </div>
                 </div>

@@ -126,11 +126,13 @@ export default function Home() {
       "https://www.tiktok.com/@quikspitboise",
       "https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/"
     ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": rating.toString(),
-      "reviewCount": totalReviews.toString()
-    },
+    ...(reviewsData.available && totalReviews > 0 ? {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": rating.toString(),
+        "reviewCount": totalReviews.toString()
+      },
+    } : {}),
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Car Detailing Services",

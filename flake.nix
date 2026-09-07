@@ -32,6 +32,9 @@
         let
           lib = pkgs.lib;
           postgres = pkgs.postgresql_16;
+          pnpm = pkgs.writeShellScriptBin "pnpm" ''
+            exec ${pkgs.nodejs_22}/bin/corepack pnpm "$@"
+          '';
           runtimeLibs = [
             pkgs.libpq
             pkgs.openssl
@@ -43,7 +46,7 @@
             {
               packages = [
                 pkgs.nodejs_22
-                pkgs.pnpm_9
+                pnpm
                 postgres
                 pkgs.libpq
                 pkgs.openssl
@@ -61,9 +64,9 @@
                 export PATH="$PNPM_HOME:$PATH"
                 export npm_config_python="${pkgs.python3}/bin/python3"
 
+                export PGDATA="$PWD/.nix-postgres"
                 export PGHOST="$PGDATA/tmp"
                 export PGPORT="''${PGPORT:-5432}"
-                export PGDATA="$PWD/.nix-postgres"
 
                 pg-init() {
                   if [ ! -f "$PGDATA/PG_VERSION" ]; then

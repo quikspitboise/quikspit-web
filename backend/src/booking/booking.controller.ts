@@ -6,12 +6,15 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { BookingService, Booking } from './booking.service';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { Throttle } from '@nestjs/throttler';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { LoggerService } from '../common/logger.service';
+import { AdminAllowlistGuard } from '../auth/admin-allowlist.guard';
+import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
 
 // Route becomes /api/bookings due to global prefix configured in main.ts
 @Controller('bookings')
@@ -22,6 +25,7 @@ export class BookingController {
   ) {}
 
   @Get()
+  @UseGuards(ClerkAuthGuard, AdminAllowlistGuard)
   async getBookings(): Promise<{
     success: boolean;
     message: string;
@@ -65,35 +69,10 @@ export class BookingController {
       );
     }
 
-    // Parse and format the phone number to E.164 format
+    let formattedPhone: string;
     try {
       const phoneNumber = parsePhoneNumber(bookingData.customerPhone, 'US');
-      const formattedPhone = phoneNumber.formatInternational(); // or .format('E.164') for +12089604970
-
-      // Update booking data with formatted phone
-      const validatedBookingData = {
-        ...bookingData,
-        customerPhone: formattedPhone,
-      };
-
-      this.logger.log('Phone number validated successfully');
-
-      // Create the booking record
-      const booking =
-        await this.bookingService.createBooking(validatedBookingData);
-
-      // Process payment (placeholder)
-      const paymentResult =
-        await this.bookingService.processStripePayment(booking);
-
-      return {
-        success: true,
-        message: 'Booking created successfully',
-        data: {
-          booking,
-          payment: paymentResult,
-        },
-      };
+      formattedPhone = phoneNumber.format('E.164');
     } catch (error) {
       this.logger.error(
         'Phone validation error',
@@ -103,5 +82,27 @@ export class BookingController {
         'Failed to validate phone number. Please check the format and try again.',
       );
     }
+
+    this.logger.log('Phone number validated successfully');
+
+    const validatedBookingData = {
+      ...bookingData,
+      customerPhone: formattedPhone,
+    };
+
+    const booking =
+      await this.bookingService.createBooking(validatedBookingData);
+
+    const paymentResult =
+      await this.bookingService.processStripePayment(booking);
+
+    return {
+      success: true,
+      message: 'Booking created successfully',
+      data: {
+        booking,
+        payment: paymentResult,
+      },
+    };
   }
 }

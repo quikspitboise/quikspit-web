@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { InvoiceController } from './invoice.controller';
 import { InvoiceService } from './invoice.service';
 import { SmsService } from '../common/sms.service';
@@ -16,6 +17,7 @@ import { SmsService } from '../common/sms.service';
  * - Email and SMS delivery options
  */
 @Module({
+  imports: [AuthModule],
   controllers: [InvoiceController],
   providers: [InvoiceService, SmsService],
   exports: [InvoiceService, SmsService],

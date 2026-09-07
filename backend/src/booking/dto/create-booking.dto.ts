@@ -8,16 +8,25 @@ import {
   Max,
   ValidateNested,
   IsPhoneNumber,
+  IsDateString,
+  MaxLength,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+
+const trimString = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.trim() : value;
 
 export class VehicleInfoDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(80)
+  @Transform(trimString)
   make: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(80)
+  @Transform(trimString)
   model: string;
 
   @IsInt()
@@ -27,32 +36,46 @@ export class VehicleInfoDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(40)
+  @Transform(trimString)
   color: string;
 }
 
 export class CreateBookingDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(120)
+  @Transform(trimString)
   customerName: string;
 
   @IsEmail()
   @IsNotEmpty()
+  @MaxLength(254)
+  @Transform(trimString)
   customerEmail: string;
 
   @IsPhoneNumber('US')
   @IsNotEmpty()
+  @MaxLength(32)
+  @Transform(trimString)
   customerPhone: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(120)
+  @Transform(trimString)
   serviceType: string;
 
-  @IsString()
+  @IsDateString()
   @IsNotEmpty()
-  preferredDate: string; // Could use @IsDateString() for ISO 8601 format
+  @MaxLength(40)
+  @Transform(trimString)
+  preferredDate: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(40)
+  @Transform(trimString)
   preferredTime: string;
 
   @ValidateNested()
@@ -61,5 +84,7 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
+  @Transform(trimString)
   specialRequests?: string;
 }

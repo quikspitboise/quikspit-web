@@ -124,44 +124,55 @@ export async function proxyAdminRequest(
   headers.set('Authorization', `Bearer ${adminAuth.token}`);
   headers.set('Accept', 'application/json');
 
-  const response = await fetch(buildBackendApiUrl(path), {
-    ...init,
-    method,
-    headers,
-    cache: 'no-store',
-    signal: init.signal ?? createTimeoutSignal(),
-  });
-
-  const body = await response.text();
-  const contentType = response.headers.get('content-type') ?? 'application/json';
-
-  if (
-    !response.ok &&
-    method !== 'GET' &&
-    path.startsWith('/gallery/admin/') &&
-    response.status >= 500
-  ) {
-    console.error('Admin gallery backend request failed', {
-      path,
-      status: response.status,
-      body: body.slice(0, 500),
+  try {
+    const response = await fetch(buildBackendApiUrl(path), {
+      ...init,
+      method,
+      headers,
+      cache: 'no-store',
+      signal: init.signal ?? createTimeoutSignal(),
     });
+
+    if (response.status >= 500) {
+      console.error('Admin backend request failed', {
+        path,
+        status: response.status,
+      });
+      await response.body?.cancel();
+
+      return NextResponse.json(
+        { message: 'The server could not complete this request. Please try again.' },
+        { status: 502, headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+
+    const hasNoBody = method === 'HEAD' || [204, 205, 304].includes(response.status);
+    const body = hasNoBody ? null : await response.text();
+    const responseHeaders = new Headers({ 'Cache-Control': 'private, no-store' });
+    for (const name of ['content-type', 'retry-after']) {
+      const value = response.headers.get(name);
+      if (value) responseHeaders.set(name, value);
+    }
+
+    return new NextResponse(body, {
+      status: response.status,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    const timedOut = error instanceof Error &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError');
+    console.error('Admin backend request unavailable', { path, timedOut });
 
     return NextResponse.json(
       {
-        message:
-          'Gallery metadata could not be saved. Confirm the backend deployment includes the direct-upload gallery changes and the latest database migration has run.',
-        backendStatus: response.status,
-        backendBody: body.slice(0, 500),
+        message: timedOut
+          ? 'The server took too long to respond. Please try again.'
+          : 'The server is temporarily unavailable. Please try again.',
       },
-      { status: 502 },
+      {
+        status: timedOut ? 504 : 502,
+        headers: { 'Cache-Control': 'private, no-store' },
+      },
     );
   }
-
-  return new NextResponse(body, {
-    status: response.status,
-    headers: {
-      'content-type': contentType,
-    },
-  });
 }

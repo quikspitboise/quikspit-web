@@ -10,14 +10,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { extname } from 'path';
 import { ContactService } from './contact.service';
 import { Throttle } from '@nestjs/throttler';
 import { FileValidationService } from '../common/file-validation.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { LoggerService } from '../common/logger.service';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 
 // Route becomes /api/contact due to global prefix configured in main.ts
 @Controller('contact')
@@ -52,38 +49,13 @@ export class ContactController {
   ) {
     this.logger.log('Contact form submission received');
 
-    let savedFile: Express.Multer.File | undefined;
-
     if (file) {
       try {
         // Validate file with magic byte checking
         await FileValidationService.validateImageFile(file);
 
-        // Save file to disk after validation
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        const sanitizedOriginalName = FileValidationService.sanitizeFilename(
-          file.originalname.replace(ext, ''),
-        );
-        const filename = `${sanitizedOriginalName}-${uniqueSuffix}${ext}`;
-        const uploadDir = './uploads';
-        const filePath = join(uploadDir, filename);
-
-        // Ensure upload directory exists
-        await fs.mkdir(uploadDir, { recursive: true });
-
-        // Write file to disk
-        await fs.writeFile(filePath, file.buffer);
-
-        // Update file object with saved path
-        savedFile = {
-          ...file,
-          filename,
-          path: filePath,
-        };
-
-        this.logger.log('Image file validated and saved', {
-          filename,
+        this.logger.log('Image file validated', {
+          filename: file.originalname,
           mimetype: file.mimetype,
           size: file.size,
         });
@@ -101,13 +73,10 @@ export class ContactController {
     }
 
     // Process the contact form
-    const result = await this.contactService.saveContactForm(
-      contactData,
-      savedFile,
-    );
+    const result = await this.contactService.saveContactForm(contactData, file);
 
     // Send email notification
-    await this.contactService.sendContactEmail(contactData, savedFile);
+    await this.contactService.sendContactEmail(contactData, file);
 
     return {
       success: true,

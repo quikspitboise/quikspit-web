@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useState, useEffect, useContext } from 'react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion'
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion'
 import { TransitionContext } from './page-transition'
 import { Logo } from './logo'
 
@@ -11,6 +11,8 @@ export function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const { isTransitioning } = useContext(TransitionContext);
   const { scrollY, scrollYProgress } = useScroll();
 
@@ -22,6 +24,21 @@ export function Navigation() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+
+      event.preventDefault()
+      setMenuOpen(false)
+      menuButtonRef.current?.focus()
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [menuOpen]);
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -43,14 +60,15 @@ export function Navigation() {
         style={{ scaleX: scrollYProgress }}
       />
       <motion.nav
+        aria-label="Primary navigation"
         className={`
           fixed top-0 left-0 right-0 z-50
           [transform:translateZ(0)]
           pt-[var(--nav-safe-offset)]
-          transition-[background-color,border-color,box-shadow] duration-500 ease-out
+          ${prefersReducedMotion ? 'transition-none' : 'transition-[background-color,border-color,box-shadow] duration-500 ease-out'}
           bg-black border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
-          ${scrolled 
-            ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
+          ${scrolled
+            ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]'
             : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
           }
           ${isTransitioning ? 'pointer-events-none' : ''}
@@ -96,8 +114,8 @@ export function Navigation() {
               aria-label="QuikSpit Auto Detailing - Home"
             >
               <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
                 <Logo responsive className="transition-all duration-300" />
@@ -111,48 +129,44 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   className={`
-                    relative px-4 py-2 text-sm font-medium tracking-wide
-                    transition-colors duration-300
-                    ${pathname === item.href
+                    group relative px-4 py-2 text-sm font-medium tracking-wide
+                    ${prefersReducedMotion ? 'transition-none' : 'transition-colors duration-300'}
+                    ${pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
                       ? 'text-white'
                       : 'text-neutral-400 hover:text-white'
                     }
                   `}
-                  aria-current={pathname === item.href ? 'page' : undefined}
+                  aria-current={pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`)) ? 'page' : undefined}
                 >
                   <span className="relative z-10">{item.label}</span>
-                  
+
                   {/* Active/Hover underline */}
-                  <motion.span
-                    className="absolute bottom-0 left-1/2 h-[2px] bg-red-600 rounded-full"
-                    initial={false}
-                    animate={{
-                      width: pathname === item.href ? '60%' : '0%',
-                      x: '-50%',
-                    }}
-                    whileHover={{
-                      width: '60%',
-                    }}
-                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  <span
+                    className={`pointer-events-none absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-red-600 ${
+                      pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
+                        ? 'w-[60%]'
+                        : 'w-0 group-hover:w-[60%]'
+                    } ${prefersReducedMotion ? 'transition-none' : 'transition-[width] duration-300'}`}
                   />
                 </Link>
               ))}
-              
+
               {/* CTA Button */}
               <motion.div
                 className="ml-4"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 <Link
                   href="/booking#design-your-detail"
-                  className="
+                  className={`
                     inline-flex items-center gap-2 px-5 py-2.5
                     bg-red-600 hover:bg-red-500
                     text-white text-sm font-semibold
-                    rounded-lg transition-all duration-300
+                    rounded-lg ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
                     shadow-lg shadow-red-600/20 hover:shadow-red-600/30
-                  "
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black
+                  `}
                 >
                   Book Now
                 </Link>
@@ -161,19 +175,20 @@ export function Navigation() {
 
             {/* Mobile Menu Button */}
             <motion.button
+              ref={menuButtonRef}
               type="button"
-              className="
+              className={`
                 lg:hidden relative w-10 h-10
                 flex items-center justify-center
                 text-white rounded-lg
-                hover:bg-white/5 transition-colors
+                hover:bg-white/5 ${prefersReducedMotion ? 'transition-none' : 'transition-colors'}
                 focus:outline-none focus:ring-2 focus:ring-red-600/50
-              "
+              `}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
-              whileTap={{ scale: 0.95 }}
+              aria-controls={menuOpen ? 'mobile-menu' : undefined}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
               >
                 <div className="w-5 h-4 relative flex flex-col justify-between">
                   <motion.span
@@ -202,10 +217,10 @@ export function Navigation() {
             <motion.div
               id="mobile-menu"
               className="mobile-menu-shell lg:hidden absolute top-full left-0 right-0 overflow-hidden border-b border-white/8 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
-              initial={{ opacity: 0, height: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
               <div
                 aria-hidden="true"
@@ -219,45 +234,46 @@ export function Navigation() {
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.href}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -20 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { delay: index * 0.05, duration: 0.3 }}
                   >
                     <Link
                       href={item.href}
                       className={`
                         block px-4 py-3 rounded-xl
                         text-base font-medium tracking-wide
-                        transition-all duration-300
-                        ${pathname === item.href
+                        ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
+                        ${pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
                           ? 'text-white bg-red-600/10 border-l-2 border-red-600'
                           : 'text-neutral-400 hover:text-white hover:bg-white/5'
                         }
                       `}
                       onClick={() => setMenuOpen(false)}
-                      aria-current={pathname === item.href ? 'page' : undefined}
+                      aria-current={pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`)) ? 'page' : undefined}
                     >
                       {item.label}
                     </Link>
                   </motion.div>
                 ))}
-                
+
                 {/* Mobile CTA */}
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: navItems.length * 0.05 + 0.1, duration: 0.3 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { delay: navItems.length * 0.05 + 0.1, duration: 0.3 }}
                   className="pt-4"
                 >
                   <Link
                     href="/booking#design-your-detail"
-                    className="
+                    className={`
                       block w-full text-center px-6 py-4
                       bg-red-600 hover:bg-red-500
                       text-white font-semibold
-                      rounded-xl transition-all duration-300
-                    "
+                      rounded-xl ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black
+                    `}
                     onClick={() => setMenuOpen(false)}
                   >
                     Book Your Service
@@ -268,7 +284,7 @@ export function Navigation() {
           )}
         </AnimatePresence>
       </motion.nav>
-      
+
       {/* Spacer for fixed nav */}
       <div className="h-[var(--nav-total-height)]" />
     </>

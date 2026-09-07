@@ -13,6 +13,7 @@ interface MagneticButtonProps {
   href?: string
   onClick?: () => void
   disabled?: boolean
+  type?: 'button' | 'submit' | 'reset'
   magneticStrength?: number
 }
 
@@ -45,6 +46,7 @@ export function MagneticButton({
   href,
   onClick,
   disabled = false,
+  type = 'button',
   magneticStrength = 0.3,
 }: MagneticButtonProps) {
   const magnetic = useMagneticEnabled()
@@ -111,7 +113,7 @@ export function MagneticButton({
   }
 
   const button = (
-    <button ref={buttonRef} className={baseClasses} onClick={onClick} disabled={disabled}>
+    <button type={type} ref={buttonRef} className={baseClasses} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   )

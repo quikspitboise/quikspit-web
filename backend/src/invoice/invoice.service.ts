@@ -4,7 +4,7 @@ import { LoggerService } from '../common/logger.service';
 import { SmsService } from '../common/sms.service';
 import { CreateInvoiceDto, SendInvoiceDto } from './dto/create-invoice.dto';
 
-type StripeClient = ReturnType<typeof Stripe>;
+type StripeClient = InstanceType<typeof Stripe>;
 type StripeCustomerCreateParams = Parameters<
   StripeClient['customers']['create']
 >[0];
@@ -75,7 +75,7 @@ export class InvoiceService {
       this.isStripeConfigured = false;
     } else {
       try {
-        this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
         this.isStripeConfigured = true;
         this.logger.log('Invoice service initialized with Stripe');
       } catch (error) {
@@ -344,10 +344,17 @@ export class InvoiceService {
     let smsSent = false;
 
     try {
-      // Finalize the invoice first
       await this.stripe.invoices.finalizeInvoice(invoiceId);
       this.logger.log('Invoice finalized', { invoiceId });
+    } catch (error) {
+      this.logger.error(
+        'Failed to finalize invoice',
+        error instanceof Error ? error.message : '',
+      );
+      throw error;
+    }
 
+    try {
       // Send via Stripe email if requested
       if (sendViaEmail) {
         await this.stripe.invoices.sendInvoice(invoiceId);

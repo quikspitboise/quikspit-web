@@ -4,13 +4,16 @@ import {
   Req,
   Headers,
   BadRequestException,
+  HttpCode,
+  HttpStatus,
   RawBodyRequest,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { LoggerService } from '../common/logger.service';
 
-type StripeClient = ReturnType<typeof Stripe>;
+type StripeClient = InstanceType<typeof Stripe>;
 type StripeEvent = ReturnType<StripeClient['webhooks']['constructEvent']>;
 type StripePaymentIntent = Awaited<
   ReturnType<StripeClient['paymentIntents']['retrieve']>
@@ -55,7 +58,7 @@ export class StripeWebhookController {
       this.isStripeConfigured = false;
     } else {
       try {
-        this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+        this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
         this.isStripeConfigured = true;
         this.logger.log('Stripe webhook controller initialized successfully');
       } catch (error) {
@@ -69,6 +72,7 @@ export class StripeWebhookController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   async handleWebhook(
     @Req() request: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
@@ -143,8 +147,7 @@ export class StripeWebhookController {
         'Error handling webhook event',
         error instanceof Error ? error.stack : '',
       );
-      // Return 200 to prevent Stripe from retrying
-      // Log error for manual investigation
+      throw new ServiceUnavailableException('Webhook processing failed');
     }
 
     return { received: true };

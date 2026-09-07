@@ -81,11 +81,7 @@ export class CreateInvoiceDto {
 /**
  * DTO for sending/finalizing a draft invoice
  */
-export class SendInvoiceDto {
-  @IsString()
-  @IsNotEmpty()
-  invoiceId: string;
-
+export class SendInvoiceRequestDto {
   @IsOptional()
   @IsBoolean()
   sendViaEmail?: boolean; // defaults to true
@@ -97,4 +93,10 @@ export class SendInvoiceDto {
   @IsOptional()
   @IsPhoneNumber()
   customerPhone?: string; // required if sendViaSms is true
+}
+
+export class SendInvoiceDto extends SendInvoiceRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  invoiceId: string;
 }

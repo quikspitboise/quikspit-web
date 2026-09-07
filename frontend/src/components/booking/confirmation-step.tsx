@@ -83,7 +83,7 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
             {showDeposit && (
               <>
                 <div className="flex justify-between text-xs mt-1">
-                  <span className="text-neutral-500">Deposit paid</span>
+                  <span className="text-neutral-500">Booking deposit</span>
                   <span className="text-green-400">${depositAmount}</span>
                 </div>
                 <div className="flex justify-between text-xs">
@@ -95,6 +95,10 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
           </div>
         </div>
       </div>
+
+      <p className="text-neutral-400 text-sm max-w-md mx-auto mb-8">
+        Check your Cal.com confirmation for the appointment details and payment status.
+      </p>
 
       {/* Prep instructions */}
       <div className="bg-neutral-800/30 rounded-xl border border-neutral-700 p-6 text-left max-w-md mx-auto">

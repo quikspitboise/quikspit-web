@@ -74,3 +74,6 @@ quickspit-shine/shell.nix
 quickspit-shine/result/
 .nix-postgres/
 .pnpm-home/
+
+# Local project reviews
+docs/PROJECT_REVIEW_2026-09-06.md

@@ -55,6 +55,7 @@ function AggregateHeader({ rating, totalReviews }: { rating: number; totalReview
 function ArrowButton({ direction, onClick, disabled }: { direction: 'left' | 'right'; onClick: () => void; disabled: boolean }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       className="w-11 h-11 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -74,10 +75,14 @@ function ArrowButton({ direction, onClick, disabled }: { direction: 'left' | 'ri
 export function ReviewsSection({ className = '' }: { className?: string }) {
   const [data, setData] = useState<ReviewsData | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<ReturnType<typeof animate> | null>(null);
   const xRef = useRef(0);
   const touchStartRef = useRef(0);
   const prefersReducedMotion = useReducedMotion();
@@ -99,6 +104,11 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   const totalReviews = data?.totalReviews ?? FALLBACK_COUNT;
   const reviewLink = data?.reviewLink ?? '';
   const maxIndex = Math.max(0, reviews.length - visibleCount);
+  const activeIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+
+  useEffect(() => {
+    setCurrentIndex((index) => Math.max(0, Math.min(index, maxIndex)));
+  }, [maxIndex]);
 
   const getSlideWidth = useCallback(() => {
     if (!containerRef.current) return 0;
@@ -109,54 +119,74 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   const slideTo = useCallback((index: number) => {
     const clamped = Math.max(0, Math.min(index, maxIndex));
     setCurrentIndex(clamped);
-    if (!trackRef.current) return;
-    const slideWidth = getSlideWidth();
-    const targetX = -(clamped * slideWidth);
-    xRef.current = targetX;
-    trackRef.current.style.transform = `translateX(${targetX}px)`;
-  }, [maxIndex, getSlideWidth]);
+  }, [maxIndex]);
 
   useEffect(() => {
+    animationRef.current?.stop();
+    animationRef.current = null;
     if (!trackRef.current) return;
     const slideWidth = getSlideWidth();
-    const targetX = -(currentIndex * slideWidth);
-    xRef.current = targetX;
+    const targetX = -(activeIndex * slideWidth);
+    const track = trackRef.current;
+
     if (prefersReducedMotion) {
-      trackRef.current.style.transform = `translateX(${targetX}px)`;
+      xRef.current = targetX;
+      track.style.transform = `translateX(${targetX}px)`;
       return;
     }
-    animate(currentIndex * slideWidth, targetX, {
+
+    const animation = animate(xRef.current, targetX, {
       duration: 0.5,
       ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => {
-        if (trackRef.current) {
-          trackRef.current.style.transform = `translateX(${-v}px)`;
+      onUpdate: (value) => {
+        xRef.current = value;
+        if (trackRef.current === track) {
+          track.style.transform = `translateX(${value}px)`;
         }
       },
     });
-  }, [currentIndex, getSlideWidth, prefersReducedMotion]);
+
+    animationRef.current = animation;
+    return () => {
+      animation.stop();
+      if (animationRef.current === animation) {
+        animationRef.current = null;
+      }
+    };
+  }, [activeIndex, getSlideWidth, prefersReducedMotion, reviews.length]);
 
   useEffect(() => {
-    if (isPaused || prefersReducedMotion || reviews.length === 0) return;
+    if (
+      isAutoplayPaused ||
+      isHovered ||
+      isFocused ||
+      isTouching ||
+      prefersReducedMotion ||
+      maxIndex === 0
+    ) return;
+
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+      setCurrentIndex((prev) => {
+        const index = Math.max(0, Math.min(prev, maxIndex));
+        return index >= maxIndex ? 0 : index + 1;
+      });
     }, AUTO_ROTATE_INTERVAL);
     return () => clearInterval(interval);
-  }, [isPaused, prefersReducedMotion, maxIndex, reviews.length]);
+  }, [isAutoplayPaused, isHovered, isFocused, isTouching, prefersReducedMotion, maxIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientX;
-    setIsPaused(true);
+    setIsTouching(true);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartRef.current - e.changedTouches[0].clientX;
-    if (diff > 50 && currentIndex < maxIndex) {
-      slideTo(currentIndex + 1);
-    } else if (diff < -50 && currentIndex > 0) {
-      slideTo(currentIndex - 1);
+    if (diff > 50 && activeIndex < maxIndex) {
+      slideTo(activeIndex + 1);
+    } else if (diff < -50 && activeIndex > 0) {
+      slideTo(activeIndex - 1);
     }
-    setIsPaused(false);
+    setIsTouching(false);
   };
 
   if (!data?.available || reviews.length === 0) return null;
@@ -175,8 +205,14 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
 
           <div
             className="relative"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                setIsFocused(false);
+              }
+            }}
           >
             <div ref={containerRef} className="overflow-hidden">
               <div
@@ -184,6 +220,7 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
                 className="flex gap-6"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
+                onTouchCancel={() => setIsTouching(false)}
               >
                 {reviews.map((review: Review) => (
                   <div
@@ -197,19 +234,34 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
               </div>
             </div>
 
+            {maxIndex > 0 && !prefersReducedMotion && (
+              <div className="flex justify-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsAutoplayPaused((paused) => !paused)}
+                  aria-pressed={isAutoplayPaused}
+                  className="rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-2 text-xs font-medium text-white/70 transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-white"
+                >
+                  {isAutoplayPaused ? 'Resume autoplay' : 'Pause autoplay'}
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center justify-center gap-6 mt-8">
-              <ArrowButton direction="left" onClick={() => slideTo(currentIndex - 1)} disabled={currentIndex === 0} />
+              <ArrowButton direction="left" onClick={() => slideTo(activeIndex - 1)} disabled={activeIndex === 0} />
               <div className="flex items-center gap-1.5">
                 {Array.from({ length: maxIndex + 1 }, (_, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => slideTo(i)}
                     className="flex h-8 w-8 items-center justify-center rounded-full"
                     aria-label={`Go to reviews page ${i + 1}`}
+                    aria-current={i === activeIndex ? 'page' : undefined}
                   >
                     <span
                       className={`block h-2 rounded-full transition-all duration-300 ${
-                        i === currentIndex
+                        i === activeIndex
                           ? 'bg-red-500 w-5'
                           : 'bg-white/20 w-2'
                       }`}
@@ -217,8 +269,14 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
                   </button>
                 ))}
               </div>
-              <ArrowButton direction="right" onClick={() => slideTo(currentIndex + 1)} disabled={currentIndex >= maxIndex} />
+              <ArrowButton direction="right" onClick={() => slideTo(activeIndex + 1)} disabled={activeIndex >= maxIndex} />
             </div>
+            <p
+              className="sr-only"
+              aria-live={isAutoplayPaused || isFocused || prefersReducedMotion ? 'polite' : 'off'}
+            >
+              Showing reviews page {activeIndex + 1} of {maxIndex + 1}
+            </p>
           </div>
 
           {reviewLink && (
