@@ -17,22 +17,31 @@ export interface ReviewsData {
   totalReviews: number;
   reviews: Review[];
   reviewLink: string;
+  stale?: boolean;
 }
 
-const FALLBACK: ReviewsData = {
+export const UNAVAILABLE_REVIEWS: ReviewsData = {
   available: false,
-  rating: 4.9,
-  totalReviews: 127,
+  rating: 0,
+  totalReviews: 0,
   reviews: [],
   reviewLink: '',
 };
 
-let cachedPromise: Promise<ReviewsData> | null = null;
+export const REVIEWS_CACHE_TTL_MS = 5 * 60 * 1000;
+export const REVIEWS_RETRY_DELAY_MS = 15 * 1000;
+
+let cachedData: { data: ReviewsData; expiresAt: number } | null = null;
+let inFlightPromise: Promise<ReviewsData> | null = null;
+let retryAfter = 0;
 
 export async function fetchReviews(): Promise<ReviewsData> {
-  if (cachedPromise) return cachedPromise;
+  const now = Date.now();
+  if (cachedData && now < cachedData.expiresAt) return cachedData.data;
+  if (inFlightPromise) return inFlightPromise;
+  if (now < retryAfter) return cachedData?.data ?? UNAVAILABLE_REVIEWS;
 
-  cachedPromise = (async () => {
+  inFlightPromise = (async () => {
     try {
       const response = await fetch(buildBackendApiUrl('/reviews'), {
         cache: 'no-store',
@@ -40,12 +49,28 @@ export async function fetchReviews(): Promise<ReviewsData> {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = (await response.json()) as ReviewsData;
-      if (!data.available) return FALLBACK;
+      if (!data.available) {
+        retryAfter = Date.now() + REVIEWS_RETRY_DELAY_MS;
+        return cachedData ? { ...cachedData.data, stale: true } : UNAVAILABLE_REVIEWS;
+      }
+      cachedData = { data, expiresAt: Date.now() + REVIEWS_CACHE_TTL_MS };
+      retryAfter = 0;
       return data;
     } catch {
-      return FALLBACK;
+      retryAfter = Date.now() + REVIEWS_RETRY_DELAY_MS;
+      return cachedData ? { ...cachedData.data, stale: true } : UNAVAILABLE_REVIEWS;
     }
   })();
 
-  return cachedPromise;
+  try {
+    return await inFlightPromise;
+  } finally {
+    inFlightPromise = null;
+  }
+}
+
+export function clearReviewsCache() {
+  cachedData = null;
+  inFlightPromise = null;
+  retryAfter = 0;
 }

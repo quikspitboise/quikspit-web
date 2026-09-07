@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import {
   type Package,
   type BookingSelection,
@@ -11,7 +12,6 @@ import {
   isCeramicEligible,
 } from './booking-data'
 import { calculatePricing, normalizePaintCorrection } from './pricing-utils'
-import { CalEmbed } from '@/components/cal-embed'
 import { hasBookingDeposit } from '@/lib/booking-settings'
 import { StepIndicator } from './step-indicator'
 import { BookingSummary } from './booking-summary'
@@ -20,6 +20,18 @@ import { PackageStep } from './package-step'
 import { AddonsStep } from './addons-step'
 import { CeramicStep } from './ceramic-step'
 import { ConfirmationStep } from './confirmation-step'
+
+const CalEmbed = dynamic(
+  () => import('@/components/cal-embed').then((module) => module.CalEmbed),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[600px] items-center justify-center rounded-lg bg-neutral-900/50 text-neutral-400" role="status">
+        Loading booking calendar...
+      </div>
+    ),
+  },
+)
 
 // ============================================================================
 // TYPES

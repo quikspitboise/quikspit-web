@@ -12,15 +12,17 @@ interface AnimatedHeadlineProps {
   once?: boolean;
 }
 
-const containerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0,
+function getContainerVariants(delay: number): Variants {
+  return {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.03,
+        delayChildren: delay,
+      },
     },
-  },
-};
+  };
+}
 
 const itemVariants: Variants = {
   hidden: {
@@ -74,10 +76,10 @@ export function AnimatedHeadline({
   return (
     <motion.div
       ref={ref}
-      variants={containerVariants}
+      variants={getContainerVariants(delay)}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
-      style={{ perspective: 1000, transitionDelay: `${delay}s` }}
+      style={{ perspective: 1000 }}
     >
       <Component className={baseClasses}>
         {items.map(({ char, key }) => (

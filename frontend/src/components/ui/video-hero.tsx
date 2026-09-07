@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { CldImage, CldVideoPlayer } from 'next-cloudinary';
-import 'next-cloudinary/dist/cld-video-player.css';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { CldImage } from 'next-cloudinary';
 import { CLOUDINARY_ASSETS } from '@/lib/cloudinary';
 
 interface VideoHeroProps {
@@ -14,6 +13,10 @@ interface VideoHeroProps {
   className?: string;
 }
 
+type NavigatorWithConnection = Navigator & {
+  connection?: { saveData?: boolean };
+};
+
 export function VideoHero({
   videoPublicId = CLOUDINARY_ASSETS.videos.hero,
   fallbackPublicId = CLOUDINARY_ASSETS.static.heroFallback,
@@ -23,19 +26,11 @@ export function VideoHero({
 }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  // Start with null to avoid hydration mismatch, then determine on client
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
   const [hasError, setHasError] = useState(false);
-  // Delay showing fallback on desktop to prevent flash when video loads quickly
-  const [showDelayedFallback, setShowDelayedFallback] = useState(false);
-
-  // Debug logging
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('VideoHero - videoPublicId:', videoPublicId);
-      console.log('VideoHero - isMobile:', isMobile, '| loaded:', isVideoLoaded, '| error:', hasError);
-    }
-  }, [videoPublicId, isMobile, isVideoLoaded, hasError]);
+  const prefersReducedMotion = useReducedMotion();
+  const canAnimate = prefersReducedMotion === false;
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -43,42 +38,30 @@ export function VideoHero({
   });
 
   // Disable parallax on mobile to prevent Safari scroll jank
-  const shouldUseParallax = isMobile === false;
+  const shouldUseParallax = canAnimate && !isMobile;
   const y = useTransform(scrollYProgress, [0, 1], ['0%', shouldUseParallax ? '30%' : '0%']);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, shouldUseParallax ? 1.1 : 1]);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const updateEnvironment = () => {
+      const mobile = window.innerWidth < 768;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const saveData = Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+      setIsMobile(mobile);
+      setShouldLoadVideo(!mobile && !reducedMotion && !saveData);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    updateEnvironment();
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    window.addEventListener('resize', updateEnvironment);
+    motionQuery.addEventListener('change', updateEnvironment);
+    return () => {
+      window.removeEventListener('resize', updateEnvironment);
+      motionQuery.removeEventListener('change', updateEnvironment);
+    };
   }, []);
 
-  // On desktop, delay showing fallback to give video time to load
-  // On mobile, show fallback immediately
-  useEffect(() => {
-    if (isMobile === true) {
-      // Mobile: show fallback immediately
-      setShowDelayedFallback(true);
-    } else if (isMobile === false && !isVideoLoaded) {
-      // Desktop: wait 1.5s before showing fallback to give video time to load
-      const timer = setTimeout(() => {
-        if (!isVideoLoaded) {
-          setShowDelayedFallback(true);
-        }
-      }, 1500); // Wait 1.5s before showing fallback
-      return () => clearTimeout(timer);
-    }
-  }, [isMobile, isVideoLoaded]);
-
-  // Determine what to show - use null check for SSR safety
-  const showMobileImage = isMobile === true || hasError;
-  const showDesktopVideo = isMobile === false && !hasError;
-  // Only show fallback on desktop after delay (or immediately on mobile/error)
-  const showLoadingFallback = showDelayedFallback && !isVideoLoaded && !showMobileImage;
+  const showDesktopVideo = shouldLoadVideo && !hasError;
 
   return (
     <div
@@ -93,52 +76,23 @@ export function VideoHero({
         className="absolute inset-0 z-0"
         style={shouldUseParallax ? { y, scale } : undefined}
       >
-        {/* Fallback image shown during SSR and while video loads */}
-        {showLoadingFallback && (
-          <div 
-            className={`absolute inset-0 transition-opacity duration-700 ${
-              isVideoLoaded ? 'opacity-0' : 'opacity-100'
-            }`}
-          >
-            <CldImage
-              src={fallbackPublicId}
-              alt="Hero background"
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-              version="1768175039"
-              onError={(e) => {
-                console.error('Fallback image error:', e);
-                setHasError(true);
-              }}
-            />
-          </div>
-        )}
-
-        {/* Mobile: Static Image (no parallax to prevent Safari jank) */}
-        {showMobileImage && (
-          <div className="absolute inset-0">
-            <CldImage
-              src={fallbackPublicId}
-              alt="Hero background"
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-              version="1768175039"
-              onError={(e) => {
-                console.error('Mobile fallback image error:', e);
-                setHasError(true);
-              }}
-            />
-          </div>
-        )}
+        {/* The poster is rendered on the server and remains behind optional video. */}
+        <div className={`absolute inset-0 motion-safe:transition-opacity motion-safe:duration-700 ${isVideoLoaded ? 'opacity-0' : 'opacity-100'}`}>
+          <CldImage
+            src={fallbackPublicId}
+            alt="Hero background"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+            version="1768175039"
+          />
+        </div>
 
         {/* Desktop: Video */}
         {showDesktopVideo && (
-          <div 
-            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
+          <div
+            className={`absolute inset-0 w-full h-full motion-safe:transition-opacity motion-safe:duration-700 ${
               isVideoLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -147,6 +101,8 @@ export function VideoHero({
               muted
               loop
               playsInline
+              preload="metadata"
+              aria-hidden="true"
               className="w-full h-full object-cover"
               onPlay={() => {
                 setIsVideoLoaded(true);
@@ -200,7 +156,7 @@ export function VideoHero({
       {/* Content */}
       <motion.div
         className="relative z-20 min-h-screen supports-[min-height:100dvh]:min-h-[100dvh] flex flex-col justify-center"
-        style={{ opacity }}
+        style={canAnimate ? { opacity } : undefined}
       >
         {children}
       </motion.div>
@@ -208,14 +164,14 @@ export function VideoHero({
       {/* Scroll Indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 0.6 }}
+        initial={canAnimate ? { opacity: 0, y: -10 } : false}
+        animate={canAnimate ? { opacity: 1, y: 0 } : undefined}
+        transition={canAnimate ? { delay: 1.5, duration: 0.6 } : undefined}
       >
         <motion.div
           className="flex flex-col items-center gap-2 text-white/60"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          animate={canAnimate ? { y: [0, 8, 0] } : undefined}
+          transition={canAnimate ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } : undefined}
         >
           <span className="text-xs uppercase tracking-widest">Scroll</span>
           <svg

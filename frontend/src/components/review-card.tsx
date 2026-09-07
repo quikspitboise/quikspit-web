@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/glass-card';
 import type { Review } from '@/lib/reviews';
 
@@ -32,10 +32,11 @@ interface ReviewCardProps {
 
 export function ReviewCard({ review }: ReviewCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const isTruncatable = review.text.length > MAX_CHARS;
 
   return (
-    <GlassCard className="h-full flex flex-col" hover={true} padding="md">
+    <GlassCard className="h-full flex flex-col" hover={!prefersReducedMotion} padding="md">
       <div className="flex items-center gap-3 mb-4">
         <div className="relative">
           <img
@@ -64,10 +65,10 @@ export function ReviewCard({ review }: ReviewCardProps) {
         <AnimatePresence mode="wait">
           <motion.div
             key={expanded ? 'expanded' : 'collapsed'}
-            initial={{ opacity: 0, height: 0 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, height: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
             <p className="text-neutral-300 text-sm leading-relaxed">

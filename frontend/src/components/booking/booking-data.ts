@@ -5,12 +5,30 @@
  * @module components/booking/booking-data
  */
 
-// Re-export BookingSelection from cal-embed (canonical location)
-export type { BookingSelection } from '@/components/cal-embed'
-
 // ============================================================================
 // TYPES
 // ============================================================================
+
+export type BookingSelection = {
+  /** Package category: combo, interior, or exterior */
+  category: string
+  /** Package tier: silver, gold, or platinum */
+  tier: string
+  /** Vehicle size id */
+  size: string
+  /** Size label for display */
+  sizeLabel?: string
+  /** Comma-separated addon names */
+  addons: string
+  /** Ceramic coating selected */
+  ceramic?: string
+  /** Paint correction level */
+  paintCorrection?: string
+  /** Calculated total price */
+  total: number
+  /** Package display name */
+  packageName?: string
+}
 
 export type Package = {
   id: string

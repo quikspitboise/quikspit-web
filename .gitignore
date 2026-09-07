@@ -23,6 +23,8 @@ frontend/out/
 coverage/
 backend/coverage/
 frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
 
 # Environment variables
 .env

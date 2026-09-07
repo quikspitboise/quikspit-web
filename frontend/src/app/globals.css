@@ -92,6 +92,14 @@ body::before {
   border-radius: 0.5rem;
 }
 
+@media (forced-colors: active) {
+  :where(a, button, input, select, textarea, [role="button"]):focus-visible {
+    outline: 2px solid ButtonText;
+    outline-offset: 3px;
+    box-shadow: none;
+  }
+}
+
 .font-display {
   font-family: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.02em;

@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import express from 'express';
 import { createNestApplication } from './bootstrap';
 
@@ -11,7 +11,7 @@ async function createApp(): Promise<express.Express> {
   return nestApp.getHttpAdapter().getInstance() as express.Express;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     if (!app) {
       appPromise ??= createApp();
@@ -28,10 +28,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return app(req, res);
   } catch (error) {
-    console.error('Failed to bootstrap Vercel backend handler', error);
+    console.error('Failed to bootstrap Vercel backend handler', {
+      errorType: error instanceof Error ? error.name : 'UnknownError',
+    });
 
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Backend bootstrap failed' });
+      res.statusCode = 503;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-store');
+      res.end(JSON.stringify({ error: 'Backend bootstrap failed' }));
     }
   }
 }

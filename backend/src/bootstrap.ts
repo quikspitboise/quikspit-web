@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { LoggerService } from './common/logger.service';
 import { configureCsrfProtection } from './common/csrf-protection';
+import { canonicalHttpsRedirect, configureProxyTrust } from './common/http-policy';
 
 function getAllowedOrigins(): string[] {
   const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -25,11 +26,12 @@ function getAllowedOrigins(): string[] {
   return ['http://localhost:3000'];
 }
 
-function configureMiddleware(
+export function configureMiddleware(
   app: INestApplication,
   logger: LoggerService,
   allowedOrigins: string[],
 ): void {
+  configureProxyTrust(app.getHttpAdapter().getInstance() as express.Express);
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
@@ -43,24 +45,8 @@ function configureMiddleware(
     }),
   );
 
-  if (
-    process.env.NODE_ENV === 'production' &&
-    process.env.ENFORCE_HTTPS === 'true'
-  ) {
-    app.use(
-      (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction,
-      ) => {
-        if (req.headers['x-forwarded-proto'] !== 'https') {
-          logger.warn(`HTTPS redirect: ${req.method} ${req.url}`);
-          return res.redirect(301, `https://${req.headers.host}${req.url}`);
-        }
-        next();
-      },
-    );
-  }
+  const redirect = canonicalHttpsRedirect();
+  if (redirect) app.use(redirect);
 
   app.use(
     helmet({
@@ -98,7 +84,7 @@ function configureMiddleware(
         return callback(null, true);
       }
 
-      logger.warn(`CORS blocked origin: ${origin}`);
+      logger.warn('CORS rejected an untrusted origin');
       callback(new Error('Not allowed by CORS'));
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

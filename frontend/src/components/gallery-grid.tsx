@@ -1,7 +1,7 @@
 "use client"
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { ComparisonSlider } from './comparison-slider'
+import { AccessibleDialog } from './ui/accessible-dialog'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CldImage } from 'next-cloudinary'
 import type { GalleryItem } from '@/lib/gallery'
@@ -55,7 +55,7 @@ function GalleryCard({
 }: {
   item: GalleryItem
   index: number
-  onOpen: (idx: number) => void
+  onOpen: (idx: number, opener: HTMLElement) => void
 }) {
   const prefersReducedMotion = useReducedMotion()
   const isComparison = !!(item.beforeUrl && item.afterUrl)
@@ -64,25 +64,13 @@ function GalleryCard({
   return (
     <motion.div
       layout={!prefersReducedMotion}
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+      animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.96 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className="gallery-card break-inside-avoid mb-5"
     >
-      <div
-        className="group relative overflow-hidden rounded-2xl border border-white/6 bg-neutral-900/60 backdrop-blur-sm cursor-pointer"
-        onClick={() => onOpen(index)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onOpen(index)
-          }
-        }}
-        aria-label={`View ${item.title}`}
-      >
+      <div className="group relative overflow-hidden rounded-2xl border border-white/6 bg-neutral-900/60 backdrop-blur-sm">
         {/* Image / Comparison */}
         {isComparison ? (
           <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -104,7 +92,7 @@ function GalleryCard({
             <button
               type="button"
               className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-medium py-2.5 px-3.5 rounded-lg transition-all"
-              onClick={(e) => { e.stopPropagation(); onOpen(index) }}
+              onClick={(e) => { e.stopPropagation(); onOpen(index, e.currentTarget) }}
               aria-label={`Enlarge ${item.title}`}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -115,7 +103,12 @@ function GalleryCard({
             </button>
           </div>
         ) : item.imageUrl ? (
-          <>
+          <button
+            type="button"
+            className="group relative block w-full overflow-hidden text-left"
+            onClick={(e) => onOpen(index, e.currentTarget)}
+            aria-label={`View ${item.title}`}
+          >
             <div className="relative aspect-4/3 overflow-hidden">
               <CldImage
                 src={item.imageUrl}
@@ -124,7 +117,7 @@ function GalleryCard({
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 format="auto"
                 quality="auto"
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out group-hover:scale-105"
               />
             </div>
             {/* Hover overlay */}
@@ -138,7 +131,7 @@ function GalleryCard({
                 View
               </span>
             </div>
-          </>
+          </button>
         ) : null}
       </div>
     </motion.div>
@@ -155,6 +148,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   const touchStartXRef = useRef<number | null>(null)
   const touchDeltaXRef = useRef<number>(0)
   const closeBtnRef = useRef<HTMLButtonElement | null>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
   // Build categories dynamically from data
@@ -190,39 +184,30 @@ export function GalleryGrid({ items }: GalleryGridProps) {
     [activeIndex, filteredItems],
   )
 
-  const onOpen = useCallback((idx: number) => { setActiveIndex(idx); setIsZoomed(false) }, [])
+  const onOpen = useCallback((idx: number, opener: HTMLElement) => {
+    openerRef.current = opener
+    setActiveIndex(idx)
+    setIsZoomed(false)
+  }, [])
   const onClose = useCallback(() => { setActiveIndex(null); setIsZoomed(false) }, [])
 
-  // Keyboard nav for lightbox
-  useEffect(() => {
-    if (activeIndex == null) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { if (isZoomed) { setIsZoomed(false); return } onClose() }
-      if (e.key === 'ArrowRight') { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1))) }
-      if (e.key === 'ArrowLeft') { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1))) }
+  const handleDialogKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement
+    if (
+      target.matches('a, button, input, select, textarea, [contenteditable="true"]') ||
+      event.key === 'Tab'
+    ) return
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      setIsZoomed(false)
+      setActiveIndex((index) => (index == null ? index : Math.min(filteredItems.length - 1, index + 1)))
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      setIsZoomed(false)
+      setActiveIndex((index) => (index == null ? index : Math.max(0, index - 1)))
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [activeIndex, filteredItems.length, isZoomed, onClose])
-
-  // Focus close button when modal opens
-  useEffect(() => {
-    if (activeIndex != null) closeBtnRef.current?.focus()
-  }, [activeIndex])
-
-  // Lock body scroll while modal is open
-  useEffect(() => {
-    if (activeIndex != null) {
-      const prev = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = prev
-      }
-    }
-  }, [activeIndex])
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  }, [filteredItems.length])
 
   // Pretty-print the category label
   const labelFor = (cat: string) => {
@@ -288,44 +273,18 @@ export function GalleryGrid({ items }: GalleryGridProps) {
       </div>
 
       {/* ─── Lightbox Modal ─────────────────────────────────────── */}
-      {mounted && createPortal(
-        <AnimatePresence>
-          {activeItem && (
-            <motion.div
-              key="lightbox-root"
-              className="fixed inset-0 z-9999 flex items-center justify-center"
-              role="dialog"
-              aria-modal="true"
-              aria-label={`${activeItem.title} enlarged view`}
-              initial={prefersReducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
-            >
-              {/* Backdrop */}
-              <motion.button
-                key="backdrop"
-                type="button"
-                aria-label="Close"
-                className="fixed inset-0 bg-black/85 backdrop-blur-md"
-                onClick={onClose}
-                initial={prefersReducedMotion ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
-              />
-
-              {/* Dialog content */}
-              <motion.div
-                key="dialog"
-                className="relative z-1 w-full max-w-[95vw] max-h-[92vh] mx-2 sm:mx-4 bg-neutral-900/95 backdrop-blur-xl border border-white/8 rounded-2xl shadow-2xl shadow-black/60 p-3 sm:p-5 flex flex-col"
-                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.97, y: 16 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.97, y: 16 }}
-                transition={
-                  prefersReducedMotion
-                    ? { duration: 0 }
-                    : { type: 'spring', stiffness: 300, damping: 26, mass: 0.5 }
-                }
+      {activeItem && (
+        <AccessibleDialog
+          open
+          onClose={onClose}
+          labelledBy="gallery-dialog-title"
+          initialFocusRef={closeBtnRef}
+          openerRef={openerRef}
+          onKeyDown={handleDialogKeyDown}
+          className="w-full max-w-[95vw] max-h-[92vh] mx-2 sm:mx-4 bg-neutral-900/95 backdrop-blur-xl border border-white/8 rounded-2xl shadow-2xl shadow-black/60 p-3 sm:p-5 flex flex-col"
+        >
+          <div
+            className="flex min-h-0 flex-1 flex-col"
                 onTouchStart={(e) => {
                   touchStartXRef.current = e.changedTouches[0].clientX
                   touchDeltaXRef.current = 0
@@ -345,11 +304,11 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                   touchStartXRef.current = null
                   touchDeltaXRef.current = 0
                 }}
-              >
+          >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-white text-lg font-semibold">{activeItem.title}</h3>
+                    <h3 id="gallery-dialog-title" className="text-white text-lg font-semibold">{activeItem.title}</h3>
                     <span className="text-neutral-500 text-sm">
                       {activeIndex! + 1} / {filteredItems.length}
                     </span>
@@ -412,14 +371,13 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                       />
                     </div>
                   ) : activeItem.imageUrl ? (
-                    <div
-                      ref={zoomContainerRef}
-                      className={`relative w-full overflow-hidden rounded-xl ${
-                        isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
-                      }`}
-                      style={{ height: 'calc(92vh - 6rem)' }}
-                      onClick={() => setIsZoomed((z) => !z)}
-                      onMouseMove={(e) => {
+                      <div
+                        ref={zoomContainerRef}
+                        className={`relative w-full overflow-hidden rounded-xl ${
+                          isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
+                        }`}
+                        style={{ height: 'calc(92vh - 6rem)' }}
+                        onMouseMove={(e) => {
                         if (!isZoomed || !zoomContainerRef.current) return
                         const rect = zoomContainerRef.current.getBoundingClientRect()
                         const x = ((e.clientX - rect.left) / rect.width) * 100
@@ -434,29 +392,30 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                         sizes="(max-width: 1920px) 100vw, 1920px"
                         format="auto"
                         quality="auto"
-                        className={`transition-transform duration-300 ease-out ${
+                        className={`motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out ${
                           isZoomed ? 'scale-[2.5]' : 'scale-100'
                         } object-contain`}
                         style={isZoomed ? { transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%` } : undefined}
                       />
-                      {/* Zoom hint */}
-                      {!isZoomed && (
-                        <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white/70 text-xs px-3 py-1.5 rounded-lg pointer-events-none">
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
-                          </svg>
-                          Click to zoom
-                        </div>
-                      )}
+                      <button
+                        type="button"
+                        className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-1.5 text-xs text-white/80 backdrop-blur-sm transition hover:bg-red-600 hover:text-white"
+                        onClick={() => setIsZoomed((zoomed) => !zoomed)}
+                        aria-pressed={isZoomed}
+                        aria-label={isZoomed ? `Zoom out ${activeItem.title}` : `Zoom in ${activeItem.title}`}
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          {isZoomed ? <line x1="8" y1="11" x2="14" y2="11" /> : <><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></>}
+                        </svg>
+                        {isZoomed ? 'Zoom out' : 'Zoom in'}
+                      </button>
                     </div>
                   ) : null}
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
+          </div>
+        </AccessibleDialog>
       )}
     </>
   )

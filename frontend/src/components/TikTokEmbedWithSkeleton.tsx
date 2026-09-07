@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SocialEmbedCard } from "./social-embed-card";
+import { loadProviderScript } from "@/lib/provider-script";
 
 interface TikTokEmbedWithSkeletonProps {
   className?: string;
@@ -13,7 +14,7 @@ interface TikTokEmbedWithSkeletonProps {
  */
 export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSkeletonProps) {
   const [inView, setInView] = useState(false);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [scriptState, setScriptState] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
   const embedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,27 +39,29 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
 
   useEffect(() => {
     if (!inView) return;
-    document.querySelector('script[data-quikspit-tiktok-embed]')?.remove();
-    const script = document.createElement("script");
-    script.src = "https://www.tiktok.com/embed.js";
-    script.async = true;
-    script.dataset.quikspitTiktokEmbed = "true";
-    script.onload = () => setScriptLoaded(true);
-    embedRef.current?.appendChild(script);
-    return () => {
-      script.parentNode?.removeChild(script);
-    };
+    let cancelled = false;
+    setScriptState('loading');
+
+    loadProviderScript('tiktok')
+      .then(() => {
+        if (!cancelled) setScriptState('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setScriptState('error');
+      });
+
+    return () => { cancelled = true; };
   }, [inView]);
 
   return (
     <SocialEmbedCard
       platform="tiktok"
       handle="@quikspitboise"
-      loading={!inView || !scriptLoaded}
+      loading={!inView || scriptState === 'loading'}
       className={className}
     >
       <div ref={embedRef} className="w-full">
-        {inView && (
+        {inView && scriptState === 'loaded' && (
           <blockquote
             className="tiktok-embed"
             cite="https://www.tiktok.com/@quikspitboise"
@@ -70,6 +73,19 @@ export default function TikTokEmbedWithSkeleton({ className }: TikTokEmbedWithSk
               <a target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@quikspitboise?refer=creator_embed">@quikspitboise</a>
             </section>
           </blockquote>
+        )}
+        {inView && scriptState === 'error' && (
+          <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 px-6 text-center" role="status">
+            <p className="text-sm text-neutral-300">TikTok is unavailable right now.</p>
+            <a
+              href="https://www.tiktok.com/@quikspitboise"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-red-400 underline underline-offset-4 hover:text-red-300"
+            >
+              Open TikTok
+            </a>
+          </div>
         )}
       </div>
     </SocialEmbedCard>

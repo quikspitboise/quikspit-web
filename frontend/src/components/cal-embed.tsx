@@ -24,6 +24,9 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import Cal, { getCalApi } from '@calcom/embed-react';
 import { hasBookingDeposit } from '@/lib/booking-settings';
 import { isConfirmedCalBooking, readCalEmbedEvent } from '@/lib/cal-embed-events';
+import type { BookingSelection } from './booking/booking-data';
+
+export type { BookingSelection } from './booking/booking-data';
 
 // ============================================================================
 // CONFIGURATION - Modify these values to customize behavior
@@ -63,27 +66,6 @@ const THEME_CONFIG = {
 // ============================================================================
 // TYPES
 // ============================================================================
-
-export interface BookingSelection {
-    /** Package category: combo, interior, or exterior */
-    category: string;
-    /** Package tier: silver, gold, or platinum */
-    tier: string;
-    /** Vehicle size id */
-    size: string;
-    /** Size label for display */
-    sizeLabel?: string;
-    /** Comma-separated addon names */
-    addons: string;
-    /** Ceramic coating selected */
-    ceramic?: string;
-    /** Paint correction level */
-    paintCorrection?: string;
-    /** Calculated total price */
-    total: number;
-    /** Package display name */
-    packageName?: string;
-}
 
 export interface CalEmbedProps {
     /** Booking selection data from pricing calculator */
@@ -195,31 +177,6 @@ export function buildBookingParams(selection: {
     if (selection.packageName) params.set('packageName', selection.packageName);
 
     return params;
-}
-
-/**
- * Parse booking selection from URL search params
- */
-export function parseBookingParams(searchParams: URLSearchParams): BookingSelection | null {
-    const category = searchParams.get('category');
-    const tier = searchParams.get('tier');
-    const total = searchParams.get('total');
-
-    if (!category || !tier || !total) {
-        return null;
-    }
-
-    return {
-        category,
-        tier,
-        size: searchParams.get('size') || 'car',
-        sizeLabel: searchParams.get('sizeLabel') || undefined,
-        addons: searchParams.get('addons') || '',
-        ceramic: searchParams.get('ceramic') || undefined,
-        paintCorrection: searchParams.get('paintCorrection') || undefined,
-        total: parseInt(total, 10) || 0,
-        packageName: searchParams.get('packageName') || undefined,
-    };
 }
 
 // ============================================================================

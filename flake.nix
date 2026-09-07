@@ -55,7 +55,8 @@
                 pkgs.gnumake
                 pkgs.git
               ]
-              ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+              ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ]
+              ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.chromium ];
 
               LD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
 
@@ -97,6 +98,9 @@
             }
             // lib.optionalAttrs pkgs.stdenv.isDarwin {
               DYLD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
+            }
+            // lib.optionalAttrs pkgs.stdenv.isLinux {
+              PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
             }
           );
         }

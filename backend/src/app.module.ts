@@ -15,13 +15,10 @@ import { InvoiceModule } from './invoice/invoice.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SettingsModule } from './settings/settings.module';
 import { HealthController } from './health.controller';
-import { getDatabaseConnectionOptions } from './database.config';
-import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
-import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
-import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
-
-const isProductionRuntime =
-  process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+import { getDatabaseConnectionOptions, getSchemaSynchronization } from './database.config';
+import { DATABASE_MIGRATIONS } from './database.registry';
+import { RuntimeModule } from './runtime/runtime.module';
+import { PostgresThrottlerStorage } from './runtime/postgres-throttler.storage';
 
 @Module({
   imports: [
@@ -31,7 +28,7 @@ const isProductionRuntime =
     TypeOrmModule.forRoot({
       ...getDatabaseConnectionOptions(),
       autoLoadEntities: true,
-      synchronize: !isProductionRuntime,
+      synchronize: getSchemaSynchronization(),
       logging: process.env.NODE_ENV === 'development',
       // Migrations must only run at deploy time via `pnpm --filter backend
       // migration:run`; running them on every Vercel cold start risks DB lock
@@ -41,24 +38,20 @@ const isProductionRuntime =
       // serverless maxDuration; fail fast and let the next invocation retry.
       retryAttempts: 2,
       retryDelay: 500,
-      migrations: [
-        CreateGalleryItemsTable1740000000000,
-        CreateAppSettingsTable1740000001000,
-        AddGalleryCloudinaryMetadata1740000002000,
-      ],
+      migrations: DATABASE_MIGRATIONS,
     }),
     LoggerModule,
     AuthModule,
     CloudinaryModule,
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        // Public page loads fan out across several API routes and Next.js ISR
-        // revalidations share egress IPs, so 10/min per IP caused 429s; admin
-        // routes keep their stricter per-route @Throttle overrides.
-        limit: 60,
-      },
-    ]),
+    RuntimeModule,
+    ThrottlerModule.forRootAsync({
+      imports: [RuntimeModule],
+      inject: [PostgresThrottlerStorage],
+      useFactory: (storage: PostgresThrottlerStorage) => ({
+        throttlers: [{ ttl: 60000, limit: 60 }],
+        storage,
+      }),
+    }),
     ContactModule,
     BookingModule,
     GalleryModule,

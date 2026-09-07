@@ -6,11 +6,11 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { MagneticButton } from '@/components/ui/magnetic-button';
 import { FadeHeadline } from '@/components/ui/animated-headline';
 import { ReviewCard } from '@/components/review-card';
-import { fetchReviews, type ReviewsData, type Review } from '@/lib/reviews';
+import { fetchReviews, REVIEWS_RETRY_DELAY_MS, type ReviewsData, type Review } from '@/lib/reviews';
 
-const FALLBACK_RATING = 4.9;
-const FALLBACK_COUNT = 127;
 const AUTO_ROTATE_INTERVAL = 5000;
+const REVIEWS_REFRESH_INTERVAL = 5 * 60 * 1000;
+const GOOGLE_REVIEWS_URL = 'https://www.google.com/search?q=QuikSpit+Auto+Detailing+Boise';
 
 function GoogleIcon({ className = '' }: { className?: string }) {
   return (
@@ -80,6 +80,7 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   const [isFocused, setIsFocused] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
+  const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<ReturnType<typeof animate> | null>(null);
@@ -88,7 +89,24 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    fetchReviews().then(setData);
+    let cancelled = false;
+    let retryTimer: number | undefined;
+
+    const loadReviews = async () => {
+      const nextData = await fetchReviews();
+      if (cancelled) return;
+      setData(nextData);
+      retryTimer = window.setTimeout(
+        loadReviews,
+        nextData.available && !nextData.stale ? REVIEWS_REFRESH_INTERVAL : REVIEWS_RETRY_DELAY_MS,
+      );
+    };
+
+    void loadReviews();
+    return () => {
+      cancelled = true;
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,9 +117,26 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
     return () => mediaQuery.removeEventListener('change', update);
   }, []);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateWidth = () => setContainerWidth(container.getBoundingClientRect().width);
+    updateWidth();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(updateWidth);
+      observer.observe(container);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [data]);
+
   const reviews = data?.reviews ?? [];
-  const rating = data?.rating ?? FALLBACK_RATING;
-  const totalReviews = data?.totalReviews ?? FALLBACK_COUNT;
+  const rating = data?.rating ?? 0;
+  const totalReviews = data?.totalReviews ?? 0;
   const reviewLink = data?.reviewLink ?? '';
   const maxIndex = Math.max(0, reviews.length - visibleCount);
   const activeIndex = Math.max(0, Math.min(currentIndex, maxIndex));
@@ -113,8 +148,9 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   const getSlideWidth = useCallback(() => {
     if (!containerRef.current) return 0;
     const gap = 24;
-    return (containerRef.current.offsetWidth + gap) / visibleCount;
-  }, [visibleCount]);
+    const width = containerWidth || containerRef.current.offsetWidth;
+    return (width + gap) / visibleCount;
+  }, [containerWidth, visibleCount]);
 
   const slideTo = useCallback((index: number) => {
     const clamped = Math.max(0, Math.min(index, maxIndex));
@@ -189,7 +225,26 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
     setIsTouching(false);
   };
 
-  if (!data?.available || reviews.length === 0) return null;
+  if (!data) return null;
+  if (!data.available || reviews.length === 0) {
+    return (
+      <div className={className}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-white/[0.08] bg-white/[0.03] px-6 py-8 text-center">
+            <p className="text-sm text-neutral-400">Google reviews are temporarily unavailable.</p>
+            <a
+              href={data.reviewLink || GOOGLE_REVIEWS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex text-sm text-red-400 underline underline-offset-4 hover:text-red-300"
+            >
+              View reviews on Google
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>

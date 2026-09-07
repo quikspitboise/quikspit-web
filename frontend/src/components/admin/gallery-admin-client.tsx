@@ -1,9 +1,15 @@
 'use client';
 
-import { useCallback, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react';
 import { CldImage } from 'next-cloudinary';
 import { GlassCard } from '@/components/ui/glass-card';
 import type { GalleryAdminItem, GalleryAssetType } from '@/lib/gallery';
+import {
+  assertImageFile,
+  IMAGE_ACCEPT,
+  uploadFileToCloudinary,
+  type UploadSignatureResponse,
+} from '@/lib/cloudinary-upload';
 import {
   DndContext,
   closestCenter,
@@ -36,44 +42,7 @@ type MetadataDraft = {
   tags: string;
 };
 
-type CloudinaryAssetPayload = {
-  publicId: string;
-  secureUrl: string;
-  width: number;
-  height: number;
-  format: string;
-  bytes: number;
-  originalFilename?: string;
-};
-
-type UploadSignatureResponse = {
-  cloudName: string;
-  apiKey: string;
-  signature: string;
-  params: Record<string, string | number | boolean>;
-};
-
-type CloudinaryUploadResponse = {
-  public_id?: string;
-  secure_url?: string;
-  width?: number;
-  height?: number;
-  format?: string;
-  bytes?: number;
-  original_filename?: string;
-  error?: { message?: string };
-};
-
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/heic',
-  'image/heif',
-]);
-const ACCEPTED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'];
-const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
+const MUTATION_TIMEOUT_MS = 20_000;
 
 function sortItems(items: GalleryAdminItem[]): GalleryAdminItem[] {
   return [...items].sort((left, right) => left.displayOrder - right.displayOrder);
@@ -97,30 +66,36 @@ function buildDraftMap(items: GalleryAdminItem[]): Record<string, MetadataDraft>
   return Object.fromEntries(items.map((item) => [item.id, buildDraft(item)]));
 }
 
-function assertImageFile(file: File | null, label: string): File {
-  if (!file || file.size === 0) {
-    throw new Error(`${label} is required.`);
+async function fetchAdminRequest(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  signal: AbortSignal,
+): Promise<Response> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, MUTATION_TIMEOUT_MS);
+  const abortRequest = () => controller.abort();
+  signal.addEventListener('abort', abortRequest, { once: true });
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (timedOut) throw new Error('The request timed out.');
+    if (signal.aborted) throw new Error('Operation cancelled.');
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+    signal.removeEventListener('abort', abortRequest);
   }
-
-  if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error(`${label} must be 10 MB or smaller.`);
-  }
-
-  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
-  const hasAcceptedType = file.type ? ACCEPTED_IMAGE_TYPES.has(file.type) : false;
-  const hasAcceptedExtension = ACCEPTED_IMAGE_EXTENSIONS.includes(extension);
-
-  if (!hasAcceptedType && !hasAcceptedExtension) {
-    throw new Error(`${label} must be a HEIC, JPEG, PNG, or WebP image.`);
-  }
-
-  return file;
 }
 
-async function fetchUploadSignature(): Promise<UploadSignatureResponse> {
-  const response = await fetch('/api/admin/gallery/upload-signature', {
+async function fetchUploadSignature(signal: AbortSignal): Promise<UploadSignatureResponse> {
+  const response = await fetchAdminRequest('/api/admin/gallery/upload-signature', {
     method: 'POST',
-  });
+  }, signal);
 
   if (!response.ok) {
     const payload = (await response.json().catch(() => null)) as
@@ -130,69 +105,6 @@ async function fetchUploadSignature(): Promise<UploadSignatureResponse> {
   }
 
   return response.json() as Promise<UploadSignatureResponse>;
-}
-
-function uploadFileToCloudinary(
-  file: File,
-  signaturePayload: UploadSignatureResponse,
-  onProgress: (progress: number) => void,
-): Promise<CloudinaryAssetPayload> {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData();
-    formData.set('file', file);
-    formData.set('api_key', signaturePayload.apiKey);
-    formData.set('signature', signaturePayload.signature);
-
-    Object.entries(signaturePayload.params).forEach(([key, value]) => {
-      formData.set(key, String(value));
-    });
-
-    const request = new XMLHttpRequest();
-    request.open(
-      'POST',
-      `https://api.cloudinary.com/v1_1/${signaturePayload.cloudName}/image/upload`,
-    );
-
-    request.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        onProgress(Math.round((event.loaded / event.total) * 100));
-      }
-    };
-
-    request.onload = () => {
-      let payload: CloudinaryUploadResponse;
-
-      try {
-        payload = JSON.parse(request.responseText || '{}') as CloudinaryUploadResponse;
-      } catch {
-        reject(new Error('Cloudinary returned an unreadable response.'));
-        return;
-      }
-
-      if (request.status < 200 || request.status >= 300) {
-        reject(new Error(payload.error?.message || 'Cloudinary upload failed.'));
-        return;
-      }
-
-      if (!payload.public_id || !payload.secure_url) {
-        reject(new Error('Cloudinary did not return required image metadata.'));
-        return;
-      }
-
-      resolve({
-        publicId: payload.public_id,
-        secureUrl: payload.secure_url,
-        width: payload.width ?? 0,
-        height: payload.height ?? 0,
-        format: payload.format ?? '',
-        bytes: payload.bytes ?? file.size,
-        originalFilename: payload.original_filename ?? file.name,
-      });
-    };
-
-    request.onerror = () => reject(new Error('Cloudinary upload failed.'));
-    request.send(formData);
-  });
 }
 
 /* ─── Card Thumbnail (compact, for grid view) ─────────────── */
@@ -282,6 +194,7 @@ function SortableGalleryCard({
   onMetadataSave,
   onDelete,
   onReplaceAssets,
+  onCancel,
   uploadProgress,
 }: {
   item: GalleryAdminItem;
@@ -294,6 +207,7 @@ function SortableGalleryCard({
   onMetadataSave: (item: GalleryAdminItem) => void;
   onDelete: (item: GalleryAdminItem) => void;
   onReplaceAssets: (event: FormEvent<HTMLFormElement>, item: GalleryAdminItem) => void;
+  onCancel: () => void;
   uploadProgress: number | null;
 }) {
   const {
@@ -364,6 +278,8 @@ function SortableGalleryCard({
           <button
             type="button"
             onClick={() => onToggleExpand(item.id)}
+            aria-expanded={isExpanded}
+            aria-controls={`gallery-edit-${item.id}`}
             className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-xs text-neutral-400 transition hover:border-white/15 hover:text-white"
           >
             <svg
@@ -384,7 +300,12 @@ function SortableGalleryCard({
 
         {/* Expanded edit panel */}
         {isExpanded && (
-          <div className="border-t border-white/6 px-4 py-4 space-y-3">
+          <div
+            id={`gallery-edit-${item.id}`}
+            role="region"
+            aria-label={`Edit ${item.title}`}
+            className="border-t border-white/6 px-4 py-4 space-y-3"
+          >
             <label className="space-y-1 text-xs text-neutral-200">
               <span>Title</span>
               <input
@@ -496,8 +417,24 @@ function SortableGalleryCard({
               >
                 {busyKey === `replace-${item.id}` ? 'Uploading…' : 'Replace'}
               </button>
+              {busyKey === `replace-${item.id}` && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="rounded-lg border border-white/10 px-3 py-2 text-xs text-neutral-300 transition hover:border-red-500 hover:text-white"
+                >
+                  Cancel upload
+                </button>
+              )}
               {busyKey === `replace-${item.id}` && uploadProgress !== null && (
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-1.5 overflow-hidden rounded-full bg-white/10"
+                  role="progressbar"
+                  aria-label={`Uploading replacement for ${item.title}`}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={uploadProgress}
+                >
                   <div
                     className="h-full bg-red-500 transition-all"
                     style={{ width: `${uploadProgress}%` }}
@@ -513,15 +450,18 @@ function SortableGalleryCard({
 }
 
 export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
-  const [items, setItems] = useState<GalleryAdminItem[]>(() => sortItems(initialItems));
+  const initialSortedItems = sortItems(initialItems);
+  const [items, setItems] = useState<GalleryAdminItem[]>(initialSortedItems);
   const [drafts, setDrafts] = useState<Record<string, MetadataDraft>>(() =>
-    buildDraftMap(sortItems(initialItems)),
+    buildDraftMap(initialSortedItems),
   );
   const [createAssetType, setCreateAssetType] = useState<GalleryAssetType>('single');
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const serverItemsRef = useRef<GalleryAdminItem[]>(initialSortedItems);
+  const activeMutationRef = useRef<{ key: string; controller: AbortController } | null>(null);
 
   const orderedItems = useMemo(() => sortItems(items), [items]);
 
@@ -543,10 +483,10 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
     );
   }
 
-  async function refreshItems() {
-    const response = await fetch('/api/admin/gallery', {
+  async function refreshItems(signal: AbortSignal) {
+    const response = await fetchAdminRequest('/api/admin/gallery', {
       cache: 'no-store',
-    });
+    }, signal);
 
     if (!response.ok) {
       throw new Error('Unable to refresh gallery items');
@@ -554,9 +494,50 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
 
     const data = (await response.json()) as { items: GalleryAdminItem[] };
     const sortedItems = sortItems(data.items);
+    serverItemsRef.current = sortedItems;
     setItems(sortedItems);
     setDrafts(buildDraftMap(sortedItems));
   }
+
+  function restoreServerItems() {
+    const restoredItems = serverItemsRef.current.map((item) => ({ ...item }));
+    setItems(restoredItems);
+    setDrafts(buildDraftMap(restoredItems));
+  }
+
+  async function runMutation(
+    key: string,
+    fallbackMessage: string,
+    action: (signal: AbortSignal) => Promise<void>,
+    onError?: () => void,
+  ) {
+    if (activeMutationRef.current) return;
+
+    const controller = new AbortController();
+    activeMutationRef.current = { key, controller };
+    setFeedback(null);
+    setBusyKey(key);
+
+    try {
+      await action(controller.signal);
+    } catch (error) {
+      onError?.();
+      setFeedback({
+        tone: 'error',
+        message: error instanceof Error ? error.message : fallbackMessage,
+      });
+    } finally {
+      if (activeMutationRef.current?.controller === controller) {
+        activeMutationRef.current = null;
+        setBusyKey(null);
+        setUploadProgress(null);
+      }
+    }
+  }
+
+  const cancelActiveMutation = useCallback(() => {
+    activeMutationRef.current?.controller.abort();
+  }, []);
 
   function updateDraft(id: string, changes: Partial<MetadataDraft>) {
     setDrafts((currentDrafts) => ({
@@ -577,15 +558,12 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFeedback(null);
-    setBusyKey('create');
-    setUploadProgress(0);
-
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    try {
-      const signaturePayload = await fetchUploadSignature();
+    await runMutation('create', 'Unable to create gallery item.', async (signal) => {
+      setUploadProgress(0);
+      const signaturePayload = await fetchUploadSignature(signal);
       const body: Record<string, unknown> = {
         title: String(formData.get('title') || ''),
         description: String(formData.get('description') || ''),
@@ -601,25 +579,28 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
           assertImageFile(formData.get('image') as File | null, 'Image'),
           signaturePayload,
           setUploadProgress,
+          { signal },
         );
       } else {
         body.beforeAsset = await uploadFileToCloudinary(
           assertImageFile(formData.get('beforeImage') as File | null, 'Before image'),
           signaturePayload,
           (progress) => setUploadProgress(Math.round(progress / 2)),
+          { signal },
         );
         body.afterAsset = await uploadFileToCloudinary(
           assertImageFile(formData.get('afterImage') as File | null, 'After image'),
           signaturePayload,
           (progress) => setUploadProgress(50 + Math.round(progress / 2)),
+          { signal },
         );
       }
 
-      const response = await fetch('/api/admin/gallery', {
+      const response = await fetchAdminRequest('/api/admin/gallery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      });
+      }, signal);
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as
@@ -630,62 +611,51 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
 
       form.reset();
       setCreateAssetType('single');
-      await refreshItems();
+      await refreshItems(signal);
       setFeedback({
         tone: 'success',
         message: 'Gallery item created successfully.',
       });
-    } catch (error) {
-      setFeedback({
-        tone: 'error',
-        message: error instanceof Error ? error.message : 'Unable to create gallery item.',
-      });
-    } finally {
-      setBusyKey(null);
-      setUploadProgress(null);
-    }
+    });
   }
 
   async function handleMetadataSave(item: GalleryAdminItem) {
-    setFeedback(null);
-    setBusyKey(`save-${item.id}`);
+    await runMutation(`save-${item.id}`, 'Unable to save gallery item.', async (signal) => {
+      const response = await fetchAdminRequest(`/api/admin/gallery/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: item.title,
+          description: item.description || '',
+          altText: item.altText || '',
+          categories: parseCommaSeparatedValues(drafts[item.id]?.categories ?? ''),
+          tags: parseCommaSeparatedValues(drafts[item.id]?.tags ?? ''),
+          isVisible: item.isVisible !== false,
+          displayOrder: item.displayOrder,
+        }),
+      }, signal);
 
-    const response = await fetch(`/api/admin/gallery/${item.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: item.title,
-        description: item.description || '',
-        altText: item.altText || '',
-        categories: parseCommaSeparatedValues(drafts[item.id]?.categories ?? ''),
-        tags: parseCommaSeparatedValues(drafts[item.id]?.tags ?? ''),
-        isVisible: item.isVisible !== false,
-        displayOrder: item.displayOrder,
-      }),
-    });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { message?: string }
+          | null;
+        throw new Error(payload?.message || 'Unable to save gallery item.');
+      }
 
-    setBusyKey(null);
-
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string }
-        | null;
+      const data = (await response.json()) as { item?: GalleryAdminItem };
+      if (!data.item?.id) throw new Error('The gallery response was incomplete.');
+      updateLocalItem(item.id, data.item);
+      serverItemsRef.current = serverItemsRef.current.map((entry) =>
+        entry.id === data.item!.id ? data.item! : entry,
+      );
+      syncDraftFromItem(data.item);
       setFeedback({
-        tone: 'error',
-        message: payload?.message || 'Unable to save gallery item.',
+        tone: 'success',
+        message: `Saved changes for ${data.item.title}.`,
       });
-      return;
-    }
-
-    const data = (await response.json()) as { item: GalleryAdminItem };
-    updateLocalItem(item.id, data.item);
-    syncDraftFromItem(data.item);
-    setFeedback({
-      tone: 'success',
-      message: `Saved changes for ${data.item.title}.`,
-    });
+    }, restoreServerItems);
   }
 
   async function handleReplaceAssets(
@@ -693,15 +663,12 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
     item: GalleryAdminItem,
   ) {
     event.preventDefault();
-    setFeedback(null);
-    setBusyKey(`replace-${item.id}`);
-    setUploadProgress(0);
-
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    try {
-      const signaturePayload = await fetchUploadSignature();
+    await runMutation(`replace-${item.id}`, 'Unable to replace gallery asset.', async (signal) => {
+      setUploadProgress(0);
+      const signaturePayload = await fetchUploadSignature(signal);
       const body: Record<string, unknown> = {};
 
       if (item.assetType === 'single') {
@@ -709,25 +676,28 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
           assertImageFile(formData.get('image') as File | null, 'Image'),
           signaturePayload,
           setUploadProgress,
+          { signal },
         );
       } else {
         body.beforeAsset = await uploadFileToCloudinary(
           assertImageFile(formData.get('beforeImage') as File | null, 'Before image'),
           signaturePayload,
           (progress) => setUploadProgress(Math.round(progress / 2)),
+          { signal },
         );
         body.afterAsset = await uploadFileToCloudinary(
           assertImageFile(formData.get('afterImage') as File | null, 'After image'),
           signaturePayload,
           (progress) => setUploadProgress(50 + Math.round(progress / 2)),
+          { signal },
         );
       }
 
-      const response = await fetch(`/api/admin/gallery/${item.id}/assets`, {
+      const response = await fetchAdminRequest(`/api/admin/gallery/${item.id}/assets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      });
+      }, signal);
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as
@@ -736,24 +706,19 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
         throw new Error(payload?.message || 'Unable to replace gallery asset.');
       }
 
-      const data = (await response.json()) as { item: GalleryAdminItem };
+      const data = (await response.json()) as { item?: GalleryAdminItem };
+      if (!data.item?.id) throw new Error('The gallery response was incomplete.');
       updateLocalItem(item.id, data.item);
+      serverItemsRef.current = serverItemsRef.current.map((entry) =>
+        entry.id === data.item!.id ? data.item! : entry,
+      );
       syncDraftFromItem(data.item);
       form.reset();
       setFeedback({
         tone: 'success',
         message: `Replaced asset for ${data.item.title}.`,
       });
-    } catch (error) {
-      setFeedback({
-        tone: 'error',
-        message:
-          error instanceof Error ? error.message : 'Unable to replace gallery asset.',
-      });
-    } finally {
-      setBusyKey(null);
-      setUploadProgress(null);
-    }
+    }, restoreServerItems);
   }
 
   async function handleDelete(item: GalleryAdminItem) {
@@ -761,37 +726,28 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
       return;
     }
 
-    setFeedback(null);
-    setBusyKey(`delete-${item.id}`);
+    await runMutation(`delete-${item.id}`, 'Unable to delete gallery item.', async (signal) => {
+      const response = await fetchAdminRequest(`/api/admin/gallery/${item.id}`, {
+        method: 'DELETE',
+      }, signal);
 
-    const response = await fetch(`/api/admin/gallery/${item.id}`, {
-      method: 'DELETE',
-    });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { message?: string }
+          | null;
+        throw new Error(payload?.message || 'Unable to delete gallery item.');
+      }
 
-    setBusyKey(null);
-
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string }
-        | null;
+      const nextItems = serverItemsRef.current.filter((entry) => entry.id !== item.id);
+      serverItemsRef.current = nextItems;
+      setItems(nextItems);
+      setDrafts(buildDraftMap(nextItems));
+      setExpandedId((current) => (current === item.id ? null : current));
       setFeedback({
-        tone: 'error',
-        message: payload?.message || 'Unable to delete gallery item.',
+        tone: 'success',
+        message: `Deleted ${item.title}.`,
       });
-      return;
-    }
-
-    setItems((currentItems) => currentItems.filter((entry) => entry.id !== item.id));
-    setDrafts((currentDrafts) => {
-      const nextDrafts = { ...currentDrafts };
-      delete nextDrafts[item.id];
-      return nextDrafts;
-    });
-    setExpandedId((current) => (current === item.id ? null : current));
-    setFeedback({
-      tone: 'success',
-      message: `Deleted ${item.title}.`,
-    });
+    }, restoreServerItems);
   }
 
   const handleToggleExpand = useCallback((id: string) => {
@@ -799,6 +755,7 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
   }, []);
 
   async function handleDragEnd(event: DragEndEvent) {
+    if (activeMutationRef.current) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -808,36 +765,31 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
 
     const reordered = arrayMove(orderedItems, oldIndex, newIndex);
 
-    // Optimistic update
-    setItems(reordered.map((item, i) => ({ ...item, displayOrder: i })));
+    const optimisticItems = reordered.map((item, i) => ({ ...item, displayOrder: i }));
+    setItems(optimisticItems);
 
-    setFeedback(null);
-    setBusyKey('reorder');
+    await runMutation('reorder', 'Unable to reorder gallery items.', async (signal) => {
+      const response = await fetchAdminRequest('/api/admin/gallery/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: reordered.map((item) => item.id) }),
+      }, signal);
 
-    const response = await fetch('/api/admin/gallery/reorder', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: reordered.map((item) => item.id) }),
-    });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as
+          | { message?: string }
+          | null;
+        throw new Error(payload?.message || 'Unable to reorder gallery items.');
+      }
 
-    setBusyKey(null);
-
-    if (!response.ok) {
-      // Roll back on failure
-      setItems(orderedItems);
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string }
-        | null;
-      setFeedback({
-        tone: 'error',
-        message: payload?.message || 'Unable to reorder gallery items.',
-      });
-      return;
-    }
-
-    const data = (await response.json()) as { items: GalleryAdminItem[] };
-    setItems(sortItems(data.items));
-    setFeedback({ tone: 'success', message: 'Gallery order updated.' });
+      const data = (await response.json()) as { items?: GalleryAdminItem[] };
+      if (!data.items) throw new Error('The gallery response was incomplete.');
+      const sortedItems = sortItems(data.items);
+      serverItemsRef.current = sortedItems;
+      setItems(sortedItems);
+      setDrafts(buildDraftMap(sortedItems));
+      setFeedback({ tone: 'success', message: 'Gallery order updated.' });
+    }, restoreServerItems);
   }
 
   return (
@@ -966,17 +918,35 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
             >
               {busyKey === 'create' ? 'Uploading…' : 'Create gallery item'}
             </button>
+            {busyKey === 'create' && (
+              <button
+                type="button"
+                onClick={cancelActiveMutation}
+                className="inline-flex items-center rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-neutral-300 transition hover:border-red-500 hover:text-white"
+              >
+                Cancel upload
+              </button>
+            )}
           </div>
 
           {busyKey === 'create' && uploadProgress !== null && (
             <div className="space-y-1">
-              <div className="h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-2 overflow-hidden rounded-full bg-white/10"
+                role="progressbar"
+                aria-label="Uploading new gallery item"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={uploadProgress}
+              >
                 <div
                   className="h-full bg-red-500 transition-all"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-xs text-neutral-500">{uploadProgress}% uploaded</p>
+              <p className="text-xs text-neutral-500" role="status" aria-live="polite">
+                {uploadProgress}% uploaded
+              </p>
             </div>
           )}
         </form>
@@ -984,6 +954,8 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
 
       {feedback && (
         <div
+          role={feedback.tone === 'error' ? 'alert' : 'status'}
+          aria-live={feedback.tone === 'error' ? 'assertive' : 'polite'}
           className={`rounded-2xl border px-4 py-3 text-sm ${
             feedback.tone === 'success'
               ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
@@ -995,7 +967,9 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
       )}
 
       {busyKey === 'reorder' && (
-        <p className="text-xs text-neutral-500 text-center animate-pulse">Saving new order…</p>
+        <p className="text-xs text-neutral-500 text-center motion-safe:animate-pulse" role="status" aria-live="polite">
+          Saving new order…
+        </p>
       )}
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -1014,6 +988,7 @@ export function GalleryAdminClient({ initialItems }: GalleryAdminClientProps) {
                 onMetadataSave={handleMetadataSave}
                 onDelete={handleDelete}
                 onReplaceAssets={handleReplaceAssets}
+                onCancel={cancelActiveMutation}
                 uploadProgress={uploadProgress}
               />
             ))}

@@ -1,11 +1,7 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { getDatabaseConnectionOptions } from './database.config';
-import { GalleryItemEntity } from './gallery/entities/gallery-item.entity';
-import { AppSettingEntity } from './settings/entities/app-setting.entity';
-import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000-CreateGalleryItemsTable';
-import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
-import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
+import { getDatabaseConnectionOptions, getSchemaSynchronization } from './database.config';
+import { DATABASE_ENTITIES, DATABASE_MIGRATIONS } from './database.registry';
 
 config();
 
@@ -18,9 +14,6 @@ const missingEnvVars = requiredEnvVars.filter(
   (varName) => !process.env[varName],
 );
 
-const isProductionRuntime =
-  process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
-
 if (missingEnvVars.length > 0) {
   throw new Error(
     `Missing required environment variables: ${missingEnvVars.join(', ')}. ` +
@@ -30,14 +23,10 @@ if (missingEnvVars.length > 0) {
 
 export const AppDataSource = new DataSource({
   ...getDatabaseConnectionOptions(),
-  synchronize: !isProductionRuntime,
+  synchronize: getSchemaSynchronization(),
   logging: process.env.NODE_ENV === 'development',
-  entities: [GalleryItemEntity, AppSettingEntity],
-  migrations: [
-    CreateGalleryItemsTable1740000000000,
-    CreateAppSettingsTable1740000001000,
-    AddGalleryCloudinaryMetadata1740000002000,
-  ],
+  entities: DATABASE_ENTITIES,
+  migrations: DATABASE_MIGRATIONS,
   subscribers: [],
 });
 
@@ -48,7 +37,7 @@ export const initializeDatabase = async () => {
       console.log('✅ Database connection established successfully');
     }
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('Database connection failed');
     throw error;
   }
 };
@@ -60,7 +49,7 @@ export const closeDatabase = async () => {
       console.log('✅ Database connection closed successfully');
     }
   } catch (error) {
-    console.error('❌ Error closing database connection:', error);
+    console.error('Error closing database connection');
     throw error;
   }
 };
