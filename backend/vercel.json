@@ -1,8 +1,8 @@
 {
   "framework": null,
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd .. && corepack pnpm install --frozen-lockfile",
-  "buildCommand": "cd .. && corepack pnpm --filter backend build",
+  "installCommand": "corepack pnpm install --frozen-lockfile",
+  "buildCommand": "corepack pnpm --filter backend build",
   "outputDirectory": "public",
   "rewrites": [
     {
