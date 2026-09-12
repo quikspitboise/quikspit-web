@@ -55,9 +55,11 @@ After the flake files are tracked by Git, plain `nix develop` works too.
 
 The shell provides:
 - Node.js 22
-- pnpm 9
+- pnpm, using the version pinned in `package.json`
 - PostgreSQL 16 tooling (`psql`, `initdb`, `pg_ctl`)
 - Native build prerequisites for Node packages
+
+Intel macOS uses the Nixpkgs 26.05 branch because newer Nixpkgs releases no longer support that platform.
 
 It also adds local helpers for Postgres:
 
@@ -69,8 +71,8 @@ pg-stop   # stop the local Postgres instance
 
 ### Prerequisites
 
-- Node.js ≥ 18
-- pnpm ≥ 8
+- Node.js 22.23.2
+- Corepack, which installs the pinned pnpm version
 - PostgreSQL (for production)
 
 ### 1. Install Dependencies

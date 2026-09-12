@@ -3,10 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Nixpkgs 26.11 dropped Intel macOS; 26.05 still receives security fixes.
+    nixpkgs-intel-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
   };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, nixpkgs-intel-darwin, ... }:
     let
       systems = [
         "x86_64-linux"
@@ -20,7 +22,7 @@
         nixpkgs.lib.genAttrs systems (
           system:
           f (
-            import nixpkgs {
+            import (if system == "x86_64-darwin" then nixpkgs-intel-darwin else nixpkgs) {
               inherit system;
             }
           )
@@ -39,7 +41,7 @@
             pkgs.libpq
             pkgs.openssl
           ]
-          ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+          ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
         in
         {
           default = pkgs.mkShell (
@@ -55,8 +57,8 @@
                 pkgs.gnumake
                 pkgs.git
               ]
-              ++ lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ]
-              ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.chromium ];
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.libiconv ]
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.chromium ];
 
               LD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
 
@@ -96,10 +98,10 @@
                 echo "  next: pnpm install && pnpm dev"
               '';
             }
-            // lib.optionalAttrs pkgs.stdenv.isDarwin {
+            // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
               DYLD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
             }
-            // lib.optionalAttrs pkgs.stdenv.isLinux {
+            // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
               PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
             }
           );
