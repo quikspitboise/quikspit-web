@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Script from 'next/script'
-import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
-import { GlassCard } from '@/components/ui/glass-card'
-import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
+import { PageHeader } from '@/components/ui/page-header'
+import { FaqList } from '@/components/ui/faq-list'
 import { parseBookingParams } from '@/lib/booking-params'
 import type { BookingSelection } from '@/components/booking/booking-data'
 import { BookingWizard } from '@/components/booking/booking-wizard'
@@ -15,17 +14,15 @@ import {
   type BookingSettings,
 } from '@/lib/booking-settings'
 
-const SHOW_HERO = true
-
 function getBookingFaqs(depositAmount: number) {
   const cancellationAnswer = hasBookingDeposit(depositAmount)
-    ? 'You can reschedule or cancel your appointment for a full refund of your deposit with at least 24 hours notice. If you cancel or reschedule within 24 hours of your appointment, the deposit is non-refundable.'
-    : 'You can reschedule or cancel your appointment with at least 24 hours notice. Contact us as soon as possible if your schedule changes.'
+    ? 'Reschedule or cancel at least 24 hours ahead and your deposit is refunded in full. Inside 24 hours, the deposit is kept.'
+    : 'Reschedule or cancel at least 24 hours ahead. If something comes up later than that, call or text as soon as you can.'
 
   return [
     {
       q: 'How far in advance should I book?',
-      a: 'We recommend booking at least 48 hours in advance to secure your preferred time slot, though same-day availability may be possible.',
+      a: 'Two days ahead gets you the widest choice of times. Same-day slots open up sometimes, so check the calendar.',
     },
     {
       q: 'What if I need to reschedule or cancel?',
@@ -33,11 +30,11 @@ function getBookingFaqs(depositAmount: number) {
     },
     {
       q: 'Where do you provide service?',
-      a: 'We serve the greater Boise area and surrounding communities. Contact us to confirm service in your location.',
+      a: 'Boise, Meridian, Nampa, Eagle, Star, Caldwell, Kuna, and Garden City. Somewhere else nearby? Call and ask.',
     },
     {
       q: 'What payment methods do you accept?',
-      a: 'We accept all major credit cards, debit cards, and digital payments including Apple Pay and Google Pay.',
+      a: 'Credit and debit cards, cash, Apple Pay, Google Pay, and Venmo.',
     },
   ]
 }
@@ -103,79 +100,40 @@ export default function BookingClient() {
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen">
       <Script
         id="booking-faq-structured-data"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(bookingFaqStructuredData) }}
       />
 
-      {SHOW_HERO && (
-        <>
-          <section className="relative py-20 lg:py-28">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="max-w-4xl mx-auto text-center">
-                <AnimatedHeadline
-                  text="Book your detail"
-                  as="h1"
-                  className="text-5xl sm:text-6xl lg:text-7xl text-white mb-6"
-                  splitBy="word"
-                />
-                <FadeHeadline as="p" delay={0.3} className="text-xl text-neutral-400 max-w-2xl mx-auto mb-10">
-                  Choose a package, add extras, and pick a time. We come to you.
-                </FadeHeadline>
-              </div>
-            </div>
-          </section>
-          <SectionTransition />
-        </>
-      )}
+      <PageHeader
+        title="Book your detail"
+        lede="Choose a package, add extras, and pick a time. We come to you."
+      />
 
-      <AnimatedSection id="design-your-detail" className="py-16 lg:py-24 scroll-mt-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-10">
-              <FadeHeadline as="h2" className="font-display text-4xl lg:text-5xl text-white tracking-wide mb-4">
-                Design your <span className="text-red-500">detail</span>
-              </FadeHeadline>
-              <p className="text-neutral-400 max-w-2xl mx-auto">
-                Build your package, add extras, and pick a time in one place.
-              </p>
-            </div>
+      <section id="design-your-detail" className="scroll-mt-[calc(var(--nav-total-height)+1rem)] border-t border-white/[0.07] py-10 lg:py-16">
+        <div className="container mx-auto px-5 sm:px-6 lg:px-8">
+          {paramsLoaded ? (
+            <BookingWizard
+              initialSelection={initialSelection}
+              initialPackageSelection={initialPackageSelection}
+              depositAmount={bookingSettings.depositAmount}
+            />
+          ) : (
+            <div className="min-h-[560px]" aria-hidden="true" />
+          )}
+        </div>
+      </section>
 
-            {paramsLoaded && (
-              <BookingWizard
-                initialSelection={initialSelection}
-                initialPackageSelection={initialPackageSelection}
-                depositAmount={bookingSettings.depositAmount}
-              />
-            )}
+      <section className="border-t border-white/[0.07] py-16 lg:py-24">
+        <div className="container mx-auto px-5 sm:px-6 lg:px-8 grid gap-8 lg:grid-cols-12">
+          <h2 className="lg:col-span-4 font-display text-3xl sm:text-4xl text-white uppercase">Before you book</h2>
+          <div className="lg:col-span-8">
+            <FaqList faqs={bookingFaqs} />
           </div>
         </div>
-      </AnimatedSection>
-
-      <SectionTransition />
-
-      <AnimatedSection className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide">
-                Booking FAQ
-              </FadeHeadline>
-            </div>
-
-            <div className="space-y-4">
-              {bookingFaqs.map((faq) => (
-                <GlassCard key={faq.q} className="p-5 lg:p-6">
-                  <h3 className="font-semibold text-white mb-2 text-sm lg:text-base">{faq.q}</h3>
-                  <p className="text-neutral-400 text-xs lg:text-sm">{faq.a}</p>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
+      </section>
     </main>
   )
 }

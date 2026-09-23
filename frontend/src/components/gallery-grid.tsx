@@ -33,17 +33,15 @@ function FilterTab({
   active: boolean
   onClick: () => void
 }) {
-  const prefersReducedMotion = useReducedMotion()
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
       className={`filter-tab ${active ? 'filter-tab--active' : ''}`}
-      whileTap={prefersReducedMotion ? undefined : { scale: 0.96 }}
       aria-pressed={active}
     >
       {label}
-    </motion.button>
+    </button>
   )
 }
 
@@ -64,13 +62,13 @@ function GalleryCard({
   return (
     <motion.div
       layout={!prefersReducedMotion}
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
       animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
       exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.96 }}
-      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className="gallery-card break-inside-avoid mb-5"
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="gallery-card break-inside-avoid mb-4"
     >
-      <div className="group relative overflow-hidden rounded-2xl border border-white/6 bg-neutral-900/60 backdrop-blur-sm">
+      <div className="group relative overflow-hidden rounded-xl bg-neutral-900">
         {/* Image / Comparison */}
         {isComparison ? (
           <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -79,19 +77,20 @@ function GalleryCard({
               afterUrl={item.afterUrl!}
               altBefore={`${itemAlt} - before detailing`}
               altAfter={`${itemAlt} - after detailing`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              priority={index < 3}
             />
             {/* Badge */}
-            <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-red-600/90 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white tracking-wide uppercase shadow-lg">
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 014-4h14" />
-                <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 01-4 4H3" />
-              </svg>
-              Before &amp; After
+            <span className="pointer-events-none absolute top-3 left-3 z-10 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
+              Before
+            </span>
+            <span className="pointer-events-none absolute top-3 right-3 z-10 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
+              After
             </span>
             {/* Lightbox button on comparison cards */}
             <button
               type="button"
-              className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-xs font-medium py-2.5 px-3.5 rounded-lg transition-all"
+              className="absolute bottom-3 right-3 z-10 inline-flex min-h-9 items-center gap-1.5 rounded-md bg-black/70 px-3 text-xs font-medium text-white transition-colors hover:bg-black/90 active:scale-95"
               onClick={(e) => { e.stopPropagation(); onOpen(index, e.currentTarget) }}
               aria-label={`Enlarge ${item.title}`}
             >
@@ -117,6 +116,7 @@ function GalleryCard({
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 format="auto"
                 quality="auto"
+                priority={index < 3}
                 className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out group-hover:scale-105"
               />
             </div>
@@ -212,14 +212,14 @@ export function GalleryGrid({ items }: GalleryGridProps) {
   // Pretty-print the category label
   const labelFor = (cat: string) => {
     if (cat === 'all') return 'All'
-    if (cat === 'comparison') return 'Before & After'
+    if (cat === 'comparison') return 'Before and after'
     return cat.charAt(0).toUpperCase() + cat.slice(1)
   }
 
   return (
     <>
       {/* Filter Bar */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
+      <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter photos">
         {categories.map((cat) => (
           <FilterTab
             key={cat}
@@ -235,7 +235,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
           className="gallery-featured"
           layout={!prefersReducedMotion}
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {featuredItems.map((item, idx) => (
               <div
                 key={item.id}
@@ -254,7 +254,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
           className="gallery-masonry"
           layout={!prefersReducedMotion}
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {masonryItems.map((item, idx) => (
               <GalleryCard
                 key={item.id}
@@ -268,7 +268,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
       )}
 
       {/* Counter */}
-      <div className="text-center mt-8 text-neutral-500 text-sm tracking-wide">
+      <div className="mt-6 text-neutral-500 text-sm" aria-live="polite">
         {filteredItems.length} {filteredItems.length === 1 ? 'photo' : 'photos'}
       </div>
 
@@ -281,7 +281,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
           initialFocusRef={closeBtnRef}
           openerRef={openerRef}
           onKeyDown={handleDialogKeyDown}
-          className="w-full max-w-[95vw] max-h-[92vh] mx-2 sm:mx-4 bg-neutral-900/95 backdrop-blur-xl border border-white/8 rounded-2xl shadow-2xl shadow-black/60 p-3 sm:p-5 flex flex-col"
+          className="w-full max-w-[95vw] max-h-[92vh] mx-2 sm:mx-4 bg-neutral-950 border border-white/10 rounded-2xl p-3 sm:p-5 flex flex-col"
         >
           <div
             className="flex min-h-0 flex-1 flex-col"
@@ -310,44 +310,43 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                   <div>
                     <h3 id="gallery-dialog-title" className="text-white text-lg font-semibold">{activeItem.title}</h3>
                     <span className="text-neutral-500 text-sm">
-                      {activeIndex! + 1} / {filteredItems.length}
+                      {activeIndex! + 1} of {filteredItems.length}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <motion.button
+                    <button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
-                      onClick={() => setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1)))}
-                      aria-label="Previous"
-                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-lg border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 active:scale-95 transition-[color,border-color,transform] disabled:opacity-30 disabled:pointer-events-none"
+                      onClick={() => { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.max(0, i - 1))) }}
+                      disabled={activeIndex === 0}
+                      aria-label="Previous photo"
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <polyline points="15 18 9 12 15 6" />
                       </svg>
-                    </motion.button>
-                    <motion.button
+                    </button>
+                    <button
                       type="button"
-                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-xl border border-white/10 text-neutral-400 hover:text-white hover:border-red-600/50 hover:bg-red-600/10 transition-all"
-                      onClick={() => setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1)))}
-                      aria-label="Next"
-                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+                      className="hidden sm:inline-flex items-center justify-center h-11 w-11 rounded-lg border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 active:scale-95 transition-[color,border-color,transform] disabled:opacity-30 disabled:pointer-events-none"
+                      onClick={() => { setIsZoomed(false); setActiveIndex((i) => (i == null ? i : Math.min(filteredItems.length - 1, i + 1))) }}
+                      disabled={activeIndex === filteredItems.length - 1}
+                      aria-label="Next photo"
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <polyline points="9 18 15 12 9 6" />
                       </svg>
-                    </motion.button>
-                    <motion.button
+                    </button>
+                    <button
                       ref={closeBtnRef}
                       type="button"
                       onClick={onClose}
-                      className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-white/10 hover:bg-red-600 text-white transition-all"
+                      className="inline-flex items-center justify-center h-11 w-11 rounded-lg bg-white/10 hover:bg-white/20 text-white active:scale-95 transition-[background-color,transform]"
                       aria-label="Close"
-                      whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
 
@@ -399,7 +398,7 @@ export function GalleryGrid({ items }: GalleryGridProps) {
                       />
                       <button
                         type="button"
-                        className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-1.5 text-xs text-white/80 backdrop-blur-sm transition hover:bg-red-600 hover:text-white"
+                        className="absolute bottom-3 right-3 inline-flex min-h-9 items-center gap-1.5 rounded-md bg-black/70 px-3 text-xs text-white transition-colors hover:bg-black/90"
                         onClick={() => setIsZoomed((zoomed) => !zoomed)}
                         aria-pressed={isZoomed}
                         aria-label={isZoomed ? `Zoom out ${activeItem.title}` : `Zoom in ${activeItem.title}`}

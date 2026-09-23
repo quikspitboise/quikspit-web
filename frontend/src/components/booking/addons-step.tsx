@@ -1,6 +1,7 @@
 'use client'
 
 import type { Addon } from './booking-data'
+import { optionCardClass } from './option-card'
 
 interface AddonsStepProps {
   addons: Addon[]
@@ -11,12 +12,9 @@ interface AddonsStepProps {
 export function AddonsStep({ addons, selectedAddons, onToggle }: AddonsStepProps) {
   return (
     <div>
-      <h3 className="text-white font-semibold text-lg mb-2">
-        Add Extra Services{' '}
-        <span className="text-neutral-400 font-normal text-sm">(optional)</span>
-      </h3>
-      <p className="text-neutral-400 text-sm mb-5">
-        Enhance your detail with any of these add-ons. Skip this step if none apply.
+      <h3 className="text-white font-semibold text-xl mb-1">Anything extra?</h3>
+      <p className="text-neutral-400 mb-6">
+        Optional. Pick as many as you like, or continue without any.
       </p>
       <div className="grid sm:grid-cols-2 gap-3">
         {addons.map((addon) => {
@@ -24,11 +22,7 @@ export function AddonsStep({ addons, selectedAddons, onToggle }: AddonsStepProps
           return (
             <label
               key={addon.name}
-              className={`cursor-pointer select-none p-4 rounded-xl border transition-colors duration-150 ${
-                active
-                  ? 'bg-red-600/10 border-red-600'
-                  : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-500'
-              }`}
+              className={optionCardClass(active)}
             >
               <input
                 type="checkbox"
@@ -36,13 +30,23 @@ export function AddonsStep({ addons, selectedAddons, onToggle }: AddonsStepProps
                 checked={active}
                 onChange={() => onToggle(addon.name)}
               />
-              <div className="flex items-start justify-between mb-1">
-                <span className={`font-medium text-sm ${active ? 'text-white' : 'text-neutral-200'}`}>
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <span className="flex items-center gap-2.5 font-medium text-white">
+                  <span
+                    aria-hidden="true"
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                      active ? 'border-red-500 bg-red-500' : 'border-white/30'
+                    }`}
+                  >
+                    {active && (
+                      <svg className="h-3 w-3 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3 3 7-7" /></svg>
+                    )}
+                  </span>
                   {addon.name}
                 </span>
-                <span className="text-red-500 text-sm">+${addon.price}</span>
+                <span className="text-neutral-300 tabular">+${addon.price}</span>
               </div>
-              <p className="text-neutral-400 text-xs">{addon.description}</p>
+              <p className="pl-6.5 text-neutral-400 text-sm">{addon.description}</p>
             </label>
           )
         })}

@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { animate, useReducedMotion } from 'framer-motion';
-import { GlassCard } from '@/components/ui/glass-card';
 import { MagneticButton } from '@/components/ui/magnetic-button';
-import { FadeHeadline } from '@/components/ui/animated-headline';
 import { ReviewCard } from '@/components/review-card';
 import { fetchReviews, REVIEWS_RETRY_DELAY_MS, type ReviewsData, type Review } from '@/lib/reviews';
 
@@ -33,22 +31,23 @@ function StarIcon({ className = '' }: { className?: string }) {
 
 function AggregateHeader({ rating, totalReviews }: { rating: number; totalReviews: number }) {
   return (
-    <GlassCard className="text-center py-8 px-6 mb-10" padding="none">
-      <div className="flex items-center justify-center gap-3 mb-4">
-        <GoogleIcon className="w-8 h-8" />
-        <span className="font-display text-5xl text-white tracking-wide">
-          {rating.toFixed(1)}
-        </span>
+    <div className="flex items-center gap-4">
+      <GoogleIcon className="w-7 h-7 shrink-0" />
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="font-display text-3xl text-white tabular">{rating.toFixed(1)}</span>
+          <span className="flex gap-0.5" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, i) => (
+              <StarIcon key={i} className={`w-5 h-5 ${i < Math.round(rating) ? 'text-brand-gold' : 'text-neutral-700'}`} />
+            ))}
+          </span>
+        </div>
+        <p className="text-neutral-400 text-sm">
+          <span className="sr-only">Rated {rating.toFixed(1)} out of 5, </span>
+          from {totalReviews} Google reviews
+        </p>
       </div>
-      <div className="flex items-center justify-center gap-1 mb-3">
-        {Array.from({ length: 5 }, (_, i) => (
-          <StarIcon key={i} className={`w-6 h-6 ${i < Math.round(rating) ? 'text-brand-gold' : 'text-neutral-700'}`} />
-        ))}
-      </div>
-      <p className="text-neutral-400 text-sm">
-        Based on <span className="text-white font-semibold">{totalReviews}</span> Google reviews
-      </p>
-    </GlassCard>
+    </div>
   );
 }
 
@@ -58,7 +57,7 @@ function ArrowButton({ direction, onClick, disabled }: { direction: 'left' | 'ri
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-11 h-11 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+      className="w-11 h-11 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 active:scale-95 transition-[color,border-color,transform] duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100"
       aria-label={direction === 'left' ? 'Previous review' : 'Next review'}
     >
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -230,15 +229,16 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
     return (
       <div className={className}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl rounded-2xl border border-white/[0.08] bg-white/[0.03] px-6 py-8 text-center">
-            <p className="text-sm text-neutral-400">Google reviews are temporarily unavailable.</p>
+          <div className="flex flex-col gap-3 border-y border-white/10 py-8 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="font-display text-3xl sm:text-4xl text-white uppercase">Google reviews</h2>
+            <p className="text-sm text-neutral-400">Reviews could not be loaded here.</p>
             <a
               href={data.reviewLink || GOOGLE_REVIEWS_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex text-sm text-red-400 underline underline-offset-4 hover:text-red-300"
+              className="inline-flex text-sm text-red-400 underline underline-offset-4 hover:text-red-300"
             >
-              View reviews on Google
+              Read them on Google
             </a>
           </div>
         </div>
@@ -249,14 +249,11 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
   return (
     <div className={className}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <FadeHeadline as="h2" className="font-display text-4xl sm:text-5xl text-white tracking-wide">
-              Google reviews
-            </FadeHeadline>
+        <div>
+          <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="font-display text-4xl sm:text-5xl text-white uppercase">Google reviews</h2>
+            <AggregateHeader rating={rating} totalReviews={totalReviews} />
           </div>
-
-          <AggregateHeader rating={rating} totalReviews={totalReviews} />
 
           <div
             className="relative"
@@ -290,19 +287,19 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
             </div>
 
             {maxIndex > 0 && !prefersReducedMotion && (
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center mt-6">
                 <button
                   type="button"
                   onClick={() => setIsAutoplayPaused((paused) => !paused)}
                   aria-pressed={isAutoplayPaused}
-                  className="rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-2 text-xs font-medium text-white/70 transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-white"
+                  className="min-h-9 rounded-full px-3 text-xs font-medium text-neutral-400 transition-colors hover:text-white"
                 >
-                  {isAutoplayPaused ? 'Resume autoplay' : 'Pause autoplay'}
+                  {isAutoplayPaused ? 'Play slideshow' : 'Pause slideshow'}
                 </button>
               </div>
             )}
 
-            <div className="flex items-center justify-center gap-6 mt-8">
+            <div className="flex items-center justify-center gap-6 mt-4">
               <ArrowButton direction="left" onClick={() => slideTo(activeIndex - 1)} disabled={activeIndex === 0} />
               <div className="flex items-center gap-1.5">
                 {Array.from({ length: maxIndex + 1 }, (_, i) => (
@@ -335,7 +332,7 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
           </div>
 
           {reviewLink && (
-            <div className="text-center mt-10">
+            <div className="text-center mt-8">
               <MagneticButton href={reviewLink} variant="secondary" size="md">
                 Leave a review
               </MagneticButton>

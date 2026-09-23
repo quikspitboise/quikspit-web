@@ -26,8 +26,8 @@ const CalEmbed = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-[600px] items-center justify-center rounded-lg bg-neutral-900/50 text-neutral-400" role="status">
-        Loading booking calendar...
+      <div className="flex min-h-[600px] items-center justify-center rounded-lg text-neutral-400" role="status">
+        Loading the calendar…
       </div>
     ),
   },
@@ -91,9 +91,9 @@ export function BookingWizard({
       { id: 'addons', label: 'Add-ons', shortLabel: 'Extras' },
     ]
     if (ceramicEnabled) {
-      base.push({ id: 'ceramic', label: 'Ceramic & Polish', shortLabel: 'Ceramic' })
+      base.push({ id: 'ceramic', label: 'Paint protection', shortLabel: 'Paint' })
     }
-    base.push({ id: 'schedule', label: 'Schedule', shortLabel: 'Schedule' })
+    base.push({ id: 'schedule', label: 'Date and time', shortLabel: 'Time' })
     return base
   }, [ceramicEnabled])
 
@@ -190,12 +190,16 @@ export function BookingWizard({
   }, []) // Run once on mount
 
   // ---- Navigation ----
+  // Bring the top of the wizard into view below the fixed nav, but only when
+  // it has scrolled out of view; otherwise stay put so the page doesn't jump.
   const scrollToTop = useCallback(() => {
-    if (wizardRef.current) {
-      const rect = wizardRef.current.getBoundingClientRect()
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      window.scrollTo({ top: rect.top + scrollTop - 24, behavior: 'smooth' })
-    }
+    const el = wizardRef.current
+    if (!el) return
+    const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height')) || 72
+    const top = el.getBoundingClientRect().top
+    if (top >= navHeight && top < window.innerHeight * 0.5) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: top + window.scrollY - navHeight - 16, behavior: reduceMotion ? 'auto' : 'smooth' })
   }, [])
 
   const goToStep = useCallback(
@@ -285,7 +289,7 @@ export function BookingWizard({
   // ---- Render ----
   if (bookingConfirmed && currentSelection) {
     return (
-      <div ref={wizardRef} className="scroll-mt-6">
+      <div ref={wizardRef}>
         <div className="max-w-2xl mx-auto">
           <ConfirmationStep selection={currentSelection} depositAmount={depositAmount} />
         </div>
@@ -296,126 +300,122 @@ export function BookingWizard({
   const sizeAdd = sizeAdjustments.find((s) => s.id === vehicleSize)?.add ?? 0
   const showDeposit = hasBookingDeposit(depositAmount)
 
+  const nextStep = steps[currentStepIndex + 1]
+
   return (
-    <div ref={wizardRef} className="scroll-mt-6">
+    <div ref={wizardRef}>
       <StepIndicator
         steps={steps}
         currentStep={currentStepIndex}
         onStepClick={goToStep}
       />
 
-      <div className="lg:grid lg:grid-cols-[1fr_280px] lg:gap-8">
-        {/* Main step area */}
-        <div className="min-h-[400px]">
-          <div className="bg-neutral-800/30 backdrop-blur-sm rounded-2xl border border-neutral-700 p-6">
-            {/* Step content */}
-            <div key={currentStep?.id} className="animate-fade-in" style={{ animationDuration: '200ms' }}>
-              {currentStep?.id === 'vehicle' && (
-                <VehicleStep
-                  sizeAdjustments={sizeAdjustments}
-                  vehicleSize={vehicleSize}
-                  onSelect={setVehicleSize}
-                />
-              )}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8 lg:items-start">
+        <div className="panel p-5 sm:p-7">
+          <div key={currentStep?.id} className="animate-step-in">
+            {currentStep?.id === 'vehicle' && (
+              <VehicleStep
+                sizeAdjustments={sizeAdjustments}
+                vehicleSize={vehicleSize}
+                onSelect={setVehicleSize}
+              />
+            )}
 
-              {currentStep?.id === 'package' && (
-                <PackageStep
-                  packages={allPackagesFlat}
-                  selectedPackage={selectedPackage}
-                  sizeAdd={sizeAdd}
-                  onSelect={setSelectedPackage}
-                />
-              )}
+            {currentStep?.id === 'package' && (
+              <PackageStep
+                packages={allPackagesFlat}
+                selectedPackage={selectedPackage}
+                sizeAdd={sizeAdd}
+                onSelect={setSelectedPackage}
+              />
+            )}
 
-              {currentStep?.id === 'addons' && (
-                <AddonsStep
-                  addons={addons}
-                  selectedAddons={selectedAddons}
-                  onToggle={toggleAddon}
-                />
-              )}
+            {currentStep?.id === 'addons' && (
+              <AddonsStep
+                addons={addons}
+                selectedAddons={selectedAddons}
+                onToggle={toggleAddon}
+              />
+            )}
 
-              {currentStep?.id === 'ceramic' && (
-                <CeramicStep
-                  ceramicServices={ceramicServices}
-                  ceramicCoatingSelected={ceramicCoatingSelected}
-                  selectedPaintCorrection={selectedPaintCorrection}
-                  onToggleCeramic={toggleCeramic}
-                  onSelectPaintCorrection={selectPaintCorrection}
-                />
-              )}
+            {currentStep?.id === 'ceramic' && (
+              <CeramicStep
+                ceramicServices={ceramicServices}
+                ceramicCoatingSelected={ceramicCoatingSelected}
+                selectedPaintCorrection={selectedPaintCorrection}
+                onToggleCeramic={toggleCeramic}
+                onSelectPaintCorrection={selectPaintCorrection}
+              />
+            )}
 
-              {currentStep?.id === 'schedule' && (
-                <div>
-                  <h3 className="text-white font-semibold text-lg mb-2">Choose Your Date & Time</h3>
-                  {showDeposit ? (
-                    <p className="text-neutral-400 text-sm mb-5">
-                      Select a convenient time slot. A ${depositAmount} deposit secures your appointment.
-                      Fully refundable if you cancel 24+ hours in advance.
-                    </p>
-                  ) : (
-                    <p className="text-neutral-400 text-sm mb-5">
-                      Select a convenient time slot to reserve your appointment.
-                    </p>
-                  )}
-                  <div className="bg-neutral-900/50 rounded-xl border border-neutral-700 p-3 min-h-[600px]">
-                    <CalEmbed
-                      selection={currentSelection ?? undefined}
-                      depositAmount={depositAmount}
-                      onBookingSuccessful={handleBookingSuccess}
-                    />
-                  </div>
+            {currentStep?.id === 'schedule' && (
+              <div>
+                <h3 className="text-white font-semibold text-xl mb-1">Pick a time</h3>
+                <p className="text-neutral-400 mb-6">
+                  {showDeposit
+                    ? `A $${depositAmount} deposit holds the slot. It is refunded in full if you cancel at least 24 hours ahead.`
+                    : 'Choose a day and time that works. You pay when the job is done.'}
+                </p>
+                <div className="-mx-2 sm:mx-0 min-h-[600px]">
+                  <CalEmbed
+                    selection={currentSelection ?? undefined}
+                    depositAmount={depositAmount}
+                    onBookingSuccessful={handleBookingSuccess}
+                  />
                 </div>
-              )}
-            </div>
-
-            {/* Navigation buttons */}
-            {currentStep?.id !== 'schedule' && (
-              <div className="flex items-center justify-between mt-8 pt-6 border-t border-neutral-700">
                 <button
                   type="button"
                   onClick={goBack}
-                  disabled={currentStepIndex === 0}
-                  className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
-                    currentStepIndex === 0
-                      ? 'text-neutral-600 cursor-not-allowed'
-                      : 'text-neutral-300 hover:text-white hover:bg-neutral-700/50'
-                  }`}
+                  className="mt-6 min-h-11 rounded-lg px-3 -ml-3 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
                 >
-                  ← Back
-                </button>
-
-                <button
-                  type="button"
-                  onClick={goNext}
-                  disabled={!canAdvance}
-                  className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors duration-150 ${
-                    canAdvance
-                      ? 'bg-red-600 text-white hover:bg-red-500 shadow-sm shadow-red-600/20'
-                      : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
-                  }`}
-                >
-                  {currentStep?.id === 'addons' && !ceramicEnabled
-                    ? 'Continue to Scheduling →'
-                    : currentStep?.id === 'ceramic'
-                      ? 'Continue to Scheduling →'
-                      : 'Next →'}
+                  Back to {steps[currentStepIndex - 1]?.label.toLowerCase()}
                 </button>
               </div>
             )}
           </div>
+
+          {currentStep?.id !== 'schedule' && (
+            <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-white/10">
+              {currentStepIndex > 0 ? (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="min-h-11 rounded-lg px-3 -ml-3 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
+                >
+                  Back
+                </button>
+              ) : (
+                <span />
+              )}
+
+              <div className="flex items-center gap-4">
+                {!canAdvance && currentStep?.id === 'package' && (
+                  <span className="hidden sm:inline text-sm text-neutral-500">Choose a package to continue</span>
+                )}
+                <button
+                  type="button"
+                  onClick={goNext}
+                  disabled={!canAdvance}
+                  className="btn-primary inline-flex min-h-11 items-center px-5 text-sm disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
+                >
+                  {nextStep ? `Continue to ${nextStep.label.toLowerCase()}` : 'Continue'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Sidebar summary (desktop) + bottom bar (mobile) */}
         <BookingSummary
           selection={currentSelection}
+          vehicleLabel={sizeAdjustments.find((s) => s.id === vehicleSize)?.label}
           depositAmount={depositAmount}
           onEditStep={handleEditStep}
+          containerRef={wizardRef}
         />
       </div>
 
-      {/* Bottom padding on mobile for the fixed bottom bar */}
-      <div className="lg:hidden h-16" />
+      {/* Room for the fixed summary bar on mobile */}
+      <div className="lg:hidden h-20" />
     </div>
   )
 }

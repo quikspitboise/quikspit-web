@@ -3,7 +3,6 @@
 import React, { useRef, useState } from 'react'
 import { buildBackendApiUrl } from '@/lib/backend-api'
 import { createTimeoutSignal } from '@/lib/fetch-with-timeout'
-import { Reveal } from '@/components/reveal'
 
 interface ValidationErrors {
   name?: string
@@ -35,19 +34,19 @@ async function getResponseErrorMessage(response: Response): Promise<string> {
     // The server may return an empty or non-JSON error response.
   }
 
-  return `We couldn't send your message (status ${response.status}). Please try again.`
+  return `The message didn't send (error ${response.status}). Try again, or call (208) 960-4970.`
 }
 
 function getSubmissionErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     if (error.name === 'AbortError' || error.name === 'TimeoutError') {
-      return 'The request took too long. Please check your connection and try again.'
+      return 'Sending took too long. Check your connection and try again.'
     }
 
     if (error.message && error.message !== 'Failed to fetch') return error.message
   }
 
-  return "We couldn't send your message. Please check your connection and try again."
+  return "The message didn't send. Check your connection and try again, or call (208) 960-4970."
 }
 
 export function ContactForm() {
@@ -71,20 +70,20 @@ export function ContactForm() {
     switch (name) {
       case 'name':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Name is required'
+          return 'Enter your name'
         }
         break
       case 'email':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Email is required'
+          return 'Enter your email address'
         }
         if (typeof value === 'string' && !validateEmail(value)) {
-          return 'Please enter a valid email address'
+          return 'Enter an email address like name@example.com'
         }
         break
       case 'message':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Message is required'
+          return 'Tell us what you need'
         }
         break
       case 'image':
@@ -93,7 +92,7 @@ export function ContactForm() {
             return 'Image must be 5MB or smaller'
           }
           if (!ALLOWED_IMAGE_TYPES.includes(value.type)) {
-            return 'Only JPG, JPEG, PNG, or GIF images are allowed'
+            return 'Use a JPG, PNG, or GIF image'
           }
         }
         break
@@ -162,7 +161,7 @@ export function ContactForm() {
     
     // Check if there are any errors
     if (Object.values(errors).some(error => error !== undefined)) {
-      setError('Please fix the errors above before submitting')
+      setError('Some fields need attention. Check the messages next to them.')
       const firstInvalidField = FIELD_ORDER.find(field => errors[field] !== undefined)
       if (firstInvalidField) {
         formRef.current
@@ -204,26 +203,10 @@ export function ContactForm() {
   }
 
   return (
-    <div className="bg-brand-charcoal-light p-8 rounded-xl shadow-lg border border-neutral-700 h-full">
-      <Reveal>
-        <h2 className="text-2xl font-semibold text-white mb-6">
-          Send us a Message
-        </h2>
-      </Reveal>
-      <Reveal delay={0.05}>
-        <p className="text-neutral-300 mb-6">
-          Fill out the form below and we&apos;ll get back to you as soon as possible. 
-          You can also attach an image if needed.
-        </p>
-      </Reveal>
+    <div>
       {success && (
-        <div className="mb-4 p-4 rounded-lg bg-green-700 text-white" role="status" aria-live="polite">
-          ✓ Message sent successfully! We&apos;ll get back to you soon.
-        </div>
-      )}
-      {error && (
-        <div className="mb-4 p-4 rounded-lg bg-red-700 text-white" role="alert" aria-live="assertive">
-          {error}
+        <div className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-100" role="status">
+          Message sent. We&apos;ll reply within a day.
         </div>
       )}
       <form
@@ -234,64 +217,57 @@ export function ContactForm() {
         noValidate
         aria-busy={loading}
       >
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
-            Full Name <span className="text-red-600" aria-label="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            onBlur={() => handleBlur('name')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400 ${
-              validationErrors.name && touched.name ? 'border-red-500' : 'border-neutral-600'
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-neutral-200 mb-2">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              onBlur={() => handleBlur('name')}
+              className={`w-full rounded-lg border bg-black px-4 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-red-500 focus:outline-none focus-visible:outline-none ${
+              validationErrors.name && touched.name ? 'border-red-500' : 'border-white/15 hover:border-white/25'
             }`}
-            placeholder="Your full name"
-            autoComplete="name"
-            required
-            aria-required="true"
+              autoComplete="name"
+              required
             aria-invalid={validationErrors.name && touched.name ? 'true' : 'false'}
             aria-describedby={validationErrors.name && touched.name ? 'name-error' : undefined}
-          />
-          {validationErrors.name && touched.name && (
-            <p id="name-error" className="mt-1 text-sm text-red-500" role="alert">
+            />
+            {validationErrors.name && touched.name && (
+            <p id="name-error" className="mt-2 text-sm text-red-400">
               {validationErrors.name}
             </p>
           )}
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
-            Email Address <span className="text-red-600" aria-label="required">*</span>
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            onBlur={() => handleBlur('email')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400 ${
-              validationErrors.email && touched.email ? 'border-red-500' : 'border-neutral-600'
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-neutral-200 mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              onBlur={() => handleBlur('email')}
+              className={`w-full rounded-lg border bg-black px-4 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-red-500 focus:outline-none focus-visible:outline-none ${
+              validationErrors.email && touched.email ? 'border-red-500' : 'border-white/15 hover:border-white/25'
             }`}
-            placeholder="your.email@example.com"
-            autoComplete="email"
-            required
-            aria-required="true"
+              autoComplete="email"
+              inputMode="email"
+              required
             aria-invalid={validationErrors.email && touched.email ? 'true' : 'false'}
             aria-describedby={validationErrors.email && touched.email ? 'email-error' : undefined}
-          />
-          {validationErrors.email && touched.email && (
-            <p id="email-error" className="mt-1 text-sm text-red-500" role="alert">
+            />
+            {validationErrors.email && touched.email && (
+            <p id="email-error" className="mt-2 text-sm text-red-400">
               {validationErrors.email}
             </p>
           )}
+          </div>
         </div>
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-neutral-300 mb-2">
-            Message <span className="text-red-600" aria-label="required">*</span>
-          </label>
+          <label htmlFor="message" className="block text-sm font-medium text-neutral-200 mb-2">What do you need?</label>
           <textarea
             id="message"
             name="message"
@@ -299,25 +275,23 @@ export function ContactForm() {
             value={form.message}
             onChange={handleChange}
             onBlur={() => handleBlur('message')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white placeholder-neutral-400 ${
-              validationErrors.message && touched.message ? 'border-red-500' : 'border-neutral-600'
+            className={`w-full rounded-lg border bg-black px-4 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-red-500 focus:outline-none focus-visible:outline-none ${
+              validationErrors.message && touched.message ? 'border-red-500' : 'border-white/15 hover:border-white/25'
             }`}
-            placeholder="Tell us how we can help you..."
-            autoComplete="off"
+            placeholder="Vehicle, what it needs, and roughly when"
             required
-            aria-required="true"
             aria-invalid={validationErrors.message && touched.message ? 'true' : 'false'}
             aria-describedby={validationErrors.message && touched.message ? 'message-error' : undefined}
-          ></textarea>
+          />
           {validationErrors.message && touched.message && (
-            <p id="message-error" className="mt-1 text-sm text-red-500" role="alert">
+            <p id="message-error" className="mt-2 text-sm text-red-400">
               {validationErrors.message}
             </p>
           )}
         </div>
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-neutral-300 mb-2">
-            Attach Image (Optional)
+          <label htmlFor="image" className="block text-sm font-medium text-neutral-200 mb-2">
+            Photo <span className="font-normal text-neutral-500">(optional)</span>
           </label>
           <input
             type="file"
@@ -326,32 +300,34 @@ export function ContactForm() {
             ref={fileInputRef}
             accept={IMAGE_ACCEPT}
             onChange={handleFileChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent bg-neutral-800 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 ${
-              validationErrors.image && touched.image ? 'border-red-500' : 'border-neutral-600'
+            className={`block w-full cursor-pointer rounded-lg border border-dashed bg-black px-3 py-3 text-sm text-neutral-400 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15 ${
+              validationErrors.image && touched.image ? 'border-red-500' : 'border-white/15'
             }`}
             aria-invalid={validationErrors.image && touched.image ? 'true' : 'false'}
             aria-describedby={validationErrors.image && touched.image ? 'image-error' : 'image-hint'}
           />
           {validationErrors.image && touched.image ? (
-            <p id="image-error" className="mt-1 text-sm text-red-500" role="alert">
+            <p id="image-error" className="mt-2 text-sm text-red-400">
               {validationErrors.image}
             </p>
           ) : (
-            <p id="image-hint" className="mt-1 text-xs text-neutral-400">
-              Maximum file size: 5MB. Accepted formats: JPG, JPEG, PNG, GIF
+            <p id="image-hint" className="mt-2 text-sm text-neutral-500">
+              JPG, PNG, or GIF, up to 5 MB.
             </p>
           )}
         </div>
-        <Reveal delay={0.1}>
-          <button
-            type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? 'Sending...' : 'Send Message'}
-          </button>
-        </Reveal>
+        {error && (
+          <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-red-100" role="alert">
+            {error}
+          </div>
+        )}
+        <button
+          type="submit"
+          className="btn-primary inline-flex min-h-12 w-full items-center justify-center px-6 sm:w-auto"
+          disabled={loading}
+        >
+          {loading ? 'Sending…' : 'Send message'}
+        </button>
       </form>
     </div>
   )

@@ -62,78 +62,34 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div
           ref={this.fallbackRef}
-          className="min-h-screen bg-transparent flex items-center justify-center px-4"
+          className="min-h-[70vh] container mx-auto px-5 sm:px-6 lg:px-8 py-20 lg:py-32"
           role="alert"
           tabIndex={-1}
         >
-          <div className="max-w-2xl w-full bg-brand-charcoal-light border border-neutral-600 rounded-xl shadow-2xl p-8 sm:p-12 text-center">
-            {/* Error Icon */}
-            <div className="w-20 h-20 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg 
-                className="w-10 h-10 text-red-600" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
-                />
-              </svg>
-            </div>
+          <h1 className="font-display text-3xl sm:text-5xl text-white uppercase">Something broke on this page</h1>
+          <p className="mt-5 max-w-lg text-lg text-neutral-400 text-pretty">
+            Try loading it again. If it keeps happening, call or text (208) 960-4970 and we&apos;ll book you in by phone.
+          </p>
 
-            {/* Error Message */}
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Oops! Something Went Wrong
-            </h1>
-            <p className="text-lg text-neutral-300 mb-8">
-              An unexpected error interrupted this page. Try again or use one of the links below.
-            </p>
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <details className="mt-8 max-w-3xl rounded-lg border border-white/10 p-4 text-left">
+              <summary className="cursor-pointer text-red-400 font-medium">Error details (development only)</summary>
+              <div className="mt-3 text-xs text-neutral-400 font-mono overflow-auto">
+                <p className="text-red-400 mb-2">{this.state.error.toString()}</p>
+                {this.state.errorInfo && (
+                  <pre className="whitespace-pre-wrap break-words">{this.state.errorInfo.componentStack}</pre>
+                )}
+              </div>
+            </details>
+          )}
 
-            {/* Error Details (only in development) */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mb-8 text-left bg-neutral-800 border border-neutral-700 rounded-lg p-4">
-                <summary className="cursor-pointer text-red-600 font-semibold mb-2">
-                  Error Details (Development Only)
-                </summary>
-                <div className="text-xs text-neutral-400 font-mono overflow-auto">
-                  <p className="text-red-500 mb-2">{this.state.error.toString()}</p>
-                  {this.state.errorInfo && (
-                    <pre className="whitespace-pre-wrap break-words">
-                      {this.state.errorInfo.componentStack}
-                    </pre>
-                  )}
-                </div>
-              </details>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                type="button"
-                onClick={this.handleReset}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800"
-              >
-                Try Again
-              </button>
-              <Link
-                href="/"
-                onClick={this.handleReset}
-                className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800 inline-block"
-              >
-                Go Home
-              </Link>
-              <Link
-                href="/contact"
-                onClick={this.handleReset}
-                className="border-2 border-neutral-600 text-neutral-300 hover:border-red-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-neutral-800 inline-block"
-              >
-                Contact Support
-              </Link>
-            </div>
+          <div className="mt-10 flex flex-col sm:flex-row gap-3">
+            <button type="button" onClick={this.handleReset} className="btn-primary inline-flex min-h-11 items-center justify-center px-5">
+              Try again
+            </button>
+            <Link href="/" onClick={this.handleReset} className="btn-secondary inline-flex min-h-11 items-center justify-center px-5">
+              Go to the home page
+            </Link>
           </div>
         </div>
       )
