@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: "%s | QuikSpit Auto Detailing",
   },
   description: "Professional car detailing services that make your vehicle shine like new. Experience the difference with our premium cleaning and protection services.",
-  keywords: ["car detailing", "auto detailing", "car wash", "vehicle cleaning", "paint protection", "ceramic coating", "mobile detailing"],
+  keywords: ["car detailing", "auto detailing", "car wash", "vehicle cleaning", "paint protection", "ceramic coating", "Boise car detailing"],
   authors: [{ name: "QuikSpit Auto Detailing" }],
   openGraph: {
     type: "website",

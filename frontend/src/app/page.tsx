@@ -46,18 +46,18 @@ const steps = [
     body: 'Pick a package and any extras. The price updates as you go, then you choose a time.',
   },
   {
-    title: 'We come to you',
-    body: 'Park at home or work. We need access to the car and, if you have them, a hose and an outlet.',
+    title: 'Bring the car in',
+    body: 'Your confirmation email has the garage address. Drop the car off at your time and we work on it indoors.',
   },
   {
     title: 'Pay when it’s done',
-    body: 'Look the car over when we finish, then pay. Card, cash, and Venmo all work.',
+    body: 'Look the car over when you pick it up, then pay. Card, cash, and Venmo all work.',
   },
 ]
 
 const heroFacts = [
-  { term: 'Service area', detail: 'Boise, Meridian, Nampa, Eagle' },
-  { term: 'Travel', detail: 'Free in the Boise area' },
+  { term: 'Where', detail: 'A private garage in the Boise area' },
+  { term: 'Address', detail: 'Sent once you book' },
   { term: 'Scheduling', detail: 'Same-day slots when open' },
 ]
 
@@ -70,13 +70,13 @@ export default function Home() {
           <div className="container mx-auto w-full px-5 sm:px-6 lg:px-8 pb-10 lg:pb-14">
             <div>
               <AnimatedHeadline
-                lines={['Detailed in', 'your driveway']}
+                lines={['Detailed', 'indoors']}
                 as="h1"
                 className="text-[clamp(2.75rem,8.5vw,7rem)] text-white uppercase"
                 delay={0.1}
               />
               <FadeHeadline delay={0.45} className="mt-6 max-w-xl text-lg sm:text-xl text-white/80 text-pretty">
-                Mobile car detailing across the Boise area. We come to your home or office, clean the car inside and out, and protect the paint while you get on with your day.
+                Car detailing by appointment in a private Boise-area garage. Out of the sun and weather, we clean the car inside and out and protect the paint.
               </FadeHeadline>
               <FadeHeadline as="div" delay={0.6} className="mt-8 flex flex-col sm:flex-row gap-3">
                 <MagneticButton href="/booking#design-your-detail" size="lg">

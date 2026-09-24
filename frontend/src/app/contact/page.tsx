@@ -4,18 +4,16 @@ import { ContactForm } from '@/components/contact-form'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with QuikSpit Auto Detailing for a quote, to schedule a service, or to ask a question. Mobile car detailing serving Boise, Idaho and the surrounding area.',
+  description: 'Get in touch with QuikSpit Auto Detailing for a quote, to schedule a service, or to ask a question. Car detailing by appointment in the Boise, Idaho area.',
   alternates: {
     canonical: '/contact',
   },
   openGraph: {
     title: 'Contact QuikSpit Auto Detailing',
-    description: 'Call, text, or send a message to get a quote for mobile detailing in the Boise area.',
+    description: 'Call, text, or send a message to get a quote for detailing in the Boise area.',
     url: '/contact',
   },
 }
-
-const towns = ['Boise', 'Meridian', 'Nampa', 'Eagle', 'Star', 'Caldwell', 'Kuna', 'Garden City']
 
 const socials = [
   { label: 'Instagram', href: 'https://www.instagram.com/quikspitboise/' },
@@ -56,17 +54,9 @@ export default function Contact() {
                 <dd className="mt-1 text-lg text-white">By appointment. Same-day slots when open.</dd>
               </div>
               <div>
-                <dt className="text-sm text-neutral-500">Where we work</dt>
-                <dd className="mt-3">
-                  <ul className="flex flex-wrap gap-2">
-                    {towns.map((town) => (
-                      <li key={town} className="rounded-full border border-white/10 px-3 py-1.5 text-sm text-neutral-300">
-                        {town}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-3 text-sm text-neutral-500">Somewhere else nearby? Call and ask.</p>
-                </dd>
+                <dt className="text-sm text-neutral-500">Location</dt>
+                <dd className="mt-1 text-lg text-white">A private garage in the Boise area.</dd>
+                <dd className="mt-1 text-sm text-neutral-500">The address comes with your booking confirmation.</dd>
               </div>
               <div>
                 <dt className="text-sm text-neutral-500">Elsewhere</dt>

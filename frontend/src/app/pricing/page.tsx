@@ -17,13 +17,13 @@ const surchargeRange = `$${Math.min(...surcharges)} to $${Math.max(...surcharges
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: 'Pricing for mobile auto detailing in Boise. Exterior, interior, and full detail packages plus add-ons, ceramic coating, and paint correction.',
+  description: 'Pricing for auto detailing in Boise. Exterior, interior, and full detail packages plus add-ons, ceramic coating, and paint correction.',
   alternates: {
     canonical: '/pricing',
   },
   openGraph: {
     title: 'Pricing - QuikSpit Auto Detailing Services',
-    description: 'See prices for mobile detailing packages, add-ons, ceramic coating, and paint correction. Base prices for cars; adjust for vehicle size when you book.',
+    description: 'See prices for detailing packages, add-ons, ceramic coating, and paint correction. Base prices for cars; adjust for vehicle size when you book.',
     url: '/pricing',
   },
 }
@@ -34,8 +34,8 @@ const pricingFaqs = [
     a: `Yes. The prices on this page are for cars and sedans. SUVs, trucks, and vans cost ${surchargeRange} more depending on size. The booking page shows the exact price for your vehicle before you pick a time.`,
   },
   {
-    q: 'Is there a travel fee?',
-    a: 'Travel is free in Boise and the surrounding towns. Farther out there may be a small travel fee. Call and ask if you are not sure.',
+    q: 'Where are you located?',
+    a: 'In a private garage in the Boise area. The address is not public. You get it in your confirmation email once you book.',
   },
   {
     q: 'What payment methods do you accept?',

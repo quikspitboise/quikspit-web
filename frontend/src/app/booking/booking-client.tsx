@@ -29,8 +29,8 @@ function getBookingFaqs(depositAmount: number) {
       a: cancellationAnswer,
     },
     {
-      q: 'Where do you provide service?',
-      a: 'Boise, Meridian, Nampa, Eagle, Star, Caldwell, Kuna, and Garden City. Somewhere else nearby? Call and ask.',
+      q: 'Where is the detail done?',
+      a: 'In a private garage in the Boise area. We don’t publish the address. It comes in your confirmation email once you book.',
     },
     {
       q: 'What payment methods do you accept?',
@@ -109,7 +109,7 @@ export default function BookingClient() {
 
       <PageHeader
         title="Book your detail"
-        lede="Choose a package, add extras, and pick a time. We come to you."
+        lede="Choose a package, add extras, and pick a time. The garage address comes with your confirmation."
       />
 
       <section id="design-your-detail" className="scroll-mt-[calc(var(--nav-total-height)+1rem)] border-t border-white/[0.07] py-10 lg:py-16">

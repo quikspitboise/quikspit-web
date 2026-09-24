@@ -8,17 +8,15 @@ const baseData = {
   '@type': 'LocalBusiness',
   name: 'QuikSpit Auto Detailing',
   image: 'https://quikspitboise.com/hero_fallback.jpg',
-  description: 'Mobile auto detailing in Boise, ID. Exterior, interior, ceramic coating, and paint correction services at your home or office.',
+  description: 'Auto detailing by appointment in Boise, ID. Exterior, interior, ceramic coating, and paint correction, done indoors in a private garage.',
   '@id': 'https://quikspitboise.com',
   url: 'https://quikspitboise.com',
   telephone: '+1-208-960-4970',
   priceRange: '$$',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Mobile Service',
     addressLocality: 'Boise',
     addressRegion: 'ID',
-    postalCode: '83702',
     addressCountry: 'US',
   },
   geo: {

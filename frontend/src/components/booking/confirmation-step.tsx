@@ -30,7 +30,7 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
 
       <h3 className="font-display text-4xl text-white uppercase mb-3">You&apos;re booked</h3>
       <p className="text-neutral-400 max-w-md mx-auto mb-8 text-pretty">
-        A confirmation email with the time and address is on its way.
+        A confirmation email with the time and the garage address is on its way.
       </p>
 
       {/* Summary card */}
@@ -97,11 +97,11 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
 
       {/* Prep instructions */}
       <div className="text-left max-w-md mx-auto">
-        <h4 className="text-white font-semibold mb-3">Before we arrive</h4>
+        <h4 className="text-white font-semibold mb-3">Before your appointment</h4>
         <ul className="space-y-2 text-sm text-neutral-400">
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>Make sure we can get to the car at the appointment time.</span>
+            <span>Check your email for the garage address. We don&apos;t publish it anywhere else.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
@@ -109,7 +109,7 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>If you have a hose and an outdoor outlet, let us use them.</span>
+            <span>Arrive on time so the detail can start on schedule.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>

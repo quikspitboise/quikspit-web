@@ -51,7 +51,7 @@ export function Footer() {
               <Logo responsive />
             </Link>
             <p className="mt-5 max-w-xs text-neutral-400 text-sm leading-relaxed">
-              Mobile car detailing for Boise, Meridian, Nampa, Eagle, and the towns around them.
+              Car detailing by appointment in a private Boise-area garage. The address comes with your booking.
             </p>
             <ul className="mt-6 flex items-center gap-2">
               {socialLinks.map((social) => (

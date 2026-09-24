@@ -5,13 +5,13 @@ import { OwnerImage } from '@/components/owner-image'
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'QuikSpit Auto Detailing is a mobile detailing business serving Boise and the surrounding area. Learn about our approach and the owner behind it.',
+  description: 'QuikSpit Auto Detailing is a Boise-area detailing business working by appointment out of a private garage. Learn about our approach and the owner behind it.',
   alternates: {
     canonical: '/about',
   },
   openGraph: {
     title: 'About QuikSpit Auto Detailing',
-    description: 'A Boise mobile detailing business built on efficient work, fair prices, and cars treated like our own.',
+    description: 'A Boise detailing business built on efficient work, fair prices, and cars treated like our own.',
     url: '/about',
   },
 }
@@ -21,7 +21,7 @@ export default function About() {
     <main id="main-content" className="min-h-screen">
       <PageHeader
         title="About QuikSpit"
-        lede="A Boise detailer who comes to you, run by an Idaho native who likes a job done right the first time."
+        lede="A Boise detailer working out of a private garage, run by an Idaho native who likes a job done right the first time."
       />
 
       {/* Owner */}
@@ -41,14 +41,14 @@ export default function About() {
                 Garret was born and raised in Idaho and works in healthcare, where doing right by people is the whole job. He brings that same standard to QuikSpit: show up on time, do the work well, charge fairly for it.
               </p>
               <p>
-                He started the business because he saw how much time people lose waiting on car care. Mobile detailing fixes that, and it lets him build something of his own in the community he grew up in.
+                He started the business because he saw how much time people lose waiting on car care. Booking a set time and getting the car back when promised fixes that, and it lets him build something of his own in the community he grew up in.
               </p>
             </div>
 
             <h2 className="mt-14 font-display text-3xl sm:text-4xl text-white uppercase">How we work</h2>
             <div className="mt-6 space-y-5 text-lg text-neutral-300 leading-relaxed text-pretty">
               <p>
-                QuikSpit exists to save you time. Instead of waiting at a shop, you park the car at home or work and get on with your day while we clean it.
+                QuikSpit exists to save you time. You book a set time, drop the car off, and we detail it indoors, out of the sun, wind, and dust that make outdoor work harder to get right.
               </p>
               <p>
                 We keep the work efficient without cutting corners, so a detail costs less than you might expect and still holds up when you look closely. Every vehicle gets the same care we would give our own.
@@ -67,7 +67,7 @@ export default function About() {
           <div>
             <h2 className="font-display text-3xl sm:text-5xl text-white uppercase text-balance">Book a detail</h2>
             <p className="mt-4 max-w-lg text-neutral-400 text-pretty">
-              We work across the Boise area. Pick a package and a time, or send a question first.
+              We&apos;re in the Boise area, and the garage address comes with your booking. Pick a package and a time, or send a question first.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">

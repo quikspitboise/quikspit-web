@@ -80,7 +80,7 @@ export default function Gallery() {
           <div>
             <h2 className="font-display text-3xl sm:text-5xl text-white uppercase text-balance">Your car next</h2>
             <p className="mt-4 max-w-lg text-neutral-400 text-pretty">
-              Pick a package and a time. We come to you anywhere in the Boise area.
+              Pick a package and a time. The garage address comes with your confirmation.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
