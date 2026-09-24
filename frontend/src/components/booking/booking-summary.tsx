@@ -1,177 +1,162 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, type RefObject } from 'react'
 import type { BookingSelection } from './booking-data'
 import { getDurationEstimate } from './booking-data'
 import { hasBookingDeposit } from '@/lib/booking-settings'
 
 interface BookingSummaryProps {
   selection: BookingSelection | null
+  /** Shown before a package is picked, so the summary is never empty. */
+  vehicleLabel?: string
   depositAmount: number
   /** Called when user taps an edit link — jumps to that step */
   onEditStep?: (stepIndex: number) => void
+  /** The wizard; the mobile bar only shows while it is on screen. */
+  containerRef?: RefObject<HTMLElement | null>
 }
 
-export function BookingSummary({ selection, depositAmount, onEditStep }: BookingSummaryProps) {
-  const [mobileExpanded, setMobileExpanded] = useState(false)
+function Row({ label, children, onEdit }: { label: string; children: React.ReactNode; onEdit?: () => void }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <dt className="text-neutral-500">{label}</dt>
+      <dd className="flex items-start gap-2 text-right text-white">
+        <span>{children}</span>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-red-400 hover:text-red-300 underline underline-offset-2"
+          >
+            Edit<span className="sr-only"> {label.toLowerCase()}</span>
+          </button>
+        )}
+      </dd>
+    </div>
+  )
+}
 
-  if (!selection) return null
+export function BookingSummary({ selection, vehicleLabel, depositAmount, onEditStep, containerRef }: BookingSummaryProps) {
+  const [mobileExpanded, setMobileExpanded] = useState(false)
+  const [wizardInView, setWizardInView] = useState(true)
+
+  useEffect(() => {
+    const el = containerRef?.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(([entry]) => setWizardInView(entry.isIntersecting))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [containerRef])
 
   const showDeposit = hasBookingDeposit(depositAmount)
-  const balance = Math.max(selection.total - depositAmount, 0)
-  const addonList = selection.addons?.split(',').map((a) => a.trim()).filter(Boolean) || []
-  const duration = getDurationEstimate(
-    selection.category,
-    selection.tier,
-    Boolean(selection.ceramic),
-    Boolean(selection.paintCorrection)
-  )
+  const addonList = selection?.addons?.split(',').map((a) => a.trim()).filter(Boolean) ?? []
+  const duration = selection
+    ? getDurationEstimate(selection.category, selection.tier, Boolean(selection.ceramic), Boolean(selection.paintCorrection))
+    : null
 
   const summaryContent = (
-    <div className="space-y-3 text-sm">
-      {/* Package */}
-      {selection.packageName && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Package</span>
-          <div className="text-right flex items-center gap-2">
-            <span className="text-white font-medium">{selection.packageName}</span>
-            {onEditStep && (
-              <button
-                type="button"
-                onClick={() => onEditStep(1)}
-                className="text-red-500 text-xs hover:text-red-400 underline underline-offset-2"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Vehicle */}
-      {selection.sizeLabel && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Vehicle</span>
-          <div className="text-right flex items-center gap-2">
-            <span className="text-white">{selection.sizeLabel}</span>
-            {onEditStep && (
-              <button
-                type="button"
-                onClick={() => onEditStep(0)}
-                className="text-red-500 text-xs hover:text-red-400 underline underline-offset-2"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Add-ons */}
-      {addonList.length > 0 && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Add-ons</span>
-          <span className="text-white text-right max-w-[60%]">{addonList.join(', ')}</span>
-        </div>
-      )}
-
-      {/* Ceramic */}
-      {selection.ceramic && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Ceramic</span>
-          <span className="text-white">Yes</span>
-        </div>
-      )}
-
-      {/* Paint Correction */}
-      {selection.paintCorrection && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Paint Correction</span>
-          <span className="text-white">{selection.paintCorrection}</span>
-        </div>
-      )}
-
-      {/* Duration */}
-      {duration && (
-        <div className="flex justify-between items-start">
-          <span className="text-neutral-400">Est. Duration</span>
-          <span className="text-white">{duration}</span>
-        </div>
-      )}
-
-      {/* Pricing breakdown */}
-      <div className="border-t border-neutral-700 pt-3 mt-3 space-y-2">
-        <div className="flex justify-between">
-          <span className="text-neutral-300 font-medium">Estimated Total</span>
-          <span className="text-white font-display text-xl">${selection.total}</span>
-        </div>
-        {showDeposit && (
-          <>
-            <div className="flex justify-between text-xs">
-              <span className="text-neutral-500">Deposit (due today)</span>
-              <span className="text-red-500 font-semibold">${depositAmount}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-neutral-500">Balance (at service)</span>
-              <span className="text-neutral-400">${balance}</span>
-            </div>
-          </>
+    <div className="text-sm">
+      <dl className="space-y-3">
+        <Row label="Vehicle" onEdit={onEditStep && (() => onEditStep(0))}>
+          {selection?.sizeLabel ?? vehicleLabel}
+        </Row>
+        {selection?.packageName && (
+          <Row label="Package" onEdit={onEditStep && (() => onEditStep(1))}>
+            {selection.packageName}
+          </Row>
         )}
-      </div>
+        {addonList.length > 0 && <Row label="Add-ons">{addonList.join(', ')}</Row>}
+        {selection?.ceramic && <Row label="Ceramic coating">Yes</Row>}
+        {selection?.paintCorrection && <Row label="Paint correction">{selection.paintCorrection}</Row>}
+        {duration && <Row label="Takes about">{duration}</Row>}
+      </dl>
 
-      <p className="text-neutral-600 text-xs">
-        * Final price may vary based on vehicle condition.
-      </p>
+      {selection ? (
+        <div className="mt-5 border-t border-white/10 pt-4 space-y-2">
+          <div className="flex items-baseline justify-between">
+            <span className="text-neutral-300">Estimated total</span>
+            <span className="font-display text-3xl text-white tabular">${selection.total}</span>
+          </div>
+          {showDeposit && (
+            <>
+              <div className="flex justify-between text-neutral-500">
+                <span>Deposit today</span>
+                <span className="tabular text-white">${depositAmount}</span>
+              </div>
+              <div className="flex justify-between text-neutral-500">
+                <span>Due at the appointment</span>
+                <span className="tabular">${Math.max(selection.total - depositAmount, 0)}</span>
+              </div>
+            </>
+          )}
+          <p className="pt-2 text-xs text-neutral-500">
+            The final price can change if the car needs more work than expected.
+          </p>
+        </div>
+      ) : (
+        <p className="mt-5 border-t border-white/10 pt-4 text-neutral-500">
+          Choose a package to see the total.
+        </p>
+      )}
     </div>
   )
 
   return (
     <>
-      {/* Desktop: sidebar */}
-      <aside className="hidden lg:block" aria-label="Booking summary">
-        <div className="sticky top-24 bg-neutral-800/60 backdrop-blur-sm rounded-2xl border border-neutral-700 p-5">
-          <h3 className="font-display text-lg text-white tracking-wide mb-4">YOUR DETAIL</h3>
+      <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--nav-total-height)+1.5rem)]" aria-label="Booking summary">
+        <div className="panel p-5">
+          <h3 className="font-semibold text-white mb-4">Your detail</h3>
           {summaryContent}
         </div>
       </aside>
 
-      {/* Mobile: bottom bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40" aria-label="Booking summary">
-        <div className="bg-neutral-900/95 backdrop-blur-md border-t border-neutral-700">
-          {/* Collapsed bar */}
+      {selection && (
+        <div
+          className={`lg:hidden fixed bottom-0 inset-x-0 z-40 pb-[env(safe-area-inset-bottom)] bg-neutral-950 border-t border-white/10 transition-transform duration-300 ease-out-expo ${
+            wizardInView ? 'translate-y-0' : 'translate-y-full'
+          }`}
+          aria-label="Booking summary"
+          role="region"
+          inert={!wizardInView}
+        >
           <button
             type="button"
             onClick={() => setMobileExpanded((prev) => !prev)}
-            className="w-full flex items-center justify-between px-4 py-3"
+            aria-expanded={mobileExpanded}
+            aria-controls="booking-summary-panel"
+            className="w-full flex items-center justify-between gap-3 px-5 py-3 min-h-14"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-white font-display text-lg">${selection.total}</span>
-              {selection.packageName && (
-                <span className="text-neutral-400 text-sm truncate max-w-[180px]">
-                  · {selection.packageName}
-                </span>
-              )}
-            </div>
-            <svg
-              className={`w-5 h-5 text-neutral-400 transition-transform duration-200 ${
-                mobileExpanded ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
+            <span className="flex min-w-0 items-baseline gap-3">
+              <span className="font-display text-2xl text-white tabular">${selection.total}</span>
+              <span className="truncate text-sm text-neutral-400">{selection.packageName}</span>
+            </span>
+            <span className="flex shrink-0 items-center gap-1 text-sm text-neutral-300">
+              {mobileExpanded ? 'Hide' : 'Details'}
+              <svg
+                className={`h-4 w-4 transition-transform duration-300 ease-out-expo ${mobileExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </span>
           </button>
 
-          {/* Expanded panel */}
-          {mobileExpanded && (
-            <div className="px-4 pb-4 border-t border-neutral-800 pt-3 max-h-[60vh] overflow-y-auto">
-              {summaryContent}
+          <div
+            id="booking-summary-panel"
+            className="grid transition-[grid-template-rows] duration-300 ease-out-expo"
+            style={{ gridTemplateRows: mobileExpanded ? '1fr' : '0fr' }}
+          >
+            <div className="overflow-hidden" inert={!mobileExpanded}>
+              <div className="max-h-[60vh] overflow-y-auto border-t border-white/10 px-5 pb-5 pt-4">
+                {summaryContent}
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

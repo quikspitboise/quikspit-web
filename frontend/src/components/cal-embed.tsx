@@ -150,35 +150,6 @@ export function formatBookingNotes(selection: BookingSelection, depositAmount = 
     return lines.join('\n');
 }
 
-/**
- * Build URL search params for booking page navigation
- */
-export function buildBookingParams(selection: {
-    category: string;
-    tier: string;
-    size: string;
-    sizeLabel?: string;
-    addons: string;
-    ceramic?: string;
-    paintCorrection?: string;
-    total: number;
-    packageName?: string;
-}): URLSearchParams {
-    const params = new URLSearchParams();
-
-    params.set('category', selection.category);
-    params.set('tier', selection.tier);
-    params.set('size', selection.size);
-    if (selection.sizeLabel) params.set('sizeLabel', selection.sizeLabel);
-    if (selection.addons) params.set('addons', selection.addons);
-    if (selection.ceramic) params.set('ceramic', selection.ceramic);
-    if (selection.paintCorrection) params.set('paintCorrection', selection.paintCorrection);
-    params.set('total', selection.total.toString());
-    if (selection.packageName) params.set('packageName', selection.packageName);
-
-    return params;
-}
-
 // ============================================================================
 // COMPONENT
 // ============================================================================
@@ -312,11 +283,11 @@ export function CalEmbed({
                 />
             ) : (
                 <div
-                    className="flex items-center justify-center bg-neutral-900/50 rounded-lg"
+                    className="flex items-center justify-center rounded-lg"
                     style={{ width: '100%', minHeight: '600px' }}
                 >
                     <div className="text-neutral-400" role="status">
-                        {loadFailed ? 'The booking calendar could not load.' : 'Loading booking calendar...'}
+                        {loadFailed ? 'The booking calendar could not load.' : 'Loading the calendar…'}
                     </div>
                 </div>
             )}
@@ -329,103 +300,3 @@ export function CalEmbed({
         </div>
     );
 }
-
-// ============================================================================
-// SERVICE SUMMARY COMPONENT
-// ============================================================================
-
-interface ServiceSummaryProps {
-    selection: BookingSelection;
-    className?: string;
-    depositAmount?: number;
-}
-
-/**
- * Displays a summary of selected services with pricing breakdown
- * Shows deposit amount and balance due at service
- */
-export function ServiceSummary({
-    selection,
-    className = '',
-    depositAmount = 0,
-}: ServiceSummaryProps) {
-    const showDeposit = hasBookingDeposit(depositAmount);
-    const balance = Math.max(selection.total - depositAmount, 0);
-    const addonList = selection.addons?.split(',').map(a => a.trim()).filter(Boolean) || [];
-
-    return (
-        <div className={`bg-neutral-800/50 rounded-xl border border-neutral-700 p-6 ${className}`}>
-            <h3 className="font-display text-xl text-white tracking-wide mb-4">YOUR SELECTION</h3>
-
-            <div className="space-y-3 text-sm">
-                {/* Package */}
-                <div className="flex justify-between">
-                    <span className="text-neutral-400">Package</span>
-                    <span className="text-white font-medium">
-                        {selection.packageName || `${selection.tier} (${selection.category})`}
-                    </span>
-                </div>
-
-                {/* Vehicle */}
-                {selection.sizeLabel && (
-                    <div className="flex justify-between">
-                        <span className="text-neutral-400">Vehicle</span>
-                        <span className="text-white">{selection.sizeLabel}</span>
-                    </div>
-                )}
-
-                {/* Add-ons */}
-                {addonList.length > 0 && (
-                    <div className="flex justify-between">
-                        <span className="text-neutral-400">Add-ons</span>
-                        <span className="text-white text-right max-w-[60%]">{addonList.join(', ')}</span>
-                    </div>
-                )}
-
-                {/* Ceramic */}
-                {selection.ceramic && (
-                    <div className="flex justify-between">
-                        <span className="text-neutral-400">Ceramic Coating</span>
-                        <span className="text-white">Yes</span>
-                    </div>
-                )}
-
-                {/* Paint Correction */}
-                {selection.paintCorrection && (
-                    <div className="flex justify-between">
-                        <span className="text-neutral-400">Paint Correction</span>
-                        <span className="text-white">{selection.paintCorrection}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Pricing breakdown */}
-            <div className="border-t border-neutral-700 mt-4 pt-4 space-y-2">
-                <div className="flex justify-between text-lg">
-                    <span className="text-neutral-300">Estimated Total</span>
-                    <span className="text-white font-display text-2xl">${selection.total}</span>
-                </div>
-
-                {showDeposit && (
-                    <>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-neutral-400">Deposit (due today)</span>
-                            <span className="text-red-500 font-semibold">${depositAmount}</span>
-                        </div>
-
-                        <div className="flex justify-between text-sm">
-                            <span className="text-neutral-400">Balance (at service)</span>
-                            <span className="text-neutral-300">${balance}</span>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            <p className="text-neutral-500 text-xs mt-4">
-                * Final price may vary based on vehicle condition.
-            </p>
-        </div>
-    );
-}
-
-export default CalEmbed;
