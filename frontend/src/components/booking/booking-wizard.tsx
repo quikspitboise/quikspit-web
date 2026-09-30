@@ -195,7 +195,7 @@ export function BookingWizard({
   const scrollToTop = useCallback(() => {
     const el = wizardRef.current
     if (!el) return
-    const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-bar-height')) || 72
+    const navHeight = document.querySelector('nav[aria-label="Primary"]')?.getBoundingClientRect().bottom ?? 72
     const top = el.getBoundingClientRect().top
     if (top >= navHeight && top < window.innerHeight * 0.5) return
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches

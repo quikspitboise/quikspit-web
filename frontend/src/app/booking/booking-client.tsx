@@ -114,6 +114,7 @@ export default function BookingClient() {
 
       <section id="design-your-detail" className="scroll-mt-[calc(var(--nav-total-height)+1rem)] border-t border-white/[0.07] py-10 lg:py-16">
         <div className="container mx-auto px-5 sm:px-6 lg:px-8">
+          <h2 className="sr-only">Design your detail</h2>
           {paramsLoaded ? (
             <BookingWizard
               initialSelection={initialSelection}

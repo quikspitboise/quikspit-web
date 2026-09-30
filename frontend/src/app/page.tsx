@@ -4,7 +4,7 @@ import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headlin
 import { MagneticButton } from '@/components/ui/magnetic-button'
 import { ReviewsSection } from '@/components/reviews-section'
 import { HomeStructuredData } from '@/components/home-structured-data'
-import { packageCategories, ceramicServices } from '@/components/booking/booking-data'
+import { packageCategories, ceramicServices, allPackagesFlat, isCeramicEligible } from '@/components/booking/booking-data'
 import InstagramEmbed from '@/components/InstagramEmbedWithSkeleton'
 import TikTokEmbed from '@/components/TikTokEmbedWithSkeleton'
 
@@ -22,20 +22,21 @@ const services = [
   },
   {
     name: 'Interior only',
-    description: 'Vacuum, shampoo, and wipe-down of every surface you touch.',
+    description: 'Vacuum, spot treatment, glass, and a wipe-down of interior surfaces.',
     from: fromPrice('interior'),
     href: '/pricing#packages',
   },
   {
     name: 'Exterior only',
-    description: 'Wash, decontamination, and a coat of protection on the paint.',
+    description: 'Hand wash, wheels, tires, and a coat of protection on the paint.',
     from: fromPrice('exterior'),
     href: '/pricing#packages',
   },
   {
     name: 'Ceramic coating',
-    description: 'Graphene coating applied over a paint correction. Lasts five to seven years.',
-    from: ceramicServices.find((s) => s.id === 'graphene-coating')?.price ?? 0,
+    description: 'Graphene coating with a one-step paint correction and an eligible detail package. Lasts five to seven years.',
+    from: Math.min(...allPackagesFlat.filter(isCeramicEligible).map((pkg) => pkg.basePrice))
+      + (ceramicServices.find((s) => s.id === 'graphene-coating')?.price ?? 0),
     href: '/pricing#ceramic',
   },
 ]
@@ -50,8 +51,8 @@ const steps = [
     body: 'Your confirmation email has the garage address. Drop the car off at your time and we work on it indoors.',
   },
   {
-    title: 'Pay when it’s done',
-    body: 'Look the car over when you pick it up, then pay. Card, cash, and Venmo all work.',
+    title: 'Pay the balance at pickup',
+    body: 'Any booking deposit goes toward your total. Look the car over when you pick it up, then pay the remaining balance. Card, cash, and Venmo all work.',
   },
 ]
 
@@ -107,7 +108,7 @@ export default function Home() {
             <div className="lg:col-span-4">
               <h2 className="font-display text-4xl sm:text-5xl text-white uppercase">Services</h2>
               <p className="mt-5 max-w-sm text-neutral-400 text-pretty">
-                Every service comes in Silver, Gold, and Platinum tiers. Prices here are for cars and sedans. SUVs and trucks cost a little more.
+                Choose from three detail packages for interior, exterior, or both. Prices here are for cars and sedans. SUVs and trucks cost a little more.
               </p>
               <Link
                 href="/pricing"
