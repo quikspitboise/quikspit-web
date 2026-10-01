@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "concurrently": "^10.0.5",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "typescript": "^6.0.3"
   },
   "engines": {
