@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm typecheck && next build",
+    "build": "next typegen && tsc --noEmit && next build",
     "typecheck": "next typegen && tsc --noEmit",
     "start": "next start",
     "lint": "eslint .",
