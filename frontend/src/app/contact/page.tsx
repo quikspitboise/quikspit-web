@@ -1,218 +1,93 @@
 import type { Metadata } from 'next'
-import { AnimatedHeadline, FadeHeadline } from '@/components/ui/animated-headline'
-import { GlassCard } from '@/components/ui/glass-card'
-import { AnimatedSection, SectionTransition } from '@/components/ui/section-transition'
+import { PageHeader } from '@/components/ui/page-header'
 import { ContactForm } from '@/components/contact-form'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with QuikSpit Auto Detailing for a quote, to schedule a service, or to ask a question. Mobile car detailing serving Boise, Idaho and the surrounding area.',
+  description: 'Get in touch with QuikSpit Auto Detailing for a quote, to schedule a service, or to ask a question. Car detailing by appointment in the Boise, Idaho area.',
   alternates: {
     canonical: '/contact',
   },
   openGraph: {
     title: 'Contact QuikSpit Auto Detailing',
-    description: 'Call, text, or send a message to get a quote for mobile detailing in the Boise area.',
+    description: 'Call, text, or send a message to get a quote for detailing in the Boise area.',
     url: '/contact',
   },
 }
 
-const contactMethods = [
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-      </svg>
-    ),
-    title: 'Phone',
-    value: '(208) 960-4970',
-    href: 'tel:+12089604970',
-    description: 'Call or text anytime',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: 'Email',
-    value: 'contact@quikspitboise.com',
-    href: 'mailto:contact@quikspitboise.com',
-    description: 'We reply within 24 hours',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    title: 'Service area',
-    value: 'Boise, ID and surrounding areas',
-    href: null,
-    description: 'Mobile service, we come to you',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    title: 'Availability',
-    value: 'By appointment',
-    href: null,
-    description: 'Same-day slots when open',
-  },
+const socials = [
+  { label: 'Instagram', href: 'https://www.instagram.com/quikspitboise/' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@quikspitboise' },
+  { label: 'Facebook', href: 'https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/' },
 ]
 
 export default function Contact() {
   return (
-    <main id="main-content" className="min-h-screen bg-transparent">
-      {/* Hero */}
-      <section className="relative py-20 lg:py-28">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <AnimatedHeadline
-              text="Get in touch"
-              as="h1"
-              className="text-5xl sm:text-6xl lg:text-7xl text-white mb-6"
-              splitBy="word"
-            />
-            <FadeHeadline as="p" delay={0.3} className="text-xl text-neutral-400 max-w-2xl mx-auto">
-              Call, text, or send a note. We reply within a day.
-            </FadeHeadline>
+    <main id="main-content" className="min-h-screen">
+      <PageHeader
+        title="Contact"
+        lede="Call, text, or send a note. We reply within a day, usually sooner."
+      />
+
+      <section className="border-t border-white/[0.07] py-16 lg:py-24">
+        <div className="container mx-auto px-5 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <dl className="space-y-8">
+              <div>
+                <dt className="text-sm text-neutral-500">Phone, call or text</dt>
+                <dd className="mt-1">
+                  <a href="tel:+12089604970" className="font-display text-3xl sm:text-4xl text-white tabular transition-colors hover:text-red-400">
+                    (208) 960-4970
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-neutral-500">Email</dt>
+                <dd className="mt-1">
+                  <a href="mailto:contact@quikspitboise.com" className="text-lg text-white underline decoration-white/20 underline-offset-4 transition-colors hover:decoration-red-400 break-all">
+                    contact@quikspitboise.com
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-neutral-500">Hours</dt>
+                <dd className="mt-1 text-lg text-white">By appointment. Same-day slots when open.</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-neutral-500">Location</dt>
+                <dd className="mt-1 text-lg text-white">A private garage in the Boise area.</dd>
+                <dd className="mt-1 text-sm text-neutral-500">The address comes with your booking confirmation.</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-neutral-500">Elsewhere</dt>
+                <dd className="mt-1 flex flex-wrap gap-x-5 gap-y-1">
+                  {socials.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-1 text-white underline decoration-white/20 underline-offset-4 transition-colors hover:decoration-red-400"
+                    >
+                      {social.label}
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="lg:col-span-7">
+            <div className="panel p-6 sm:p-8">
+              <h2 className="text-2xl font-semibold text-white">Send a message</h2>
+              <p className="mt-2 mb-8 text-neutral-400 text-pretty">
+                Ask about a service or get a quote. A photo of the car helps us quote accurately.
+              </p>
+              <ContactForm />
+            </div>
           </div>
         </div>
       </section>
-
-      <SectionTransition />
-
-      {/* Contact methods */}
-      <AnimatedSection className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {contactMethods.map((method) => (
-                <GlassCard key={method.title} hover gradient="subtle">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center mb-4 text-white shadow-lg shadow-red-600/20" aria-hidden="true">
-                      {method.icon}
-                    </div>
-                    <h3 className="font-display text-lg text-white mb-2 tracking-wide">{method.title}</h3>
-                    {method.href ? (
-                      <a
-                        href={method.href}
-                        className="text-red-400 hover:text-red-300 font-medium transition-colors block mb-1 text-sm break-all"
-                      >
-                        {method.value}
-                      </a>
-                    ) : (
-                      <p className="text-white font-medium mb-1 text-sm">{method.value}</p>
-                    )}
-                    <p className="text-neutral-400 text-sm">{method.description}</p>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <SectionTransition />
-
-      {/* Contact form */}
-      <AnimatedSection className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid lg:grid-cols-[1fr,1.5fr] gap-10 items-start">
-              {/* Info side */}
-              <div>
-                <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide mb-6">
-                  Send a message
-                </FadeHeadline>
-                <div className="space-y-4 text-neutral-300 mb-8">
-                  <p>
-                    Ask about services, get a quote for your vehicle, or book a time. Fill out the form and we will get back to you within 24 hours.
-                  </p>
-                  <p>
-                    For a faster answer, call or text (208) 960-4970.
-                  </p>
-                </div>
-
-                {/* Social links */}
-                <div className="flex gap-4">
-                  <a
-                    href="https://www.instagram.com/quikspitboise/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"
-                    aria-label="Follow us on Instagram"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                  </a>
-                  <a
-                    href="https://www.tiktok.com/@quikspitboise"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"
-                    aria-label="Follow us on TikTok"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
-                    </svg>
-                  </a>
-                  <a
-                    href="https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-xl bg-neutral-800 hover:bg-red-600 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-300"
-                    aria-label="Follow us on Facebook"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              {/* Form side */}
-              <GlassCard className="p-8" gradient="red" hover={false}>
-                <ContactForm />
-              </GlassCard>
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <SectionTransition />
-
-      {/* Service area */}
-      <AnimatedSection className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <GlassCard className="p-8 lg:p-12 text-center" gradient="subtle" hover={false}>
-              <FadeHeadline as="h2" className="font-display text-3xl lg:text-4xl text-white tracking-wide mb-4">
-                Mobile service area
-              </FadeHeadline>
-              <p className="text-neutral-400 max-w-xl mx-auto mb-8">
-                We serve the greater Boise area including Meridian, Nampa, Eagle, Star, Caldwell, and surrounding communities. Not sure if you are in the area? Call and ask.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                {['Boise', 'Meridian', 'Nampa', 'Eagle', 'Star', 'Caldwell', 'Kuna', 'Garden City'].map((city) => (
-                  <span
-                    key={city}
-                    className="px-4 py-2.5 bg-neutral-800/50 rounded-full text-neutral-300 text-sm border border-neutral-700"
-                  >
-                    {city}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
-          </div>
-        </div>
-      </AnimatedSection>
     </main>
   )
 }

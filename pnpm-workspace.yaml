@@ -4,18 +4,22 @@ packages:
 minimumReleaseAge: 10080
 minimumReleaseAgeStrict: false
 overrides:
-  next: ^16.3.5
+  next: ^16.3.8
   react: ^19.3.0
   react-dom: ^19.3.0
   '@types/node': ^22.20.2
   validator: ^13.15.35
-  nodemailer: ^10.0.8
+  nodemailer: ^10.0.9
   qs: ^6.16.0
-  'brace-expansion@^1.0.0': ^1.1.18
+  'brace-expansion@^1.0.0': ^1.1.21
+  'brace-expansion@^2.0.0': ^2.1.7
+  'brace-expansion@^5.0.0': ^5.0.12
+  'fast-uri@^3.0.0': ^3.1.8
+  'dompurify@^3.0.0': ^3.4.16
   'js-yaml@^4.0.0': ^4.3.2
   'ajv@^8.0.0': ^8.20.0
-  '@nestjs/platform-express>multer': ^2.3.0
-  # Next 16.3.5 pins typescript-eslint 8.68.0, whose parser lacks ESLint 10 scope support.
+  '@nestjs/platform-express>multer': ^2.4.0
+  # Next 16.3 pins typescript-eslint 8.68.0, whose parser lacks ESLint 10 scope support.
   'eslint-config-next>typescript-eslint': 8.70.0
   'js-yaml@^3.13.1': ^3.15.2
   'path-to-regexp@^6.0.0': ^6.3.0
@@ -29,7 +33,6 @@ allowBuilds:
   unrs-resolver: true
 updateConfig:
   ignoreDependencies:
-    - typescript # TypeScript 7 is incompatible with @typescript-eslint (<6.1.0) and ts-jest (<7).
     - '@nestjs/config' # v12 is ESM-only; this CommonJS backend would require a broad ESM module/import conversion.
     - '@nestjs/typeorm' # v12 is ESM-only; this CommonJS backend would require a broad ESM module/import conversion.
     - '@nestjs/common' # Keep Nest core stack on v11; Nest throttler and nest-winston support only through v11.
@@ -37,6 +40,19 @@ updateConfig:
     - '@nestjs/platform-express' # Keep Nest core stack on v11; Nest throttler and nest-winston support only through v11.
     - '@nestjs/testing' # Keep Nest core stack on v11; Nest throttler and nest-winston support only through v11.
 minimumReleaseAgeExclude:
+  # Use the current security patch across Next and its platform packages.
+  - 'next@16.3.8'
+  - 'eslint-config-next@16.3.8'
+  - '@next/env@16.3.8'
+  - '@next/eslint-plugin-next@16.3.8'
+  - '@next/swc-darwin-arm64@16.3.8'
+  - '@next/swc-darwin-x64@16.3.8'
+  - '@next/swc-linux-arm64-gnu@16.3.8'
+  - '@next/swc-linux-arm64-musl@16.3.8'
+  - '@next/swc-linux-x64-gnu@16.3.8'
+  - '@next/swc-linux-x64-musl@16.3.8'
+  - '@next/swc-win32-arm64-msvc@16.3.8'
+  - '@next/swc-win32-x64-msvc@16.3.8'
   - '@clerk/backend@3.17.2'
   - '@clerk/nextjs@7.9.2'
   - '@clerk/react@6.15.2'

@@ -17,56 +17,23 @@ const paddingClasses = {
 
 const gradientClasses = {
   none: '',
-  subtle: 'bg-gradient-to-br from-white/[0.03] to-transparent',
-  red: 'bg-gradient-to-br from-red-600/10 to-transparent',
+  subtle: '',
+  red: 'bg-linear-to-b from-red-600/[0.07] to-transparent',
 }
 
+/** Solid panel surface. Kept under its old name for existing callers. */
 export function GlassCard({
   children,
   className = '',
-  hover = true,
+  hover = false,
   gradient = 'none',
   padding = 'md',
 }: GlassCardProps) {
   return (
     <div
-      className={`
-        glass-card
-        ${hover ? 'glass-card-hover' : ''}
-        ${paddingClasses[padding]}
-        ${gradientClasses[gradient]}
-        ${className}
-      `}
+      className={`glass-card ${hover ? 'glass-card-hover' : ''} ${paddingClasses[padding]} ${gradientClasses[gradient]} ${className}`}
     >
       {children}
     </div>
-  )
-}
-
-interface FeatureCardProps {
-  icon: ReactNode
-  title: string
-  description: string
-  className?: string
-}
-
-export function FeatureCard({ icon, title, description, className = '' }: FeatureCardProps) {
-  return (
-    <GlassCard className={`h-full ${className}`} hover gradient="subtle">
-      <div className="flex flex-col h-full">
-        <div
-          className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center mb-5 shadow-lg shadow-red-600/20 ring-1 ring-red-500/20"
-          aria-hidden="true"
-        >
-          <div className="text-white">{icon}</div>
-        </div>
-        <h3 className="font-display text-2xl text-white mb-3 tracking-wide">
-          {title}
-        </h3>
-        <p className="text-neutral-400 leading-relaxed flex-grow">
-          {description}
-        </p>
-      </div>
-    </GlassCard>
   )
 }

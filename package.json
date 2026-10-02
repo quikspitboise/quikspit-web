@@ -10,6 +10,7 @@
     "build": "pnpm build:frontend && pnpm build:backend",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
+    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter backend typecheck",
     "serve:frontend": "pnpm --filter frontend start",
     "serve:backend": "pnpm --filter backend start:prod",
     "start:prod": "concurrently \"pnpm serve:backend\" \"pnpm serve:frontend\"",
@@ -19,8 +20,9 @@
   },
   "devDependencies": {
     "concurrently": "^10.0.5",
-    "eslint": "^10.10.0",
-    "typescript": "^6.0.3"
+    "eslint": "^10.11.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=22.22.3 <23"

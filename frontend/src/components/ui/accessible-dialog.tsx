@@ -112,7 +112,7 @@ export function AccessibleDialog({
     <div className="fixed inset-0 z-9999 flex items-center justify-center">
       <div
         aria-hidden="true"
-        className="fixed inset-0 bg-black/85 backdrop-blur-md"
+        className="fixed inset-0 bg-black/85 animate-fade-in"
         onMouseDown={onClose}
       />
       <div
@@ -122,7 +122,7 @@ export function AccessibleDialog({
         aria-label={ariaLabel}
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className={`relative z-1 ${className}`.trim()}
+        className={`relative z-1 dialog-enter ${className}`.trim()}
         onKeyDown={onKeyDown}
         onMouseDown={(event) => event.stopPropagation()}
       >

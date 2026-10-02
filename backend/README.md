@@ -120,16 +120,46 @@ $ npm run test:cov
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The Vercel project `quikspit-web-backend` deploys this package from the pnpm
+workspace. In **Settings → Build and Deployment**, use:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+| Setting | Value |
+| --- | --- |
+| Root Directory | `backend` |
+| Include source files outside of the Root Directory in the Build Step | Enabled |
+| Framework Preset | Other |
+| Node.js Version | `22.x` (subject to `package.json` engines) |
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+Keep the install command, build command, and output directory in `vercel.json`.
+The lockfile and `pnpm-workspace.yaml` live at the repository root. If Vercel
+reports `ERR_PNPM_NO_LOCKFILE`, confirm that those files are included in its
+checkout before changing the install command. Keep `--frozen-lockfile` enabled.
+See [Vercel's monorepo documentation](https://vercel.com/docs/monorepos/monorepo-faq).
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Production requires verified database TLS (`DB_SSL=true` and
+`DB_SSL_REJECT_UNAUTHORIZED=true`). With HTTPS enforcement enabled, set
+`CANONICAL_API_ORIGIN=https://quikspit-web-backend.vercel.app` and
+`TRUST_PROXY=127.0.0.1/8,::1/128` for Vercel's local ingress proxy. Keep
+`ALLOWED_ORIGINS` configured for the frontend domains.
+
+Apply pending database migrations before promoting a deployment. The runtime
+state migration creates `request_limits` and `provider_cache`; production does
+not synchronize the schema or run migrations automatically.
+
+`api/serverless.js` is the single function entrypoint. The rewrites send `/`,
+`/api`, and `/api/*` to the shared Nest handler. Do not add forwarding files
+under `api/` for individual controllers: each file can create another function
+containing the same application, dependencies, and local gallery resources.
+
+Vercel's **Functions Storage** metric includes bundles from retained deployments
+in each deployment region. Smaller bundles reduce storage for future deployments;
+old deployments must expire or be deleted separately. Review the project's
+**Settings → Security → Deployment Retention Policy**, preserving the production
+deployment and the rollback history needed for recovery. Usage is measured from
+daily storage maxima, so cleanup does not erase usage already recorded in the
+billing period. See [Deployment Storage](https://vercel.com/docs/deployment-storage)
+and [Deployment Retention](https://vercel.com/docs/deployment-retention).
+
 
 ## Resources
 

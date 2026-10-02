@@ -44,6 +44,15 @@ jobs:
       - run: corepack pnpm install --frozen-lockfile
       - run: pnpm --filter backend test --runInBand
       - run: pnpm --filter backend test:postgres
+      - name: Database migration CLI
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DB_SSL: 'false'
+        run: |
+          pnpm --filter backend migration:run
+          pnpm --filter backend migration:show
+          pnpm --filter backend migration:revert
+          pnpm --filter backend migration:run
       - run: pnpm --filter frontend test
       - run: pnpm --filter backend exec eslint "{src,apps,libs,test}/**/*.ts"
       - run: pnpm --filter frontend lint

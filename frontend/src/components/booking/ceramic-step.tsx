@@ -3,6 +3,7 @@
 import type { CeramicService } from './booking-data'
 import { getPaintCorrectionUpgradePrice } from './pricing-utils'
 import { CeramicInfoPopover } from '@/components/ceramic-info-popover'
+import { optionCardClass } from './option-card'
 
 interface CeramicStepProps {
   ceramicServices: CeramicService[]
@@ -23,13 +24,12 @@ export function CeramicStep({
 
   return (
     <div>
-      <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2">
-        Ceramic Coating & Paint Correction{' '}
-        <span className="text-neutral-400 font-normal text-sm">(optional)</span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-1">
+        <h3 className="text-white font-semibold text-xl">Protect the paint?</h3>
         <CeramicInfoPopover />
-      </h3>
-      <p className="text-neutral-400 text-sm mb-5">
-        Protect and perfect your paint with ceramic coating and paint correction services.
+      </div>
+      <p className="text-neutral-400 mb-6">
+        Optional. Your package qualifies for ceramic coating and paint correction.
       </p>
 
       <div className="space-y-4">
@@ -39,11 +39,7 @@ export function CeramicStep({
           .map((service) => (
             <label
               key={service.id}
-              className={`block cursor-pointer select-none p-4 rounded-xl border transition-colors duration-150 ${
-                ceramicCoatingSelected
-                  ? 'bg-red-600/10 border-red-600'
-                  : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-500'
-              }`}
+              className={optionCardClass(ceramicCoatingSelected)}
             >
               <input
                 type="checkbox"
@@ -54,43 +50,35 @@ export function CeramicStep({
               <div className="flex items-start justify-between mb-1">
                 <span
                   className={`font-medium ${
-                    ceramicCoatingSelected ? 'text-white' : 'text-neutral-300'
+                    ceramicCoatingSelected ? 'text-white' : 'text-neutral-200'
                   }`}
                 >
                   {service.name}
                 </span>
-                <span className="text-red-500 font-display">+${service.price}</span>
+                <span className="text-white font-display text-lg tabular">+${service.price}</span>
               </div>
               <p className="text-neutral-400 text-sm">{service.description}</p>
               {service.note && (
-                <p className="text-neutral-500 text-xs italic mt-1">{service.note}</p>
+                <p className="text-neutral-500 text-sm mt-1">{service.note}</p>
               )}
             </label>
           ))}
 
         {/* Paint Correction Options */}
-        <div className="border-t border-neutral-700 pt-4">
+        <div className="border-t border-white/10 pt-5">
           {ceramicCoatingSelected ? (
             <>
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
-                <p className="text-green-400 text-sm">
-                  ✓ <strong>1-Step Paint Correction included</strong> with your ceramic coating
-                  selection.
-                </p>
-              </div>
-              <p className="text-neutral-400 text-sm mb-3">
-                Want more? <span className="text-neutral-500">(optional upgrade)</span>
+              <p className="mb-4 flex items-center gap-2 text-sm text-emerald-300">
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7" /></svg>
+                A 1-step paint correction comes with the coating.
               </p>
+              <p className="text-neutral-400 text-sm mb-3">Optional upgrade</p>
               <div className="space-y-3">
                 {(() => {
                   const active = selectedPaintCorrection === 'paint-correction-2-upgrade'
                   return (
                     <label
-                      className={`block cursor-pointer select-none p-4 rounded-xl border transition-colors duration-150 ${
-                        active
-                          ? 'bg-red-600/10 border-red-600'
-                          : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-500'
-                      }`}
+                      className={optionCardClass(active)}
                     >
                       <input
                         type="radio"
@@ -106,13 +94,12 @@ export function CeramicStep({
                       />
                       <div className="flex items-start justify-between mb-1">
                         <span className={`font-medium ${active ? 'text-white' : 'text-neutral-300'}`}>
-                          Upgrade to 2-Step Paint Correction
+                          Upgrade to a 2-step correction
                         </span>
-                        <span className="text-red-500 font-display">+${upgradePrice}</span>
+                        <span className="text-white font-display text-lg tabular">+${upgradePrice}</span>
                       </div>
                       <p className="text-neutral-400 text-sm">
-                        Maximum defect removal with multi-stage compounding and polishing for a
-                        flawless finish.
+                        Compounding followed by polishing. Removes the most defects of any option.
                       </p>
                     </label>
                   )
@@ -122,7 +109,7 @@ export function CeramicStep({
           ) : (
             <>
               <p className="text-neutral-400 text-sm mb-3">
-                Paint Correction <span className="text-neutral-500">(choose one)</span>
+                Paint correction <span className="text-neutral-500">(choose one, or none)</span>
               </p>
               <div className="space-y-3">
                 {ceramicServices
@@ -132,11 +119,7 @@ export function CeramicStep({
                     return (
                       <label
                         key={service.id}
-                        className={`block cursor-pointer select-none p-4 rounded-xl border transition-colors duration-150 ${
-                          active
-                            ? 'bg-red-600/10 border-red-600'
-                            : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-500'
-                        }`}
+                        className={optionCardClass(active)}
                       >
                         <input
                           type="radio"
@@ -156,7 +139,7 @@ export function CeramicStep({
                           >
                             {service.name}
                           </span>
-                          <span className="text-red-500 font-display">+${service.price}</span>
+                          <span className="text-white font-display text-lg tabular">+${service.price}</span>
                         </div>
                         <p className="text-neutral-400 text-sm">{service.description}</p>
                       </label>

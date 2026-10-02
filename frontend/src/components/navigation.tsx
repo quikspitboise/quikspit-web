@@ -2,291 +2,195 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion'
-import { TransitionContext } from './page-transition'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Logo } from './logo'
 
+const navItems = [
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/gallery', label: 'Gallery' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+]
+
+const BOOK_HREF = '/booking#design-your-detail'
+
+function isActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 export function Navigation() {
-  const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname()
+  const [menuState, setMenuState] = useState({ open: false, pathname })
+  const [scrolled, setScrolled] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const prefersReducedMotion = useReducedMotion()
-  const { isTransitioning } = useContext(TransitionContext);
-  const { scrollY, scrollYProgress } = useScroll();
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 50);
-  });
+  // Close the menu on route change, during render rather than in an effect.
+  if (menuState.pathname !== pathname) {
+    setMenuState({ open: false, pathname })
+  }
+  const menuOpen = menuState.open
+  const setMenuOpen = (open: boolean) => setMenuState({ open, pathname })
 
-  // Close menu on route change
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+    // A sentinel at the top of the page is cheaper than a scroll listener.
+    const sentinel = document.getElementById('nav-scroll-sentinel')
+    if (!sentinel) return
+    const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting))
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
-
       event.preventDefault()
-      setMenuOpen(false)
+      setMenuState((state) => ({ ...state, open: false }))
       menuButtonRef.current?.focus()
     }
-
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [menuOpen]);
+  }, [menuOpen])
 
-  const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/booking', label: 'Book Service' },
-    { href: '/gallery', label: 'Gallery' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
-  ];
+  const bookingActive = pathname === '/booking'
 
   return (
     <>
-      {/* Scroll Progress Bar — pinned to the very top of the viewport so the
-          hairline stays visible above the opaque safe-area strip on notched
-          iPhones, matching the reference ScrollProgress (top-0). */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 right-0 h-[3px] z-[100] bg-gradient-to-r from-red-600 to-red-500 origin-left"
-        style={{ scaleX: scrollYProgress }}
-      />
-      <motion.nav
-        aria-label="Primary navigation"
-        className={`
-          fixed top-0 left-0 right-0 z-50
-          [transform:translateZ(0)]
-          pt-[var(--nav-safe-offset)]
-          ${prefersReducedMotion ? 'transition-none' : 'transition-[background-color,border-color,box-shadow] duration-500 ease-out'}
-          bg-black border-b border-white/8 shadow-[0_10px_30px_rgba(0,0,0,0.18)]
-          ${scrolled
-            ? 'lg:bg-[rgba(10,10,10,0.95)] lg:backdrop-blur-xl lg:border-b lg:border-white/5 lg:shadow-[0_4px_30px_rgba(0,0,0,0.3)]'
-            : 'lg:bg-transparent lg:backdrop-blur-none lg:border-b lg:border-transparent lg:shadow-none'
-          }
-          ${isTransitioning ? 'pointer-events-none' : ''}
-        `}
-        initial={false}
+      <div id="nav-scroll-sentinel" aria-hidden="true" className="absolute top-0 h-px w-px" />
+      <nav
+        aria-label="Primary"
+        className={`fixed top-0 left-0 right-0 z-50 [transform:translateZ(0)] pt-[var(--nav-safe-offset)] bg-black border-b transition-[border-color] duration-300 ${
+          scrolled || menuOpen ? 'border-white/10' : 'border-transparent'
+        }`}
       >
         {/* Over-viewport black backing: iOS Safari transiently misplaces the
             whole fixed layer while revealing the URL toolbar on scroll-up
             (WebKit bug 297779 family). Painting solid black far above the
             header means any such offset exposes black, never page content. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-full h-[50vh] bg-black"
-        />
-        {/* Opaque safe-area backing: paints the notch/status strip solid black
-            so scrolled page content can never show through above the logo bar
-            on iOS, regardless of the translucent gradient/blur layers below. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[var(--nav-safe-offset)] bg-black"
-        />
-        <div
-          aria-hidden="true"
-          className="
-            absolute inset-0 pointer-events-none lg:hidden
-            bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.02)_28%,rgba(255,255,255,0)_62%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.18)_0%,transparent_38%),linear-gradient(180deg,rgba(18,18,18,0.96)_0%,rgba(12,12,12,0.94)_100%)]
-          "
-        />
-        <div
-          aria-hidden="true"
-          className="
-            absolute inset-x-4 bottom-0 h-px pointer-events-none lg:hidden
-            bg-gradient-to-r from-transparent via-white/18 to-transparent
-          "
-        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-full h-[50vh] bg-black" />
+        {/* Opaque safe-area backing so scrolled content never shows through
+            above the logo bar on notched iPhones. */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[var(--nav-safe-offset)] bg-black" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-center justify-between h-[var(--nav-bar-height)]">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="group relative flex items-center"
-              aria-label="QuikSpit Auto Detailing - Home"
-            >
-              <motion.div
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
-                whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              >
-                <Logo responsive className="transition-all duration-300" />
-              </motion.div>
+        <div className="relative container mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-[var(--nav-bar-height)]">
+            <Link href="/" className="flex items-center rounded-md" aria-label="QuikSpit Auto Detailing, home">
+              <Logo responsive />
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`
-                    group relative px-4 py-2 text-sm font-medium tracking-wide
-                    ${prefersReducedMotion ? 'transition-none' : 'transition-colors duration-300'}
-                    ${pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
-                      ? 'text-white'
-                      : 'text-neutral-400 hover:text-white'
-                    }
-                  `}
-                  aria-current={pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`)) ? 'page' : undefined}
-                >
-                  <span className="relative z-10">{item.label}</span>
-
-                  {/* Active/Hover underline */}
-                  <span
-                    className={`pointer-events-none absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-red-600 ${
-                      pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
-                        ? 'w-[60%]'
-                        : 'w-0 group-hover:w-[60%]'
-                    } ${prefersReducedMotion ? 'transition-none' : 'transition-[width] duration-300'}`}
-                  />
-                </Link>
-              ))}
-
-              {/* CTA Button */}
-              <motion.div
-                className="ml-4"
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
-                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            <div className="hidden lg:flex items-center gap-1">
+              {navItems.map((item) => {
+                const active = isActive(pathname, item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`relative px-4 py-2 text-[0.9375rem] font-medium transition-colors duration-200 ${
+                      active ? 'text-white' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute left-4 right-4 -bottom-0.5 h-0.5 bg-red-500 origin-left transition-transform duration-300 ease-out-expo ${
+                        active ? 'scale-x-100' : 'scale-x-0'
+                      }`}
+                    />
+                  </Link>
+                )
+              })}
+              <Link
+                href={BOOK_HREF}
+                aria-current={bookingActive ? 'page' : undefined}
+                className="btn-primary ml-4 inline-flex min-h-10 items-center px-4 text-sm"
               >
-                <Link
-                  href="/booking#design-your-detail"
-                  className={`
-                    inline-flex items-center gap-2 px-5 py-2.5
-                    bg-red-600 hover:bg-red-500
-                    text-white text-sm font-semibold
-                    rounded-lg ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
-                    shadow-lg shadow-red-600/20 hover:shadow-red-600/30
-                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black
-                  `}
-                >
-                  Book Now
-                </Link>
-              </motion.div>
+                Book a detail
+              </Link>
             </div>
 
-            {/* Mobile Menu Button */}
-            <motion.button
+            <button
               ref={menuButtonRef}
               type="button"
-              className={`
-                lg:hidden relative w-10 h-10
-                flex items-center justify-center
-                text-white rounded-lg
-                hover:bg-white/5 ${prefersReducedMotion ? 'transition-none' : 'transition-colors'}
-                focus:outline-none focus:ring-2 focus:ring-red-600/50
-              `}
+              className="lg:hidden -mr-2 flex h-11 w-11 items-center justify-center rounded-md text-white"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
-              aria-controls={menuOpen ? 'mobile-menu' : undefined}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-              >
-                <div className="w-5 h-4 relative flex flex-col justify-between">
-                  <motion.span
-                    className="w-full h-0.5 bg-current rounded-full origin-center"
-                  animate={menuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
+              aria-controls="mobile-menu"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="relative block h-3.5 w-5" aria-hidden="true">
+                <span
+                  className={`absolute left-0 top-0 h-0.5 w-full rounded-full bg-current transition-transform duration-300 ease-out-expo ${
+                    menuOpen ? 'translate-y-[6px] rotate-45' : ''
+                  }`}
                 />
-                <motion.span
-                  className="w-full h-0.5 bg-current rounded-full"
-                  animate={menuOpen ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2 }}
+                <span
+                  className={`absolute left-0 bottom-0 h-0.5 w-full rounded-full bg-current transition-transform duration-300 ease-out-expo ${
+                    menuOpen ? '-translate-y-[6px] -rotate-45' : ''
+                  }`}
                 />
-                <motion.span
-                  className="w-full h-0.5 bg-current rounded-full origin-center"
-                  animate={menuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-            </motion.button>
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
               id="mobile-menu"
-              className="mobile-menu-shell lg:hidden absolute top-full left-0 right-0 overflow-hidden border-b border-white/8 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
-              initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="mobile-menu-shell lg:hidden absolute top-full inset-x-0 overflow-hidden border-b border-white/10"
+              initial={prefersReducedMotion ? { opacity: 0 } : { height: 0 }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { height: 'auto' }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { height: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div
-                aria-hidden="true"
-                className="
-                  absolute inset-0 pointer-events-none
-                  bg-[linear-gradient(180deg,rgba(255,255,255,0.07)_0%,rgba(255,255,255,0.02)_24%,rgba(255,255,255,0)_58%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.14)_0%,transparent_36%),linear-gradient(180deg,rgba(18,18,18,0.96)_0%,rgba(10,10,10,0.98)_100%)]
-                  backdrop-blur-[24px]
-                "
-              />
-              <div className="relative z-10 container mx-auto px-4 py-6 space-y-1">
-                {navItems.map((item, index) => (
-                  <motion.div
-                    key={item.href}
-                    initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -20 }}
-                    transition={prefersReducedMotion ? { duration: 0 } : { delay: index * 0.05, duration: 0.3 }}
-                  >
-                    <Link
-                      href={item.href}
-                      className={`
-                        block px-4 py-3 rounded-xl
-                        text-base font-medium tracking-wide
-                        ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
-                        ${pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`))
-                          ? 'text-white bg-red-600/10 border-l-2 border-red-600'
-                          : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                        }
-                      `}
-                      onClick={() => setMenuOpen(false)}
-                      aria-current={pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`)) ? 'page' : undefined}
-                    >
-                      {item.label}
-                    </Link>
-                  </motion.div>
-                ))}
-
-                {/* Mobile CTA */}
-                <motion.div
-                  initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={prefersReducedMotion ? { duration: 0 } : { delay: navItems.length * 0.05 + 0.1, duration: 0.3 }}
-                  className="pt-4"
+              <div className="container mx-auto px-5 sm:px-6 pt-2 pb-6">
+                <ul>
+                  {navItems.map((item, index) => {
+                    const active = isActive(pathname, item.href)
+                    return (
+                      <motion.li
+                        key={item.href}
+                        initial={prefersReducedMotion ? false : { opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.04 * index + 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        className="border-b border-white/[0.07]"
+                      >
+                        <Link
+                          href={item.href}
+                          aria-current={active ? 'page' : undefined}
+                          onClick={() => setMenuOpen(false)}
+                          className={`flex items-center justify-between py-4 text-lg font-medium ${
+                            active ? 'text-white' : 'text-neutral-300'
+                          }`}
+                        >
+                          {item.label}
+                          {active && <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-hidden="true" />}
+                        </Link>
+                      </motion.li>
+                    )
+                  })}
+                </ul>
+                <Link
+                  href={BOOK_HREF}
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-primary mt-6 flex min-h-12 w-full items-center justify-center"
                 >
-                  <Link
-                    href="/booking#design-your-detail"
-                    className={`
-                      block w-full text-center px-6 py-4
-                      bg-red-600 hover:bg-red-500
-                      text-white font-semibold
-                      rounded-xl ${prefersReducedMotion ? 'transition-none' : 'transition-all duration-300'}
-                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black
-                    `}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Book Your Service
-                  </Link>
-                </motion.div>
+                  Book a detail
+                </Link>
+                <a href="tel:+12089604970" className="mt-4 block py-2 text-center text-neutral-400">
+                  Or call (208) 960-4970
+                </a>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.nav>
+      </nav>
 
       {/* Spacer for fixed nav */}
       <div className="h-[var(--nav-total-height)]" />
     </>
-  );
+  )
 }

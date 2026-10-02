@@ -27,6 +27,20 @@ QuikSpit uses [Cal.com](https://cal.com) for appointment scheduling with Stripe 
 NEXT_PUBLIC_CAL_USERNAME=quikspitboise
 ```
 
+### Garage address delivery
+
+The public site promises that customers receive the private garage address in
+their confirmation email. The frontend does not store or send that address;
+address delivery must be configured in Cal.com for `full-detail`, `interior`,
+and `exterior`.
+
+Configure the address in the attendee confirmation notification, and keep it
+out of public event descriptions and any location displayed before booking.
+See [Cal.com's event settings](https://cal.com/blog/a-guide-to-cal-com-s-event-settings-and-features).
+For each event type, verify that a confirmed test booking receives the address
+and that an unbooked visitor cannot see it. Repeat this check when changing
+event locations or notification workflows.
+
 ### 3. Stripe Integration
 
 1. In Cal.com: Apps → Install Stripe → Connect your Stripe account

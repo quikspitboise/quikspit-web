@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { InvoiceService } from './invoice.service';
+import { InvoiceService, type InvoiceDetails } from './invoice.service';
 import {
   CreateInvoiceDto,
   SendInvoiceDto,
@@ -116,7 +116,9 @@ export class InvoiceController {
   }
 
   @Get(':id')
-  async getInvoice(@Param('id') invoiceId: string) {
+  async getInvoice(
+    @Param('id') invoiceId: string,
+  ): Promise<{ success: boolean; data: InvoiceDetails }> {
     this.logger.log('Retrieving invoice', { invoiceId });
 
     if (!this.invoiceService.isAvailable()) {
