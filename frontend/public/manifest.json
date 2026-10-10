@@ -1,7 +1,7 @@
 {
-  "name": "QuikSpit Auto Detailing - Professional Mobile Detailing",
+  "name": "QuikSpit Auto Detailing - Detailing by Appointment",
   "short_name": "QuikSpit Auto Detailing",
-  "description": "Professional mobile car detailing services that come to you. Premium cleaning and protection for your vehicle.",
+  "description": "Car detailing by appointment in a private Boise-area garage. The address is sent after booking.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -26,7 +26,7 @@
     {
       "name": "Book Service",
       "short_name": "Book",
-      "description": "Schedule your mobile detailing service",
+      "description": "Book a detailing appointment",
       "url": "/booking",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },

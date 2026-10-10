@@ -2,6 +2,8 @@ import {
   getDatabaseConnectionOptions,
   getSchemaSynchronization,
 } from './database.config';
+import { DataSource } from 'typeorm';
+import { PlatformTools } from 'typeorm/platform/PlatformTools.js';
 
 describe('database deployment policy', () => {
   const originalEnv = process.env;
@@ -11,6 +13,25 @@ describe('database deployment policy', () => {
   afterEach(() => {
     process.env = originalEnv;
   });
+
+  it.each([undefined, 'postgres://user:pass@localhost/test'])(
+    'constructs the PostgreSQL data source without dynamic driver lookup (%s)',
+    (url) => {
+      if (url) process.env.DATABASE_URL = url;
+      const lookup = jest
+        .spyOn(PlatformTools, 'load')
+        .mockImplementation(() => {
+          throw new Error('Dynamic driver lookup is unavailable in the bundle');
+        });
+      try {
+        expect(
+          () => new DataSource(getDatabaseConnectionOptions()),
+        ).not.toThrow();
+      } finally {
+        lookup.mockRestore();
+      }
+    },
+  );
 
   it('verifies certificates and prevents URL parameters from overriding the SSL policy', () => {
     process.env.DB_SSL = 'true';

@@ -150,7 +150,10 @@ Or use platform-specific scripts: `./start-dev.sh` (Linux/Mac) or `start-dev.bat
 | `pnpm dev:frontend` | Start Next.js dev server |
 | `pnpm dev:backend` | Start NestJS with hot reload |
 | `pnpm build` | Build both for production |
+| `pnpm typecheck` | Check both applications with TypeScript 7 |
 | `pnpm clean` | Remove all `node_modules` |
+
+See [the TypeScript toolchain](docs/TYPESCRIPT.md) for the native compiler and compatibility package.
 
 ---
 

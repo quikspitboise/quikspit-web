@@ -2,8 +2,9 @@ import type { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgr
 import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions.js';
 import { readFileSync } from 'node:fs';
 
-// Static side-effect import: TypeORM loads the pg driver via dynamic require(), which Vercel's function file-tracer cannot see. Without this, pg is missing from the serverless bundle and every cold start crashes with DriverPackageNotInstalledError.
-import 'pg';
+// Pass the traced driver directly: TypeORM's dynamic lookup cannot resolve pg
+// reliably from a pnpm workspace packaged as a Vercel function.
+import pg from 'pg';
 
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
   if (value === undefined) {
@@ -112,6 +113,7 @@ export function getDatabaseConnectionOptions(): PostgresDataSourceOptions {
   if (url) {
     return {
       type: 'postgres',
+      driver: pg,
       url,
       ssl: getSslConfig(),
       ...pooling,
@@ -120,6 +122,7 @@ export function getDatabaseConnectionOptions(): PostgresDataSourceOptions {
 
   return {
     type: 'postgres',
+    driver: pg,
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || '5432', 10),
     username: process.env.DB_USERNAME,

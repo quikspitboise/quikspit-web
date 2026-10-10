@@ -8,7 +8,7 @@
  *
  * Usage:
  *   cd backend
- *   npx ts-node -r tsconfig-paths/register scripts/seed-production.ts
+ *   pnpm exec node -r ts-node/register scripts/seed-production.ts
  *
  * Required env vars (reads from backend/.env for local, prompt for production):
  *   SOURCE_ - local DB connection (defaults to your .env values)
@@ -20,7 +20,7 @@
  *   TARGET_USERNAME=neondb_owner \
  *   TARGET_PASSWORD=xxx \
  *   TARGET_DATABASE=neondb \
- *   npx ts-node -r tsconfig-paths/register scripts/seed-production.ts
+ *   pnpm exec node -r ts-node/register scripts/seed-production.ts
  */
 
 import { config } from 'dotenv';

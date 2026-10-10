@@ -27,6 +27,19 @@ export interface InvoiceResult {
   smsSent: boolean;
 }
 
+export interface InvoiceDetails {
+  id: string;
+  number: string | null;
+  status: StripeInvoice['status'];
+  total: number;
+  amountDue: number;
+  amountPaid: number;
+  hostedInvoiceUrl: string | null;
+  pdfUrl: string | null;
+  created: number;
+  dueDate: number | null;
+}
+
 /**
  * Configuration for invoice behavior
  * Allows easy modification of default values

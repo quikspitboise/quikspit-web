@@ -1,23 +1,13 @@
-'use client'
-
-import React from 'react';
 import Link from 'next/link';
 import { Logo } from './logo';
 
-const footerLinks = {
-  services: [
-    { label: 'Exterior and interior', href: '/pricing' },
-    { label: 'Ceramic coatings', href: '/pricing' },
-    { label: 'Paint correction', href: '/pricing' },
-    { label: 'Packages', href: '/pricing' },
-  ],
-  company: [
-    { label: 'About', href: '/about' },
-    { label: 'Gallery', href: '/gallery' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'Contact', href: '/contact' },
-  ],
-};
+const pageLinks = [
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Book a detail', href: '/booking#design-your-detail' },
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+];
 
 const socialLinks = [
   {
@@ -53,45 +43,39 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative footer-glow border-t border-white/[0.06]">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main footer content */}
-        <div className="py-12 lg:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Brand column */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" aria-label="QuikSpit Auto Detailing home">
-              <Logo responsive className="mb-5" />
+    <footer className="border-t border-white/[0.07] bg-[#050505]">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="py-14 lg:py-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Link href="/" aria-label="QuikSpit Auto Detailing, home" className="inline-block rounded-md">
+              <Logo responsive />
             </Link>
-            <p className="text-neutral-400 text-sm leading-relaxed mb-6 max-w-xs">
-              Mobile detailing for the Boise area. We come to your home or office.
+            <p className="mt-5 max-w-xs text-neutral-400 text-sm leading-relaxed">
+              Car detailing by appointment in a private Boise-area garage. The address comes with your booking.
             </p>
-            {/* Social links */}
-            <div className="flex items-center gap-3">
+            <ul className="mt-6 flex items-center gap-2">
               {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-neutral-400 hover:text-white hover:bg-red-600/10 hover:border-red-600/30 transition-all duration-300"
-                >
-                  {social.icon}
-                </a>
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`QuikSpit on ${social.label}`}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-neutral-400 transition-colors hover:border-white/30 hover:text-white"
+                  >
+                    {social.icon}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Services column */}
-          <div>
-            <h3 className="font-display text-lg text-white tracking-wider mb-4">Services</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.services.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-neutral-400 hover:text-white text-sm transition-colors duration-300"
-                  >
+          <div className="lg:col-span-3">
+            <h2 className="text-sm text-neutral-500 mb-4">Pages</h2>
+            <ul className="space-y-1">
+              {pageLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="inline-block py-1 text-neutral-300 transition-colors hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -99,73 +83,26 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company column */}
-          <div>
-            <h3 className="font-display text-lg text-white tracking-wider mb-4">Company</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-neutral-400 hover:text-white text-sm transition-colors duration-300"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact column */}
-          <div>
-            <h3 className="font-display text-lg text-white tracking-wider mb-4">Contact</h3>
-            <ul className="space-y-3">
+          <div className="lg:col-span-4">
+            <h2 className="text-sm text-neutral-500 mb-4">Contact</h2>
+            <ul className="space-y-1">
               <li>
-                <a
-                  href="tel:+12089604970"
-                  className="flex items-center gap-2.5 text-neutral-400 hover:text-white text-sm transition-colors duration-300"
-                >
-                  <svg className="w-4 h-4 text-red-500/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
+                <a href="tel:+12089604970" className="inline-block py-1 text-neutral-300 tabular transition-colors hover:text-white">
                   (208) 960-4970
                 </a>
               </li>
               <li>
-                <a
-                  href="mailto:contact@quikspitboise.com"
-                  className="flex items-center gap-2.5 text-neutral-400 hover:text-white text-sm transition-colors duration-300"
-                >
-                  <svg className="w-4 h-4 text-red-500/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                <a href="mailto:contact@quikspitboise.com" className="inline-block py-1 text-neutral-300 transition-colors hover:text-white break-all">
                   contact@quikspitboise.com
                 </a>
               </li>
-              <li>
-                <div className="flex items-center gap-2.5 text-neutral-400 text-sm">
-                  <svg className="w-4 h-4 text-red-500/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Boise, ID and surrounding areas
-                </div>
-              </li>
+              <li className="py-1 text-neutral-500">Call or text any day. We reply within a day.</li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="py-5 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-neutral-500 text-xs">
-            &copy; {year} QuikSpit Auto Detailing. All rights reserved.
-          </p>
-          <Link
-            href="/booking#design-your-detail"
-            className="text-xs text-red-400/80 hover:text-red-400 transition-colors duration-300 font-medium tracking-wide py-1.5 px-2 -mx-2"
-          >
-            Book now
-          </Link>
+        <div className="py-6 border-t border-white/[0.06] text-neutral-500 text-sm">
+          &copy; {year} QuikSpit Auto Detailing, Boise, Idaho
         </div>
       </div>
     </footer>

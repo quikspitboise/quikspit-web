@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import type { Package } from './booking-data'
+import { optionCardClass } from './option-card'
 
 interface PackageStepProps {
   packages: Package[]
@@ -50,25 +51,25 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
 
   return (
     <div>
-      <h3 className="text-white font-semibold text-lg mb-2">Choose Your Package</h3>
-      <p className="text-neutral-400 text-sm mb-5">
-        Select a service category and tier. All prices include your vehicle size adjustment.
+      <h3 className="text-white font-semibold text-xl mb-1">Choose a package</h3>
+      <p className="text-neutral-400 mb-6">
+        Prices below already include your vehicle size.
       </p>
-      <div className="space-y-6">
+      <div className="space-y-8" role="radiogroup" aria-label="Package">
         {Object.entries(packagesByCategory).map(([categoryId, pkgs]) => (
           <div key={categoryId}>
             <div className="flex items-baseline justify-between mb-3">
-              <h4 className="text-red-500 text-sm uppercase tracking-wide font-medium">
+              <h4 className="text-white font-semibold">
                 {pkgs[0]?.categoryLabel}
               </h4>
               <button
                 type="button"
                 onClick={(e) => toggleCategory(pkgs, e)}
-                className="hidden sm:inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1 text-sm text-neutral-400 hover:text-white transition-colors"
               >
                 {pkgs.every((p) => expandedCards.has(`${p.categoryId}-${p.id}`))
-                  ? 'Hide all'
-                  : 'Compare all'}
+                  ? 'Hide details'
+                  : 'Compare what’s included'}
               </button>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
@@ -82,11 +83,7 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                 return (
                   <label
                     key={cardKey}
-                    className={`cursor-pointer select-none p-4 rounded-xl border transition-colors duration-150 ${
-                      active
-                        ? 'bg-red-600/10 border-red-600 shadow-sm shadow-red-600/20'
-                        : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-500'
-                    }`}
+                    className={optionCardClass(active)}
                   >
                     <input
                       type="radio"
@@ -96,15 +93,15 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                       onChange={() => onSelect(pkg)}
                     />
                     <div className="flex items-start justify-between mb-1">
-                      <span className={`font-medium ${active ? 'text-white' : 'text-neutral-200'}`}>
+                      <span className="font-medium text-white">
                         {pkg.name}
                       </span>
-                      <span className={`font-display ${active ? 'text-red-400' : 'text-red-500'}`}>
+                      <span className={`font-display text-xl tabular ${active ? 'text-red-400' : 'text-white'}`}>
                         ${adjustedPrice}
                       </span>
                     </div>
                     {pkg.tagline && (
-                      <p className="text-neutral-400 text-xs italic">{pkg.tagline}</p>
+                      <p className="text-neutral-400 text-sm">{pkg.tagline}</p>
                     )}
 
                     {pkg.features && pkg.features.length > 0 && (
@@ -112,11 +109,13 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                         <button
                           type="button"
                           onClick={(e) => toggleExpand(cardKey, e)}
-                          className="mt-2 inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors"
+                          aria-expanded={isExpanded}
+                          className="relative mt-2 -ml-1 inline-flex min-h-8 items-center gap-1 px-1 text-sm text-red-400 hover:text-red-300 transition-colors"
                         >
                           <span>{isExpanded ? 'Hide details' : "What's included?"}</span>
                           <svg
-                            className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                            aria-hidden="true"
+                            className={`h-3 w-3 transition-transform duration-300 ease-out-expo ${isExpanded ? 'rotate-180' : ''}`}
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -126,14 +125,14 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                           </svg>
                         </button>
                         <div
-                          className="grid transition-[grid-template-rows] duration-200 ease-out"
+                          className="grid transition-[grid-template-rows] duration-300 ease-out-expo"
                           style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
                         >
-                          <div className="overflow-hidden">
+                          <div className="overflow-hidden" inert={!isExpanded}>
                             <ul className="pt-2 space-y-1">
                               {pkg.features.map((feature) => (
-                                <li key={feature} className="text-neutral-400 text-xs flex items-start gap-1.5">
-                                  <span className="text-red-500 mt-0.5 shrink-0">✓</span>
+                                <li key={feature} className="text-neutral-400 text-sm flex items-start gap-2">
+                                  <span className="text-red-500 shrink-0" aria-hidden="true">✓</span>
                                   <span>{feature}</span>
                                 </li>
                               ))}

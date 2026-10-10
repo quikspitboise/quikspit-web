@@ -128,7 +128,7 @@ export const packageCategories: PackageCategory[] = [
   {
     id: 'combo',
     label: 'Exterior + Interior',
-    blurb: 'Complete inside & out transformations for total vehicle revival.',
+    blurb: 'The whole car, inside and out.',
     packages: [
       {
         id: 'silver',
@@ -182,7 +182,7 @@ export const packageCategories: PackageCategory[] = [
   {
     id: 'interior',
     label: 'Interior Only',
-    blurb: 'Targeted interior care ranging from reset to showroom.',
+    blurb: 'Seats, carpets, dash, and glass. The outside is left as is.',
     packages: [
       {
         id: 'silver',
@@ -228,7 +228,7 @@ export const packageCategories: PackageCategory[] = [
   {
     id: 'exterior',
     label: 'Exterior Only',
-    blurb: 'Exterior focused shine, protection & curb appeal.',
+    blurb: 'Wash, wheels, glass, and protection for the paint.',
     packages: [
       {
         id: 'silver',
@@ -293,20 +293,20 @@ export const ceramicServices: CeramicService[] = [
     name: '5-7 Year Graphene Ceramic Coating',
     price: 850,
     description: 'A deep, mirror-like shine that lasts years, not weeks.',
-    includedValue: 'Includes 1-step paint correction for optimal results—a $450 value built into this package!',
-    note: 'Want even more perfection? Upgrade to 2-step paint correction for maximum defect removal.',
+    includedValue: 'Includes a 1-step paint correction, normally $450',
+    note: 'You can upgrade to a 2-step correction when you book.',
   },
   {
     id: 'paint-correction-1',
     name: '1-Step Paint Correction & Polish',
     price: 450,
-    description: 'Years of swirls & scratches erased in a single session (≈65% correction or more).',
+    description: 'Removes most swirls and light scratches in one session, usually 65% correction or more.',
   },
   {
     id: 'paint-correction-2',
     name: '2-Step Paint Correction',
     price: 650,
-    description: 'Maximum defect removal with multi-stage compounding and polishing for a flawless finish.',
+    description: 'Compounding followed by polishing. Removes the most defects of any option.',
   },
 ]
 

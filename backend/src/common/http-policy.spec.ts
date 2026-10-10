@@ -51,4 +51,29 @@ describe('HTTPS redirects and proxy trust', () => {
     process.env.TRUST_PROXY = 'true';
     expect(() => app()).toThrow('trusted proxy IP addresses');
   });
+
+  it.each(['::ffff:10.0.0.0/8', '::/1'])(
+    'does not trust IPv4 clients through an incomplete IPv6 subnet (%s)',
+    async (subnet) => {
+      process.env.TRUST_PROXY = subnet;
+      await request(app())
+        .get('/check')
+        .set('X-Forwarded-Proto', 'https')
+        .set('X-Forwarded-For', '198.51.100.7')
+        .expect(308);
+    },
+  );
+
+  it.each(['10.0.0.0/8', '::ffff:10.0.0.0/104'])(
+    'retains correctly scoped trusted IPv4 subnets (%s)',
+    (subnet) => {
+      process.env.TRUST_PROXY = subnet;
+      const server = app();
+      const trust = server.get('trust proxy fn') as (
+        address: string,
+      ) => boolean;
+      expect(trust('10.1.2.3')).toBe(true);
+      expect(trust('198.51.100.7')).toBe(false);
+    },
+  );
 });

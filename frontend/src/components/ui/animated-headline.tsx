@@ -1,137 +1,66 @@
-'use client';
+import type { CSSProperties, ReactNode } from 'react'
 
-import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion';
-import { useRef, useMemo } from 'react';
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4'
 
 interface AnimatedHeadlineProps {
-  text: string;
-  className?: string;
-  as?: 'h1' | 'h2' | 'h3' | 'h4';
-  delay?: number;
-  splitBy?: 'word' | 'character';
-  once?: boolean;
+  /** Single-line text. Use `lines` to control where the headline breaks. */
+  text?: string
+  lines?: string[]
+  className?: string
+  as?: HeadingTag
+  /** Seconds before the first line starts rising. */
+  delay?: number
 }
 
-function getContainerVariants(delay: number): Variants {
-  return {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.03,
-        delayChildren: delay,
-      },
-    },
-  };
-}
-
-const itemVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-    rotateX: -40,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: {
-      type: 'spring',
-      damping: 20,
-      stiffness: 100,
-    },
-  },
-};
-
+/**
+ * Headline whose lines rise out of a mask on first paint. CSS-only, so it
+ * renders on the server, needs no hydration, and respects reduced motion
+ * through the global media query.
+ */
 export function AnimatedHeadline({
   text,
+  lines,
   className = '',
   as: Component = 'h1',
   delay = 0,
-  splitBy = 'word',
-  once = true,
 }: AnimatedHeadlineProps) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const isInView = useInView(ref, { once, margin: '-50px' });
-  const prefersReducedMotion = useReducedMotion();
-
-  const items = useMemo(() => {
-    if (splitBy === 'character') {
-      return text.split('').map((char, i) => ({
-        char: char === ' ' ? '\u00A0' : char,
-        key: `${char}-${i}`,
-      }));
-    }
-    return text.split(' ').map((word, i) => ({
-      char: word,
-      key: `${word}-${i}`,
-    }));
-  }, [text, splitBy]);
-
-  const baseClasses = `font-display uppercase tracking-wide ${className}`;
-
-  if (prefersReducedMotion) {
-    return <Component className={baseClasses}>{text}</Component>;
-  }
+  const content = lines ?? (text ? [text] : [])
 
   return (
-    <motion.div
-      ref={ref}
-      variants={getContainerVariants(delay)}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      style={{ perspective: 1000 }}
+    <Component
+      className={`font-display text-balance ${className}`}
+      style={{ '--reveal-delay': `${delay}s` } as CSSProperties}
     >
-      <Component className={baseClasses}>
-        {items.map(({ char, key }) => (
-          <motion.span
-            key={key}
-            variants={itemVariants}
-            className="inline-block"
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            {char}
-            {splitBy === 'word' && <span>&nbsp;</span>}
-          </motion.span>
-        ))}
-      </Component>
-    </motion.div>
-  );
+      {content.map((line, i) => (
+        <span key={line} className="mask-line" style={{ '--line-index': i } as CSSProperties}>
+          <span>{line}</span>
+        </span>
+      ))}
+    </Component>
+  )
 }
 
-// Simpler fade-up headline for secondary headings
 interface FadeHeadlineProps {
-  children: React.ReactNode;
-  className?: string;
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span';
-  delay?: number;
+  children: ReactNode
+  className?: string
+  as?: HeadingTag | 'p' | 'span' | 'div'
+  /** Seconds before the element rises in. */
+  delay?: number
 }
 
+/** Short rise-in for the copy that follows an AnimatedHeadline. */
 export function FadeHeadline({
   children,
   className = '',
-  as: Component = 'h2',
+  as: Component = 'p',
   delay = 0,
 }: FadeHeadlineProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-  const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return <Component className={className}>{children}</Component>;
-  }
-
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{
-        duration: 0.6,
-        delay,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+    <Component
+      className={`rise-in ${className}`}
+      style={{ '--reveal-delay': `${delay}s` } as CSSProperties}
     >
-      <Component className={className}>{children}</Component>
-    </motion.div>
-  );
+      {children}
+    </Component>
+  )
 }

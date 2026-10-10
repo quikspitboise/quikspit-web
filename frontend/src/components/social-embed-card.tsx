@@ -10,8 +10,6 @@ interface SocialEmbedCardProps {
 
 const platformConfig = {
   instagram: {
-    accent: 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400',
-    skeletonAccent: 'bg-pink-500/15',
     followUrl: 'https://www.instagram.com/quikspitboise/',
     label: 'Instagram',
     icon: (
@@ -21,8 +19,6 @@ const platformConfig = {
     ),
   },
   tiktok: {
-    accent: 'bg-gradient-to-r from-cyan-400 via-white/80 to-rose-500',
-    skeletonAccent: 'bg-cyan-400/15',
     followUrl: 'https://www.tiktok.com/@quikspitboise',
     label: 'TikTok',
     icon: (
@@ -37,26 +33,19 @@ export function SocialEmbedCard({ platform, handle, loading, children, className
   const config = platformConfig[platform];
 
   return (
-    <div className={`glass-card glass-card-hover overflow-hidden ${className}`}>
-      {/* Static platform color bar for recognition */}
-      <div className={`h-[3px] ${config.accent}`} aria-hidden="true" />
-
-      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.06]">
+    <div className={`panel overflow-hidden flex flex-col ${className}`}>
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
         <div className="text-white">{config.icon}</div>
-        <span className="font-display text-base text-white tracking-wide">{handle}</span>
+        <span className="font-semibold text-white">{handle}</span>
+        <span className="ml-auto text-sm text-neutral-500">{config.label}</span>
       </div>
 
-      <div className="relative min-h-[360px]">
+      <div className="relative min-h-[360px] flex-1">
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6" aria-hidden="true">
-            <div className={`${config.skeletonAccent} rounded-full w-16 h-16 mb-4 animate-pulse`} />
-            <div className={`${config.skeletonAccent} h-5 w-36 rounded mb-2 animate-pulse`} />
-            <div className={`${config.skeletonAccent} h-3 w-24 rounded mb-6 animate-pulse`} />
-            <div className="w-full space-y-3">
-              <div className={`${config.skeletonAccent} h-3 w-full rounded animate-pulse`} />
-              <div className={`${config.skeletonAccent} h-3 w-5/6 rounded animate-pulse`} />
-              <div className={`${config.skeletonAccent} h-3 w-4/6 rounded animate-pulse`} />
-            </div>
+          <div className="absolute inset-0 p-6 space-y-3" aria-hidden="true">
+            <div className="h-48 rounded-lg bg-white/[0.04] animate-pulse" />
+            <div className="h-3 w-5/6 rounded bg-white/[0.04] animate-pulse" />
+            <div className="h-3 w-3/6 rounded bg-white/[0.04] animate-pulse" />
           </div>
         )}
         {children}
@@ -67,7 +56,7 @@ export function SocialEmbedCard({ platform, handle, loading, children, className
           href={config.followUrl}
           variant="secondary"
           size="sm"
-          className="w-full justify-center"
+          className="w-full"
         >
           Follow on {config.label}
         </MagneticButton>
