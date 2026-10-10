@@ -1,0 +1,44 @@
+diff --git a/dist/utils/get-root-dirs.js b/dist/utils/get-root-dirs.js
+index 47108c943514a1d7e686c5eb18aad00a59963c83..fbc68d5ece76a1c617c5be393680082e55083cd9 100644
+--- a/dist/utils/get-root-dirs.js
++++ b/dist/utils/get-root-dirs.js
+@@ -8,12 +8,36 @@ Object.defineProperty(exports, "getRootDirs", {
+         return getRootDirs;
+     }
+ });
+-var _fastglob = require("fast-glob");
++var _glob = require("glob");
++var _path = require("node:path");
++var _fs = require("node:fs");
++var _picomatch = require("picomatch");
++var _minimatch = require("minimatch");
+ /**
+  * Process a Next.js root directory glob.
+  */ var processRootDir = function(rootDir) {
+-    return (0, _fastglob.globSync)(rootDir.replace(/\\/g, '/'), {
+-        onlyDirectories: true
++    var pattern = rootDir.replace(/\\/g, '/');
++    // fast-glob excludes the parent of a terminal globstar from its results.
++    var search = pattern.replace(/\/\*\*\/?$/, '/**/*');
++    // picomatch preserves fast-glob's negative extglob treatment of dotfiles.
++    var matches = search.includes('!(') ? _picomatch(_minimatch.braceExpand(search)) : null;
++    return (0, _glob.globSync)(search, {
++        withFileTypes: true,
++        follow: true,
++        dot: Boolean(matches)
++    }).filter(function(entry) {
++        var name = _path.isAbsolute(pattern) ? entry.fullpath() : entry.relative();
++        if (matches && !matches(name)) return false;
++        if (entry.isDirectory()) return true;
++        if (!entry.isSymbolicLink()) return false;
++        try {
++            return Boolean(_fs.statSync(entry.fullpath(), { throwIfNoEntry: false })?.isDirectory());
++        } catch (error) {
++            if (['ELOOP', 'ENOENT', 'ENOTDIR', 'EACCES', 'EPERM'].includes(error.code)) return false;
++            throw error;
++        }
++    }).map(function(entry) {
++        return _path.isAbsolute(pattern) ? entry.fullpath() : entry.relative() || '.';
+     });
+ };
+ var getRootDirs = function(context) {
