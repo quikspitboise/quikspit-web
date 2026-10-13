@@ -7,7 +7,7 @@ import { CLOUDINARY_ASSETS } from '@/lib/cloudinary-assets';
  * Client component for rendering the owner image.
  * Separated to allow the About page to remain a server component for metadata.
  */
-export function OwnerImage() {
+export function OwnerImage({ alt }: { alt: string }) {
     const ownerSrc = CLOUDINARY_ASSETS.static.owner;
 
     if (!ownerSrc) {
@@ -24,7 +24,7 @@ export function OwnerImage() {
     return (
         <CldImage
             src={ownerSrc}
-            alt="Garret, owner of QuikSpit Auto Detailing"
+            alt={alt}
             fill
             className="object-cover"
             sizes="(min-width: 1024px) 448px, 100vw"

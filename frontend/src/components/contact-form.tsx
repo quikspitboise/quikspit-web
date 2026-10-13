@@ -3,6 +3,10 @@
 import React, { useRef, useState } from 'react'
 import { buildBackendApiUrl } from '@/lib/backend-api'
 import { createTimeoutSignal } from '@/lib/fetch-with-timeout'
+import { useSiteContent } from '@/components/content/site-content-context'
+import { CONTACT_COPY_DEFAULTS, visitorCopy } from '@/components/content/visitor-copy'
+
+type ContactCopyText = (key: keyof typeof CONTACT_COPY_DEFAULTS, values?: Record<string, string | number>) => string
 
 interface ValidationErrors {
   name?: string
@@ -16,7 +20,7 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'
 const IMAGE_ACCEPT = '.jpg,.jpeg,.png,.gif,' + ALLOWED_IMAGE_TYPES.join(',')
 const FIELD_ORDER: Array<keyof ValidationErrors> = ['name', 'email', 'message', 'image']
 
-async function getResponseErrorMessage(response: Response): Promise<string> {
+async function getResponseErrorMessage(response: Response, phoneDisplay: string, text: ContactCopyText): Promise<string> {
   try {
     const body: unknown = await response.json()
 
@@ -34,22 +38,24 @@ async function getResponseErrorMessage(response: Response): Promise<string> {
     // The server may return an empty or non-JSON error response.
   }
 
-  return `The message didn't send (error ${response.status}). Try again, or call (208) 960-4970.`
+  return text('responseError', { status: response.status, phone: phoneDisplay })
 }
 
-function getSubmissionErrorMessage(error: unknown): string {
+function getSubmissionErrorMessage(error: unknown, phoneDisplay: string, text: ContactCopyText): string {
   if (error instanceof Error) {
     if (error.name === 'AbortError' || error.name === 'TimeoutError') {
-      return 'Sending took too long. Check your connection and try again.'
+      return text('timeoutError')
     }
 
     if (error.message && error.message !== 'Failed to fetch') return error.message
   }
 
-  return "The message didn't send. Check your connection and try again, or call (208) 960-4970."
+  return text('connectionError', { phone: phoneDisplay })
 }
 
-export function ContactForm() {
+export function ContactForm({ copy }: { copy?: Record<string, unknown> }) {
+  const text: ContactCopyText = (key, values) => visitorCopy(copy, CONTACT_COPY_DEFAULTS, key, values)
+  const { phoneDisplay } = useSiteContent().business
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [image, setImage] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -70,29 +76,29 @@ export function ContactForm() {
     switch (name) {
       case 'name':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Enter your name'
+          return text('nameRequired')
         }
         break
       case 'email':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Enter your email address'
+          return text('emailRequired')
         }
         if (typeof value === 'string' && !validateEmail(value)) {
-          return 'Enter an email address like name@example.com'
+          return text('emailInvalid')
         }
         break
       case 'message':
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
-          return 'Tell us what you need'
+          return text('messageRequired')
         }
         break
       case 'image':
         if (value && value instanceof File) {
           if (value.size > MAX_IMAGE_SIZE_BYTES) {
-            return 'Image must be 5MB or smaller'
+            return text('imageTooLarge')
           }
           if (!ALLOWED_IMAGE_TYPES.includes(value.type)) {
-            return 'Use a JPG, PNG, or GIF image'
+            return text('imageTypeInvalid')
           }
         }
         break
@@ -161,7 +167,7 @@ export function ContactForm() {
     
     // Check if there are any errors
     if (Object.values(errors).some(error => error !== undefined)) {
-      setError('Some fields need attention. Check the messages next to them.')
+      setError(text('validationMessage'))
       const firstInvalidField = FIELD_ORDER.find(field => errors[field] !== undefined)
       if (firstInvalidField) {
         formRef.current
@@ -186,7 +192,7 @@ export function ContactForm() {
         // File uploads need headroom for slow connections.
         signal: createTimeoutSignal(30_000),
       })
-      if (!res.ok) throw new Error(await getResponseErrorMessage(res))
+      if (!res.ok) throw new Error(await getResponseErrorMessage(res, phoneDisplay, text))
       setSuccess(true)
       setForm({ name: '', email: '', message: '' })
       setImage(null)
@@ -195,7 +201,7 @@ export function ContactForm() {
       
       if (fileInputRef.current) fileInputRef.current.value = ''
     } catch (err: unknown) {
-      setError(getSubmissionErrorMessage(err))
+      setError(getSubmissionErrorMessage(err, phoneDisplay, text))
     } finally {
       setLoading(false)
       submittingRef.current = false
@@ -206,7 +212,7 @@ export function ContactForm() {
     <div>
       {success && (
         <div className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-100" role="status">
-          Message sent. We&apos;ll reply within a day.
+          {text('successMessage')}
         </div>
       )}
       <form
@@ -219,7 +225,7 @@ export function ContactForm() {
       >
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-200 mb-2">Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-neutral-200 mb-2">{text('nameLabel')}</label>
             <input
               type="text"
               id="name"
@@ -242,7 +248,7 @@ export function ContactForm() {
           )}
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-200 mb-2">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-neutral-200 mb-2">{text('emailLabel')}</label>
             <input
               type="email"
               id="email"
@@ -267,7 +273,7 @@ export function ContactForm() {
           </div>
         </div>
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-neutral-200 mb-2">What do you need?</label>
+          <label htmlFor="message" className="block text-sm font-medium text-neutral-200 mb-2">{text('messageLabel')}</label>
           <textarea
             id="message"
             name="message"
@@ -278,7 +284,7 @@ export function ContactForm() {
             className={`w-full rounded-lg border bg-black px-4 py-3 text-white placeholder:text-neutral-600 transition-colors focus:border-red-500 focus:outline-none focus-visible:outline-none ${
               validationErrors.message && touched.message ? 'border-red-500' : 'border-white/15 hover:border-white/25'
             }`}
-            placeholder="Vehicle, what it needs, and roughly when"
+            placeholder={text('messagePlaceholder')}
             required
             aria-invalid={validationErrors.message && touched.message ? 'true' : 'false'}
             aria-describedby={validationErrors.message && touched.message ? 'message-error' : undefined}
@@ -291,7 +297,7 @@ export function ContactForm() {
         </div>
         <div>
           <label htmlFor="image" className="block text-sm font-medium text-neutral-200 mb-2">
-            Photo <span className="font-normal text-neutral-500">(optional)</span>
+            {text('photoLabel')} <span className="font-normal text-neutral-500">{text('optionalLabel')}</span>
           </label>
           <input
             type="file"
@@ -312,7 +318,7 @@ export function ContactForm() {
             </p>
           ) : (
             <p id="image-hint" className="mt-2 text-sm text-neutral-500">
-              JPG, PNG, or GIF, up to 5 MB.
+              {text('photoHint')}
             </p>
           )}
         </div>
@@ -326,7 +332,7 @@ export function ContactForm() {
           className="btn-primary inline-flex min-h-12 w-full items-center justify-center px-6 sm:w-auto"
           disabled={loading}
         >
-          {loading ? 'Sending…' : 'Send message'}
+          {loading ? text('sendingLabel') : text('submitLabel')}
         </button>
       </form>
     </div>

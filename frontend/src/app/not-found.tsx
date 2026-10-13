@@ -1,20 +1,15 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { MagneticButton } from '@/components/ui/magnetic-button'
+import { getPublishedContent } from '@/lib/server/content-api'
 
 export const metadata: Metadata = {
   title: 'Page not found',
   description: 'The page you are looking for could not be found.',
 }
 
-const links = [
-  { href: '/pricing', label: 'Prices' },
-  { href: '/booking#design-your-detail', label: 'Book a detail' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/contact', label: 'Contact' },
-]
-
-export default function NotFound() {
+export default async function NotFound() {
+  const links = (await getPublishedContent()).site.footerLinks
   return (
     <main id="main-content" className="min-h-[70vh]">
       <div className="container mx-auto px-5 sm:px-6 lg:px-8 py-20 lg:py-32">
@@ -25,7 +20,7 @@ export default function NotFound() {
         </p>
         <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
           {links.map((link) => (
-            <li key={link.href}>
+            <li key={`${link.href}-${link.label}`}>
               <Link href={link.href} className="text-white underline decoration-white/25 underline-offset-4 transition-colors hover:decoration-red-400">
                 {link.label}
               </Link>

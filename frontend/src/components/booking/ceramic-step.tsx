@@ -1,154 +1,123 @@
 'use client'
 
-import type { CeramicService } from './booking-data'
-import { getPaintCorrectionUpgradePrice } from './pricing-utils'
+import { useBookingCopy } from './booking-copy'
+
+import type { CeramicService } from '@/lib/content/types'
+import { formatCents } from '@/lib/content/catalog'
+import { siteCopy } from '@/lib/content/fields'
 import { CeramicInfoPopover } from '@/components/ceramic-info-popover'
+import { useSiteContent } from '@/components/content/site-content-context'
 import { optionCardClass } from './option-card'
 
 interface CeramicStepProps {
-  ceramicServices: CeramicService[]
-  ceramicCoatingSelected: boolean
-  selectedPaintCorrection: string | null
-  onToggleCeramic: () => void
-  onSelectPaintCorrection: (id: string | null) => void
+  coatings: CeramicService[]
+  /** Corrections on offer with the chosen coating, priced as charged. */
+  corrections: { service: CeramicService; amountCents: number }[]
+  includedCorrection?: CeramicService
+  coatingId?: string
+  correctionId?: string
+  onSelectCoating: (id: string | undefined) => void
+  onSelectCorrection: (id: string | undefined) => void
+}
+
+function CheckMark() {
+  return (
+    <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7" /></svg>
+  )
 }
 
 export function CeramicStep({
-  ceramicServices,
-  ceramicCoatingSelected,
-  selectedPaintCorrection,
-  onToggleCeramic,
-  onSelectPaintCorrection,
+  coatings,
+  corrections,
+  includedCorrection,
+  coatingId,
+  correctionId,
+  onSelectCoating,
+  onSelectCorrection,
 }: CeramicStepProps) {
-  const upgradePrice = getPaintCorrectionUpgradePrice(ceramicServices)
+  const text = useBookingCopy()
+  const site = useSiteContent()
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-1">
-        <h3 className="text-white font-semibold text-xl">Protect the paint?</h3>
-        <CeramicInfoPopover />
+        <h3 className="text-white font-semibold text-xl">{text('ceramicHeading')}</h3>
+        <CeramicInfoPopover title={siteCopy(site, 'ceramicInfo.title')} body={siteCopy(site, 'ceramicInfo.body')} />
       </div>
       <p className="text-neutral-400 mb-6">
-        Optional. Your package qualifies for ceramic coating and paint correction.
+        {text('ceramicDescription')}
       </p>
 
       <div className="space-y-4">
-        {/* Ceramic Coating Toggle */}
-        {ceramicServices
-          .filter((s) => s.id === 'graphene-coating')
-          .map((service) => (
-            <label
-              key={service.id}
-              className={optionCardClass(ceramicCoatingSelected)}
-            >
+        {coatings.map((service) => {
+          const active = coatingId === service.id
+          return (
+            <label key={service.id} className={optionCardClass(active)}>
               <input
                 type="checkbox"
                 className="sr-only"
-                checked={ceramicCoatingSelected}
-                onChange={onToggleCeramic}
+                checked={active}
+                onChange={() => onSelectCoating(active ? undefined : service.id)}
               />
-              <div className="flex items-start justify-between mb-1">
-                <span
-                  className={`font-medium ${
-                    ceramicCoatingSelected ? 'text-white' : 'text-neutral-200'
-                  }`}
-                >
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <span className={`font-medium ${active ? 'text-white' : 'text-neutral-200'}`}>
                   {service.name}
                 </span>
-                <span className="text-white font-display text-lg tabular">+${service.price}</span>
+                <span className="text-white font-display text-lg tabular">+{formatCents(service.priceCents)}</span>
               </div>
               <p className="text-neutral-400 text-sm">{service.description}</p>
               {service.note && (
                 <p className="text-neutral-500 text-sm mt-1">{service.note}</p>
               )}
             </label>
-          ))}
+          )
+        })}
 
-        {/* Paint Correction Options */}
-        <div className="border-t border-white/10 pt-5">
-          {ceramicCoatingSelected ? (
-            <>
-              <p className="mb-4 flex items-center gap-2 text-sm text-emerald-300">
-                <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7" /></svg>
-                A 1-step paint correction comes with the coating.
-              </p>
-              <p className="text-neutral-400 text-sm mb-3">Optional upgrade</p>
-              <div className="space-y-3">
-                {(() => {
-                  const active = selectedPaintCorrection === 'paint-correction-2-upgrade'
-                  return (
-                    <label
-                      className={optionCardClass(active)}
-                    >
-                      <input
-                        type="radio"
-                        name="paintCorrection"
-                        className="sr-only"
-                        checked={active}
-                        onClick={() => {
-                          if (active) onSelectPaintCorrection(null)
-                        }}
-                        onChange={() => {
-                          if (!active) onSelectPaintCorrection('paint-correction-2-upgrade')
-                        }}
-                      />
-                      <div className="flex items-start justify-between mb-1">
-                        <span className={`font-medium ${active ? 'text-white' : 'text-neutral-300'}`}>
-                          Upgrade to a 2-step correction
-                        </span>
-                        <span className="text-white font-display text-lg tabular">+${upgradePrice}</span>
-                      </div>
-                      <p className="text-neutral-400 text-sm">
-                        Compounding followed by polishing. Removes the most defects of any option.
-                      </p>
-                    </label>
-                  )
-                })()}
-              </div>
-            </>
-          ) : (
-            <>
+        {corrections.length > 0 && (
+          <div className={coatings.length > 0 ? 'border-t border-white/10 pt-5' : ''}>
+            {includedCorrection ? (
+              <>
+                <p className="mb-4 flex items-center gap-2 text-sm text-emerald-300">
+                  <CheckMark />
+                  {text('includedCorrectionMessage', { service: includedCorrection.name })}
+                </p>
+                <p className="text-neutral-400 text-sm mb-3">{text('upgradeLabel')}</p>
+              </>
+            ) : (
               <p className="text-neutral-400 text-sm mb-3">
-                Paint correction <span className="text-neutral-500">(choose one, or none)</span>
+                {text('correctionLabel')} <span className="text-neutral-500">{text('correctionChoiceHint')}</span>
               </p>
-              <div className="space-y-3">
-                {ceramicServices
-                  .filter((s) => s.id.startsWith('paint-correction'))
-                  .map((service) => {
-                    const active = selectedPaintCorrection === service.id
-                    return (
-                      <label
-                        key={service.id}
-                        className={optionCardClass(active)}
-                      >
-                        <input
-                          type="radio"
-                          name="paintCorrection"
-                          className="sr-only"
-                          checked={active}
-                          onClick={() => {
-                            if (active) onSelectPaintCorrection(null)
-                          }}
-                          onChange={() => {
-                            if (!active) onSelectPaintCorrection(service.id)
-                          }}
-                        />
-                        <div className="flex items-start justify-between mb-1">
-                          <span
-                            className={`font-medium ${active ? 'text-white' : 'text-neutral-300'}`}
-                          >
-                            {service.name}
-                          </span>
-                          <span className="text-white font-display text-lg tabular">+${service.price}</span>
-                        </div>
-                        <p className="text-neutral-400 text-sm">{service.description}</p>
-                      </label>
-                    )
-                  })}
-              </div>
-            </>
-          )}
-        </div>
+            )}
+            <div className="space-y-3">
+              {corrections.map(({ service, amountCents }) => {
+                const active = correctionId === service.id
+                return (
+                  <label key={service.id} className={optionCardClass(active)}>
+                    <input
+                      type="radio"
+                      name="paintCorrection"
+                      className="sr-only"
+                      checked={active}
+                      onClick={() => {
+                        if (active) onSelectCorrection(undefined)
+                      }}
+                      onChange={() => {
+                        if (!active) onSelectCorrection(service.id)
+                      }}
+                    />
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <span className={`font-medium ${active ? 'text-white' : 'text-neutral-300'}`}>
+                        {includedCorrection ? text('upgradeServiceLabel', { service: service.name }) : service.name}
+                      </span>
+                      <span className="text-white font-display text-lg tabular">+{formatCents(amountCents)}</span>
+                    </div>
+                    <p className="text-neutral-400 text-sm">{service.description}</p>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

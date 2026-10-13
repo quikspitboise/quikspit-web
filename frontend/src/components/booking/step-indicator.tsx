@@ -1,5 +1,7 @@
 'use client'
 
+import { useBookingCopy } from './booking-copy'
+
 interface Step {
   label: string
   shortLabel: string
@@ -13,8 +15,9 @@ interface StepIndicatorProps {
 }
 
 export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicatorProps) {
+  const text = useBookingCopy()
   return (
-    <nav aria-label="Booking progress" className="mb-6">
+    <nav aria-label={text('progressLabel')} className="mb-6">
       {/* Desktop: full horizontal bar */}
       <ol className="hidden sm:flex items-center justify-between gap-2">
         {steps.map((step, i) => {
@@ -81,7 +84,7 @@ export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicator
       <div className="sm:hidden">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-neutral-400">
-            Step {currentStep + 1} of {steps.length}
+            {text('stepCount', { current: currentStep + 1, total: steps.length })}
           </span>
           <span className="text-sm text-white font-medium">
             {steps[currentStep]?.label}

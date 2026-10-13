@@ -1,135 +1,110 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { GlassCard } from '@/components/ui/glass-card';
 import {
   hasBookingDeposit,
   type BookingSettings,
 } from '@/lib/booking-settings';
+import { describeApiError } from '@/lib/content/validation';
+import { Button, Card, Field, Notice, Spinner, cx, inputClass, useToast } from './ui';
 
 type BookingSettingsAdminProps = {
   initialSettings: BookingSettings;
 };
 
-type FeedbackState = {
-  tone: 'success' | 'error';
-  message: string;
-} | null;
-
 export function BookingSettingsAdmin({
   initialSettings,
 }: BookingSettingsAdminProps) {
+  const notify = useToast();
   const [depositAmount, setDepositAmount] = useState(
     initialSettings.depositAmount.toString(),
   );
   const [savedSettings, setSavedSettings] = useState(initialSettings);
   const [busy, setBusy] = useState(false);
-  const [feedback, setFeedback] = useState<FeedbackState>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const parsedDepositAmount = Number(depositAmount);
-  const depositEnabled =
-    Number.isFinite(parsedDepositAmount) && hasBookingDeposit(parsedDepositAmount);
+  const valid = depositAmount.trim() !== '' && Number.isFinite(parsedDepositAmount) && parsedDepositAmount >= 0;
+  const depositEnabled = valid && hasBookingDeposit(parsedDepositAmount);
+  const changed = valid && parsedDepositAmount !== savedSettings.depositAmount;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFeedback(null);
+    setError(null);
 
-    if (!Number.isFinite(parsedDepositAmount) || parsedDepositAmount < 0) {
-      setFeedback({
-        tone: 'error',
-        message: 'Deposit amount must be 0 or greater.',
-      });
+    if (!valid) {
+      setError('Deposit amount must be 0 or greater.');
       return;
     }
 
     setBusy(true);
-    const response = await fetch('/api/admin/settings/booking', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        depositAmount: parsedDepositAmount,
-      }),
-    });
-    setBusy(false);
-
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string; error?: string }
-        | null;
-      setFeedback({
-        tone: 'error',
-        message:
-          payload?.message || payload?.error || 'Unable to save booking settings.',
+    try {
+      const response = await fetch('/api/admin/settings/booking', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          depositAmount: parsedDepositAmount,
+        }),
       });
-      return;
-    }
+      const payload = await response.json().catch(() => null);
 
-    const settings = (await response.json()) as BookingSettings;
-    setSavedSettings(settings);
-    setDepositAmount(settings.depositAmount.toString());
-    setFeedback({
-      tone: 'success',
-      message: 'Booking settings saved.',
-    });
+      if (!response.ok) {
+        setError(describeApiError(payload, 'Unable to save booking settings.'));
+        return;
+      }
+
+      const settings = payload as BookingSettings;
+      setSavedSettings(settings);
+      setDepositAmount(settings.depositAmount.toString());
+      notify({ tone: 'success', message: 'Deposit saved. The booking page shows it now.' });
+    } catch {
+      setError('Could not reach the server. Check your connection and try again.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <GlassCard className="p-6 lg:p-8" gradient="subtle">
-      <div className="mb-6">
-        <h2 className="font-display text-2xl text-white tracking-wide">
-          Booking settings
-        </h2>
-        <p className="mt-2 text-sm text-neutral-400">
-          Set the booking deposit shown in the scheduler and Cal.com notes.
-          Amounts below $1 hide all deposit and balance text.
-        </p>
-      </div>
-
+    <Card
+      title="Booking deposit"
+      description="Shown in the booking steps, the booking page’s deposit policy and questions, and the notes sent to Cal.com. Collecting the payment itself is set up in Cal.com."
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="space-y-2 text-sm text-neutral-200">
-          <span>Deposit amount</span>
-          <div className="relative max-w-xs">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500">
-              $
-            </span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={depositAmount}
-              onChange={(event) => setDepositAmount(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-neutral-950/80 px-8 py-3 text-white outline-none transition focus:border-red-500"
-            />
-          </div>
-        </label>
+        <Field
+          label="Deposit amount"
+          hint="Set below $1 to turn the deposit off. All deposit and balance text is then hidden."
+          error={valid ? null : 'Enter an amount of $0 or more.'}
+        >
+          {({ id, describedBy, invalid }) => (
+            <div className="relative max-w-xs">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">$</span>
+              <input
+                id={id}
+                aria-describedby={describedBy}
+                aria-invalid={invalid}
+                inputMode="decimal"
+                value={depositAmount}
+                onChange={(event) => setDepositAmount(event.target.value.replace(/[^\d.]/g, ''))}
+                className={cx(inputClass, 'pl-7 tabular')}
+              />
+            </div>
+          )}
+        </Field>
 
-        <p className="text-xs text-neutral-500">
-          Current saved deposit: ${savedSettings.depositAmount}. Deposit text is{' '}
-          {depositEnabled ? 'visible' : 'hidden'} for this draft.
+        <p className="text-sm text-neutral-400">
+          Saved: ${savedSettings.depositAmount}.{' '}
+          {depositEnabled ? 'Customers will see a deposit.' : 'No deposit will be shown.'}
         </p>
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="inline-flex items-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {busy ? 'Saving...' : 'Save booking settings'}
-        </button>
-      </form>
+        {error && <Notice tone="danger">{error}</Notice>}
 
-      {feedback && (
-        <div
-          className={`mt-5 rounded-2xl border px-4 py-3 text-sm ${
-            feedback.tone === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
-              : 'border-red-500/30 bg-red-500/10 text-red-200'
-          }`}
-        >
-          {feedback.message}
-        </div>
-      )}
-    </GlassCard>
+        <Button type="submit" variant="primary" disabled={busy || !changed}>
+          {busy && <Spinner />}
+          {busy ? 'Saving' : 'Save deposit'}
+        </Button>
+      </form>
+    </Card>
   );
 }

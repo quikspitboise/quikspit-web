@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { UserButton } from '@/components/clerk-ui';
-import { BookingSettingsAdmin } from '@/components/admin/booking-settings-admin';
-import { GalleryAdminClient } from '@/components/admin/gallery-admin-client';
-import { GlassCard } from '@/components/ui/glass-card';
+import { AdminDashboard } from '@/components/admin/admin-dashboard';
 import { requireAdminPageAuth } from '@/lib/server/admin-auth';
 import { fetchAdminBookingSettings } from '@/lib/server/booking-settings-api';
+import { fetchAdminContentSummaries, getPublishedContent } from '@/lib/server/content-api';
 import { fetchAdminGalleryItems } from '@/lib/server/gallery-api';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function AdminGalleryPage() {
+export default async function AdminPage() {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     return (
       <main id="main-content" className="min-h-screen bg-transparent py-16 lg:py-24">
@@ -32,36 +32,49 @@ export default async function AdminGalleryPage() {
     );
   }
 
-  await requireAdminPageAuth();
-  const [items, bookingSettings] = await Promise.all([
+  const { userId } = await requireAdminPageAuth();
+  if (!userId) notFound();
+  const [items, bookingSettings, summaries, published] = await Promise.all([
     fetchAdminGalleryItems(),
     fetchAdminBookingSettings(),
+    fetchAdminContentSummaries().catch((error) => {
+      console.error('Unable to load content documents for admin', error);
+      return null;
+    }),
+    getPublishedContent(),
   ]);
 
+  const pages = summaries
+    ?.filter((summary) => summary.kind === 'page')
+    .map(({ key, title, hasUnpublishedChanges, publishedAt }) => ({ key, title, hasUnpublishedChanges, publishedAt })) ?? null;
+  const priceSources = [
+    ...published.catalog.categories.map((category) => ({ value: `category:${category.id}`, label: `${category.label} packages` })),
+    ...published.catalog.ceramicServices
+      .filter((service) => service.kind === 'coating')
+      .map((service) => ({ value: `service:${service.id}`, label: `${service.name}, with an eligible package` })),
+  ];
+
   return (
-    <main id="main-content" className="min-h-screen bg-transparent py-16 lg:py-24">
+    <main id="main-content" className="min-h-screen bg-transparent pb-16 pt-6 lg:pt-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl space-y-8">
-          <GlassCard className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:justify-between lg:p-8" gradient="red">
-            <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-red-300">Private admin</p>
-              <h1 className="mt-3 font-display text-4xl text-white tracking-wide">
-                Gallery management
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm text-neutral-300 lg:text-base">
-                This hidden route is protected by Clerk on the frontend and by verified Clerk tokens plus an explicit admin allowlist on the backend.
+        <div className="mx-auto max-w-6xl">
+          <header className="mb-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl text-white uppercase sm:text-4xl">Site admin</h1>
+              <p className="mt-1 text-sm text-neutral-400">
+                Edits stay private until you publish. <a href="/" target="_blank" rel="noopener" className="text-neutral-200 underline underline-offset-2 hover:text-white">View the site</a>
               </p>
             </div>
+            <UserButton />
+          </header>
 
-            <div className="flex items-center gap-3 text-white">
-              <span className="text-sm text-neutral-300">Signed in</span>
-              <UserButton />
-            </div>
-          </GlassCard>
-
-          <BookingSettingsAdmin initialSettings={bookingSettings} />
-
-          <GalleryAdminClient initialItems={items} />
+          <AdminDashboard
+            currentUserId={userId}
+            galleryItems={items}
+            bookingSettings={bookingSettings}
+            pages={pages}
+            priceSources={priceSources}
+          />
         </div>
       </div>
     </main>

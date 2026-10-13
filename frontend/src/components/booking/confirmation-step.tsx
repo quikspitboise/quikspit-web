@@ -1,8 +1,11 @@
 'use client'
 
+import { useBookingCopy } from './booking-copy'
+
 import type { BookingSelection } from './booking-data'
-import { getDurationEstimate } from './booking-data'
+import { formatCents, formatDuration } from '@/lib/content/catalog'
 import { hasBookingDeposit } from '@/lib/booking-settings'
+import { useSiteContent } from '@/components/content/site-content-context'
 
 interface ConfirmationStepProps {
   selection: BookingSelection
@@ -10,15 +13,13 @@ interface ConfirmationStepProps {
 }
 
 export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepProps) {
+  const text = useBookingCopy()
+  const { business } = useSiteContent()
   const showDeposit = hasBookingDeposit(depositAmount)
-  const balance = Math.max(selection.total - depositAmount, 0)
-  const addonList = selection.addons?.split(',').map((a) => a.trim()).filter(Boolean) || []
-  const duration = getDurationEstimate(
-    selection.category,
-    selection.tier,
-    Boolean(selection.ceramic),
-    Boolean(selection.paintCorrection)
-  )
+  const depositCents = Math.round(depositAmount * 100)
+  const balance = Math.max(selection.totalCents - depositCents, 0)
+  const addonList = selection.addonNames
+  const duration = formatDuration(selection.duration)
 
   return (
     <div className="text-center animate-step-in" role="status">
@@ -28,66 +29,66 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
         </svg>
       </div>
 
-      <h3 className="font-display text-4xl text-white uppercase mb-3">You&apos;re booked</h3>
+      <h3 className="font-display text-4xl text-white uppercase mb-3">{text('confirmationHeading')}</h3>
       <p className="text-neutral-400 max-w-md mx-auto mb-8 text-pretty">
-        A confirmation email with the time and the garage address is on its way.
+        {text('confirmationDescription')}
       </p>
 
       {/* Summary card */}
       <div className="panel p-6 text-left max-w-md mx-auto mb-8">
-        <h4 className="text-white font-semibold mb-4">Your detail</h4>
+        <h4 className="text-white font-semibold mb-4">{text('summaryHeading')}</h4>
         <div className="space-y-2 text-sm">
           {selection.packageName && (
             <div className="flex justify-between">
-              <span className="text-neutral-400">Package</span>
+              <span className="text-neutral-400">{text('packageLabel')}</span>
               <span className="text-white">{selection.packageName}</span>
             </div>
           )}
           {selection.sizeLabel && (
             <div className="flex justify-between">
-              <span className="text-neutral-400">Vehicle</span>
+              <span className="text-neutral-400">{text('vehicleLabel')}</span>
               <span className="text-white">{selection.sizeLabel}</span>
             </div>
           )}
           {addonList.length > 0 && (
             <div className="flex justify-between">
-              <span className="text-neutral-400">Add-ons</span>
+              <span className="text-neutral-400">{text('addonsLabel')}</span>
               <span className="text-white text-right max-w-[60%]">{addonList.join(', ')}</span>
             </div>
           )}
-          {selection.ceramic && (
-            <div className="flex justify-between">
-              <span className="text-neutral-400">Ceramic Coating</span>
-              <span className="text-white">Yes</span>
+          {selection.coatingName && (
+            <div className="flex justify-between gap-4">
+              <span className="text-neutral-400">{text('coatingLabel')}</span>
+              <span className="text-white text-right">{selection.coatingName}</span>
             </div>
           )}
-          {selection.paintCorrection && (
-            <div className="flex justify-between">
-              <span className="text-neutral-400">Paint Correction</span>
-              <span className="text-white">{selection.paintCorrection}</span>
+          {selection.correctionName && (
+            <div className="flex justify-between gap-4">
+              <span className="text-neutral-400">{text('correctionLabel')}</span>
+              <span className="text-white text-right">{selection.correctionName}</span>
             </div>
           )}
           {duration && (
             <div className="flex justify-between">
-              <span className="text-neutral-400">Takes about</span>
+              <span className="text-neutral-400">{text('durationLabel')}</span>
               <span className="text-white">{duration}</span>
             </div>
           )}
 
           <div className="border-t border-white/10 pt-3 mt-3">
             <div className="flex justify-between">
-              <span className="text-neutral-300">Total</span>
-              <span className="text-white font-display text-2xl tabular">${selection.total}</span>
+              <span className="text-neutral-300">{text('totalLabel')}</span>
+              <span className="text-white font-display text-2xl tabular">{formatCents(selection.totalCents)}</span>
             </div>
             {showDeposit && (
               <>
                 <div className="flex justify-between text-xs mt-1">
-                  <span className="text-neutral-500">Booking deposit</span>
-                  <span className="text-emerald-400 tabular">${depositAmount} paid</span>
+                  <span className="text-neutral-500">{text('bookingDepositLabel')}</span>
+                  <span className="text-emerald-400 tabular">{text('paidAmountLabel', { amount: formatCents(depositCents) })}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-neutral-500">Balance at service</span>
-                  <span className="text-neutral-400">${balance}</span>
+                  <span className="text-neutral-500">{text('balanceLabel')}</span>
+                  <span className="text-neutral-400">{formatCents(balance)}</span>
                 </div>
               </>
             )}
@@ -97,32 +98,32 @@ export function ConfirmationStep({ selection, depositAmount }: ConfirmationStepP
 
       {/* Prep instructions */}
       <div className="text-left max-w-md mx-auto">
-        <h4 className="text-white font-semibold mb-3">Before your appointment</h4>
+        <h4 className="text-white font-semibold mb-3">{text('prepHeading')}</h4>
         <ul className="space-y-2 text-sm text-neutral-400">
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>Check your email for the garage address. We don&apos;t publish it anywhere else.</span>
+            <span>{text('prepAddress')}</span>
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>Take any valuables out of the car.</span>
+            <span>{text('prepValuables')}</span>
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>Arrive on time so the detail can start on schedule.</span>
+            <span>{text('prepArrival')}</span>
           </li>
           <li className="flex gap-2">
             <span className="text-red-500 shrink-0" aria-hidden="true">•</span>
-            <span>Need to move it? Reschedule for free up to 24 hours ahead.</span>
+            <span>{text('prepReschedule')}</span>
           </li>
         </ul>
       </div>
 
       {/* Contact */}
       <p className="text-neutral-500 text-sm mt-8">
-        Questions? Call or text{' '}
-        <a href="tel:+12089604970" className="text-red-400 hover:text-red-300 underline underline-offset-4">
-          (208) 960-4970
+        {text('questionsLabel')}{' '}
+        <a href={`tel:${business.phone}`} className="text-red-400 hover:text-red-300 underline underline-offset-4">
+          {business.phoneDisplay}
         </a>
       </p>
     </div>

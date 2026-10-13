@@ -1,4 +1,4 @@
-import { proxyAdminRequest } from '@/lib/server/gallery-api';
+import { proxyGalleryMutation } from '@/lib/server/gallery-revalidation';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +11,7 @@ type RouteContext = {
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(request, `/gallery/admin/items/${encodeURIComponent(id)}`, {
+  return proxyGalleryMutation(request, `/gallery/admin/items/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(request, `/gallery/admin/items/${encodeURIComponent(id)}`, {
+  return proxyGalleryMutation(request, `/gallery/admin/items/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 }

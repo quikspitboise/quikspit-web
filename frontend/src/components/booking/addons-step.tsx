@@ -1,34 +1,38 @@
 'use client'
 
-import type { Addon } from './booking-data'
+import { useBookingCopy } from './booking-copy'
+
+import type { CatalogAddon } from '@/lib/content/types'
+import { formatCents } from '@/lib/content/catalog'
 import { optionCardClass } from './option-card'
 
 interface AddonsStepProps {
-  addons: Addon[]
-  selectedAddons: Set<string>
-  onToggle: (name: string) => void
+  addons: CatalogAddon[]
+  selectedAddonIds: string[]
+  onToggle: (id: string) => void
 }
 
-export function AddonsStep({ addons, selectedAddons, onToggle }: AddonsStepProps) {
+export function AddonsStep({ addons, selectedAddonIds, onToggle }: AddonsStepProps) {
+  const text = useBookingCopy()
   return (
     <div>
-      <h3 className="text-white font-semibold text-xl mb-1">Anything extra?</h3>
+      <h3 className="text-white font-semibold text-xl mb-1">{text('addonsHeading')}</h3>
       <p className="text-neutral-400 mb-6">
-        Optional. Pick as many as you like, or continue without any.
+        {text('addonsDescription')}
       </p>
       <div className="grid sm:grid-cols-2 gap-3">
         {addons.map((addon) => {
-          const active = selectedAddons.has(addon.name)
+          const active = selectedAddonIds.includes(addon.id)
           return (
             <label
-              key={addon.name}
+              key={addon.id}
               className={optionCardClass(active)}
             >
               <input
                 type="checkbox"
                 className="sr-only"
                 checked={active}
-                onChange={() => onToggle(addon.name)}
+                onChange={() => onToggle(addon.id)}
               />
               <div className="flex items-start justify-between gap-3 mb-1">
                 <span className="flex items-center gap-2.5 font-medium text-white">
@@ -44,7 +48,7 @@ export function AddonsStep({ addons, selectedAddons, onToggle }: AddonsStepProps
                   </span>
                   {addon.name}
                 </span>
-                <span className="text-neutral-300 tabular">+${addon.price}</span>
+                <span className="text-neutral-300 tabular">+{formatCents(addon.priceCents)}</span>
               </div>
               <p className="pl-6.5 text-neutral-400 text-sm">{addon.description}</p>
             </label>

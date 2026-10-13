@@ -8,6 +8,8 @@ import type { LoggerService } from './logger.service';
 // Keep this list scoped to those routes; cookie-authenticated routes need tokens.
 const BEARER_MUTATIONS: Record<string, RegExp[]> = {
   POST: [
+    /^\/api\/content\/admin\/pages\/?$/,
+    /^\/api\/content\/admin\/documents\/[^/]+\/(?:publish|unpublish|reorder|restore)\/?$/,
     /^\/api\/invoices(?:\/[^/]+\/send)?\/?$/,
     /^\/api\/gallery\/admin\/(?:items|reorder)\/?$/,
     /^\/api\/gallery\/admin\/items\/[^/]+\/assets\/?$/,
@@ -17,12 +19,21 @@ const BEARER_MUTATIONS: Record<string, RegExp[]> = {
     /^\/api\/settings\/admin\/booking\/?$/,
   ],
   DELETE: [/^\/api\/gallery\/admin\/items\/[^/]+\/?$/],
+  PUT: [/^\/api\/content\/admin\/documents\/[^/]+\/draft\/?$/],
 };
 
 function hasIndependentProtection(
   request: Request,
   allowedOrigins: string[],
 ): boolean {
+  // Quotes only read published prices, do not use cookie identity, and never
+  // persist or charge anything. The controller applies its own rate limit.
+  if (
+    request.method === 'POST' &&
+    /^\/api\/content\/quote\/?$/.test(request.path)
+  ) {
+    return true;
+  }
   if (
     request.method === 'POST' &&
     /^\/api\/webhooks\/stripe\/?$/.test(request.path)

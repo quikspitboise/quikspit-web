@@ -1,27 +1,24 @@
 'use client'
 
-import { useMemo, useState, useCallback } from 'react'
-import type { Package } from './booking-data'
+import { useBookingCopy } from './booking-copy'
+
+import { useState, useCallback } from 'react'
+import type { CatalogCategory } from '@/lib/content/types'
+import { formatCents } from '@/lib/content/catalog'
 import { optionCardClass } from './option-card'
 
+type PackageRef = { categoryId: string; packageId: string }
+
 interface PackageStepProps {
-  packages: Package[]
-  selectedPackage: Package | null
-  sizeAdd: number
-  onSelect: (pkg: Package) => void
+  categories: CatalogCategory[]
+  selected: PackageRef | null
+  sizeAddCents: number
+  onSelect: (ref: PackageRef) => void
 }
 
-export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: PackageStepProps) {
+export function PackageStep({ categories, selected, sizeAddCents, onSelect }: PackageStepProps) {
+  const text = useBookingCopy()
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
-
-  const packagesByCategory = useMemo(() => {
-    const grouped: Record<string, Package[]> = {}
-    packages.forEach((pkg) => {
-      if (!grouped[pkg.categoryId]) grouped[pkg.categoryId] = []
-      grouped[pkg.categoryId].push(pkg)
-    })
-    return grouped
-  }, [packages])
 
   const toggleExpand = useCallback((cardKey: string, e: React.MouseEvent) => {
     e.preventDefault()
@@ -34,9 +31,9 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
     })
   }, [])
 
-  const toggleCategory = useCallback((pkgs: Package[], e: React.MouseEvent) => {
+  const toggleCategory = useCallback((category: CatalogCategory, e: React.MouseEvent) => {
     e.preventDefault()
-    const keys = pkgs.map((pkg) => `${pkg.categoryId}-${pkg.id}`)
+    const keys = category.packages.map((pkg) => `${category.id}-${pkg.id}`)
     setExpandedCards((prev) => {
       const allExpanded = keys.every((k) => prev.has(k))
       const next = new Set(prev)
@@ -51,34 +48,34 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
 
   return (
     <div>
-      <h3 className="text-white font-semibold text-xl mb-1">Choose a package</h3>
+      <h3 className="text-white font-semibold text-xl mb-1">{text('packageHeading')}</h3>
       <p className="text-neutral-400 mb-6">
-        Prices below already include your vehicle size.
+        {text('packageDescription')}
       </p>
-      <div className="space-y-8" role="radiogroup" aria-label="Package">
-        {Object.entries(packagesByCategory).map(([categoryId, pkgs]) => (
-          <div key={categoryId}>
+      <div className="space-y-8" role="radiogroup" aria-label={text('packageLabel')}>
+        {categories.map((category) => (
+          <div key={category.id}>
             <div className="flex items-baseline justify-between mb-3">
               <h4 className="text-white font-semibold">
-                {pkgs[0]?.categoryLabel}
+                {category.label}
               </h4>
               <button
                 type="button"
-                onClick={(e) => toggleCategory(pkgs, e)}
+                onClick={(e) => toggleCategory(category, e)}
                 className="hidden sm:inline-flex items-center gap-1 text-sm text-neutral-400 hover:text-white transition-colors"
               >
-                {pkgs.every((p) => expandedCards.has(`${p.categoryId}-${p.id}`))
-                  ? 'Hide details'
-                  : 'Compare what’s included'}
+                {category.packages.every((p) => expandedCards.has(`${category.id}-${p.id}`))
+                  ? text('hideDetailsLabel')
+                  : text('compareDetailsLabel')}
               </button>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
-              {pkgs.map((pkg) => {
-                const cardKey = `${pkg.categoryId}-${pkg.id}`
+              {category.packages.map((pkg) => {
+                const cardKey = `${category.id}-${pkg.id}`
                 const active =
-                  selectedPackage?.id === pkg.id &&
-                  selectedPackage?.categoryId === pkg.categoryId
-                const adjustedPrice = pkg.basePrice + sizeAdd
+                  selected?.packageId === pkg.id &&
+                  selected?.categoryId === category.id
+                const adjustedPrice = pkg.basePriceCents + sizeAddCents
                 const isExpanded = expandedCards.has(cardKey)
                 return (
                   <label
@@ -90,14 +87,14 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                       name="selectedPackage"
                       className="sr-only"
                       checked={active}
-                      onChange={() => onSelect(pkg)}
+                      onChange={() => onSelect({ categoryId: category.id, packageId: pkg.id })}
                     />
                     <div className="flex items-start justify-between mb-1">
                       <span className="font-medium text-white">
                         {pkg.name}
                       </span>
                       <span className={`font-display text-xl tabular ${active ? 'text-red-400' : 'text-white'}`}>
-                        ${adjustedPrice}
+                        {formatCents(adjustedPrice)}
                       </span>
                     </div>
                     {pkg.tagline && (
@@ -112,7 +109,7 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                           aria-expanded={isExpanded}
                           className="relative mt-2 -ml-1 inline-flex min-h-8 items-center gap-1 px-1 text-sm text-red-400 hover:text-red-300 transition-colors"
                         >
-                          <span>{isExpanded ? 'Hide details' : "What's included?"}</span>
+                          <span>{isExpanded ? text('hideDetailsLabel') : text('showDetailsLabel')}</span>
                           <svg
                             aria-hidden="true"
                             className={`h-3 w-3 transition-transform duration-300 ease-out-expo ${isExpanded ? 'rotate-180' : ''}`}
@@ -130,8 +127,8 @@ export function PackageStep({ packages, selectedPackage, sizeAdd, onSelect }: Pa
                         >
                           <div className="overflow-hidden" inert={!isExpanded}>
                             <ul className="pt-2 space-y-1">
-                              {pkg.features.map((feature) => (
-                                <li key={feature} className="text-neutral-400 text-sm flex items-start gap-2">
+                              {pkg.features.map((feature, index) => (
+                                <li key={index} className="text-neutral-400 text-sm flex items-start gap-2">
                                   <span className="text-red-500 shrink-0" aria-hidden="true">✓</span>
                                   <span>{feature}</span>
                                 </li>

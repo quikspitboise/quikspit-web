@@ -368,3 +368,10 @@ body {
   .gallery-card__overlay { opacity: 1; }
 }
 }
+
+/* ─── Admin dialogs ────────────────────────────────────────── */
+
+/* Native modal dialogs do not stop the page behind them from scrolling. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}

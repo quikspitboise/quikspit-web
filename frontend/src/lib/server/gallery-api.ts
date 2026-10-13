@@ -9,6 +9,9 @@ import { getAdminApiAuth } from './admin-auth';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
+/** Admin gallery changes expire this tag so the public gallery updates at once. */
+export const GALLERY_CACHE_TAG = 'gallery-items';
+
 export type PublicGalleryItemsResult = {
   items: GalleryItem[];
   source: 'api' | 'fallback';
@@ -49,7 +52,7 @@ function validateAdminMutationOrigin(request: Request): NextResponse | null {
 export async function fetchPublicGalleryItems(): Promise<PublicGalleryItemsResult> {
   try {
     const response = await fetch(buildBackendApiUrl('/gallery'), {
-      next: { revalidate: 60 },
+      next: { revalidate: 60, tags: [GALLERY_CACHE_TAG] },
       signal: createTimeoutSignal(),
     });
 

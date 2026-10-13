@@ -9,10 +9,12 @@ import {
 } from '../booking-settings';
 import { getAdminApiAuth } from './admin-auth';
 
-export async function fetchPublicBookingSettings(): Promise<BookingSettings> {
+async function readBookingSettings(cached: boolean): Promise<BookingSettings> {
   try {
     const response = await fetch(buildBackendApiUrl('/settings/booking'), {
-      cache: 'no-store',
+      ...(cached
+        ? { next: { revalidate: 300, tags: [BOOKING_SETTINGS_CACHE_TAG] } }
+        : { cache: 'no-store' as const }),
       signal: createTimeoutSignal(),
       headers: {
         Accept: 'application/json',
@@ -25,9 +27,21 @@ export async function fetchPublicBookingSettings(): Promise<BookingSettings> {
 
     return normalizeBookingSettings(await response.json());
   } catch (error) {
-    console.error('Falling back to default booking settings', error);
+    console.error(`Falling back to default booking settings (${cached ? 'cached' : 'uncached'} read)`, error);
     return DEFAULT_BOOKING_SETTINGS;
   }
+}
+
+export function fetchPublicBookingSettings(): Promise<BookingSettings> {
+  return readBookingSettings(false);
+}
+
+/** Saving the deposit in admin expires this tag. */
+export const BOOKING_SETTINGS_CACHE_TAG = 'booking-settings';
+
+/** Cached read for statically rendered pages that mention the deposit. */
+export function fetchCachedBookingSettings(): Promise<BookingSettings> {
+  return readBookingSettings(true);
 }
 
 export async function fetchAdminBookingSettings(): Promise<BookingSettings> {

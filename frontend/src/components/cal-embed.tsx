@@ -1,20 +1,19 @@
 /**
  * Cal.com Embed Component for QuikSpit Shine
- * 
+ *
  * This component provides an inline Cal.com booking embed with prefill support.
- * It integrates with the pricing calculator to show a service summary and
+ * It integrates with the booking wizard to show a service summary and
  * prefill booking notes with customer selections.
- * 
+ *
  * @module components/cal-embed
- * 
+ *
  * CONFIGURATION:
- * - Set NEXT_PUBLIC_CAL_USERNAME in .env.local (default: quikspitboise)
- * - Cal.com event slugs should match: full-detail, interior, exterior
+ * - The Cal.com username and each category's event slug come from the
+ *   published service catalog, edited in the admin under Services & prices
  * - Stripe integration configured in Cal.com dashboard
- * 
+ *
  * CUSTOMIZATION:
  * - Change the booking deposit from the admin booking settings panel
- * - Modify EVENT_SLUGS to change Cal.com event routing
  * - Modify THEME_CONFIG to adjust embed appearance
  */
 
@@ -24,30 +23,14 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import Cal, { getCalApi } from '@calcom/embed-react';
 import { hasBookingDeposit } from '@/lib/booking-settings';
 import { isConfirmedCalBooking, readCalEmbedEvent } from '@/lib/cal-embed-events';
+import { formatCents, formatDuration } from '@/lib/content/catalog';
+import { siteCopy } from '@/lib/content/fields';
+import { useSiteContent } from '@/components/content/site-content-context';
 import type { BookingSelection } from './booking/booking-data';
-
-export type { BookingSelection } from './booking/booking-data';
 
 // ============================================================================
 // CONFIGURATION - Modify these values to customize behavior
 // ============================================================================
-
-/**
- * Cal.com username - should match your Cal.com account
- * Configured via NEXT_PUBLIC_CAL_USERNAME environment variable
- */
-const CAL_USERNAME = process.env.NEXT_PUBLIC_CAL_USERNAME || 'quikspitboise';
-
-/**
- * Event slugs for each service category
- * These must match the event types created in Cal.com dashboard
- */
-export const EVENT_SLUGS = {
-    combo: 'full-detail',
-    interior: 'interior',
-    exterior: 'exterior',
-    default: 'full-detail',
-} as const;
 
 /**
  * Theme configuration for the Cal.com embed
@@ -68,10 +51,8 @@ const THEME_CONFIG = {
 // ============================================================================
 
 export interface CalEmbedProps {
-    /** Booking selection data from pricing calculator */
+    /** Priced booking selection from the wizard; it carries the Cal.com link. */
     selection?: BookingSelection | null;
-    /** Override the event slug (defaults to category-based routing) */
-    eventSlug?: string;
     /** Additional CSS classes */
     className?: string;
     /** Callback fired when the calendar embed is ready */
@@ -87,13 +68,6 @@ export interface CalEmbedProps {
 // ============================================================================
 
 /**
- * Get the Cal.com event slug for a category
- */
-export function getEventSlug(category: string): string {
-    return EVENT_SLUGS[category as keyof typeof EVENT_SLUGS] || EVENT_SLUGS.default;
-}
-
-/**
  * Format booking selection into a notes string for Cal.com
  * This appears in the booking notes field
  */
@@ -101,50 +75,31 @@ export function formatBookingNotes(selection: BookingSelection, depositAmount = 
     const lines: string[] = [
         '📋 SERVICE SUMMARY',
         '━━━━━━━━━━━━━━━━━━━',
+        `Package: ${selection.packageName}`,
+        `Vehicle: ${selection.sizeLabel}`,
     ];
 
-    // Package info
-    if (selection.packageName) {
-        lines.push(`Package: ${selection.packageName}`);
-    } else if (selection.tier && selection.category) {
-        const tierLabel = selection.tier.charAt(0).toUpperCase() + selection.tier.slice(1);
-        const categoryLabel = selection.category === 'combo' ? 'Full Detail' :
-            selection.category.charAt(0).toUpperCase() + selection.category.slice(1);
-        lines.push(`Package: ${tierLabel} (${categoryLabel})`);
+    if (selection.addonNames.length > 0) {
+        lines.push(`Add-ons: ${selection.addonNames.join(', ')}`);
     }
-
-    // Vehicle size
-    if (selection.sizeLabel) {
-        lines.push(`Vehicle: ${selection.sizeLabel}`);
-    } else if (selection.size) {
-        lines.push(`Vehicle Size: ${selection.size}`);
+    if (selection.coatingName) {
+        lines.push(`Ceramic: ${selection.coatingName}`);
     }
-
-    // Add-ons
-    if (selection.addons) {
-        const addonList = selection.addons.split(',').map(a => a.trim()).filter(Boolean);
-        if (addonList.length > 0) {
-            lines.push(`Add-ons: ${addonList.join(', ')}`);
-        }
+    if (selection.correctionName) {
+        lines.push(`Paint Correction: ${selection.correctionName}`);
     }
-
-    // Ceramic services
-    if (selection.ceramic) {
-        lines.push(`Ceramic: ${selection.ceramic}`);
-    }
-    if (selection.paintCorrection) {
-        lines.push(`Paint Correction: ${selection.paintCorrection}`);
-    }
+    lines.push(`Takes about: ${formatDuration(selection.duration)}`);
 
     // Pricing
     lines.push('');
     lines.push('━━━━━━━━━━━━━━━━━━━');
-    lines.push(`💰 ESTIMATED TOTAL: $${selection.total}`);
+    lines.push(`💰 ESTIMATED TOTAL: ${formatCents(selection.totalCents)}`);
 
     if (hasBookingDeposit(depositAmount)) {
-        const balance = Math.max(selection.total - depositAmount, 0);
-        lines.push(`💳 Deposit (today): $${depositAmount}`);
-        lines.push(`📅 Balance (at service): $${balance}`);
+        const depositCents = Math.round(depositAmount * 100);
+        const balance = Math.max(selection.totalCents - depositCents, 0);
+        lines.push(`💳 Deposit (today): ${formatCents(depositCents)}`);
+        lines.push(`📅 Balance (at service): ${formatCents(balance)}`);
     }
 
     return lines.join('\n');
@@ -167,7 +122,6 @@ export function formatBookingNotes(selection: BookingSelection, depositAmount = 
  */
 export function CalEmbed({
     selection,
-    eventSlug,
     className = '',
     onReady,
     onBookingSuccessful,
@@ -176,12 +130,8 @@ export function CalEmbed({
     const [readyEmbedKey, setReadyEmbedKey] = useState<string | null>(null);
     const [loadFailed, setLoadFailed] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-
-    // Determine which Cal.com event to show
-    const calLink = useMemo(() => {
-        const slug = eventSlug || (selection?.category ? getEventSlug(selection.category) : EVENT_SLUGS.default);
-        return `${CAL_USERNAME}/${slug}`;
-    }, [eventSlug, selection?.category]);
+    const site = useSiteContent();
+    const calLink = selection?.calLink ?? '';
 
     // Build config for Cal.com embed with proper typing
     const calConfig = useMemo((): Record<string, string> => {
@@ -200,15 +150,13 @@ export function CalEmbed({
         if (!selection) return 'default';
 
         return [
-            selection.category,
-            selection.tier,
-            selection.size,
-            selection.sizeLabel || '',
-            selection.addons,
-            selection.ceramic || '',
-            selection.paintCorrection || '',
-            selection.total.toString(),
-            selection.packageName || '',
+            selection.categoryId,
+            selection.packageId,
+            selection.vehicleSizeId,
+            selection.addonIds.join(','),
+            selection.coatingId || '',
+            selection.correctionId || '',
+            selection.totalCents.toString(),
             depositAmount.toString(),
         ]
             .map((part) => encodeURIComponent(part))
@@ -287,14 +235,16 @@ export function CalEmbed({
                     style={{ width: '100%', minHeight: '600px' }}
                 >
                     <div className="text-neutral-400" role="status">
-                        {loadFailed ? 'The booking calendar could not load.' : 'Loading the calendar…'}
+                        {loadFailed
+                            ? siteCopy(site, 'scheduling.failed', 'The booking calendar could not load.')
+                            : siteCopy(site, 'scheduling.loading', 'Loading the calendar…')}
                     </div>
                 </div>
             )}
             <p className="mt-4 text-sm text-neutral-400" role={loadFailed ? 'status' : undefined}>
                 {loadFailed ? 'Having trouble loading the calendar? ' : 'Prefer a separate window? '}
                 <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-red-400 underline underline-offset-4">
-                    Open scheduling on Cal.com
+                    {siteCopy(site, 'scheduling.openLabel', 'Open scheduling on Cal.com')}
                 </a>
             </p>
         </div>

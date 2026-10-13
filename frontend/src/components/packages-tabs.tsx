@@ -4,31 +4,28 @@ import { useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { buildBookingParams } from '@/lib/booking-params'
-import type { PackageCategory } from '@/components/booking/booking-data'
+import { formatCents } from '@/lib/content/catalog'
+import { toPreviewHref, type CatalogCategory, type CatalogPackage } from '@/lib/content/types'
+import { usePreviewBase } from '@/components/content/site-content-context'
 
 interface PackagesTabsProps {
-  categories: PackageCategory[]
+  categories: CatalogCategory[]
+  vehicleSizeLabel?: string
 }
 
-function getBookingHref(category: PackageCategory, pkg: PackageCategory['packages'][number]) {
-  const params = buildBookingParams({
-    category: category.id,
-    tier: pkg.id,
-    size: 'car',
-    sizeLabel: 'Car / Sedan',
-    addons: '',
-    total: pkg.basePrice,
-    packageName: `${pkg.name} (${category.label})`,
-  })
+function getBookingHref(category: CatalogCategory, pkg: CatalogPackage) {
+  const params = buildBookingParams({ categoryId: category.id, packageId: pkg.id })
   return `/booking?${params.toString()}#design-your-detail`
 }
 
-export function PackagesTabs({ categories }: PackagesTabsProps) {
+export function PackagesTabs({ categories, vehicleSizeLabel }: PackagesTabsProps) {
+  const previewBase = usePreviewBase()
   const [activeIndex, setActiveIndex] = useState(0)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const prefersReducedMotion = useReducedMotion()
   const baseId = useId()
-  const category = categories[activeIndex]
+  const category = categories[Math.min(activeIndex, categories.length - 1)]
+  if (!category) return null
 
   const onKeyDown = (event: React.KeyboardEvent) => {
     const last = categories.length - 1
@@ -112,13 +109,13 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
                 {pkg.description && <p className="mt-3 text-sm text-neutral-400 text-pretty">{pkg.description}</p>}
 
                 <p className="mt-6 flex items-baseline gap-2">
-                  <span className="font-display text-5xl text-white tabular">${pkg.basePrice}</span>
-                  <span className="text-sm text-neutral-500">for a car</span>
+                  <span className="font-display text-5xl text-white tabular">{formatCents(pkg.basePriceCents)}</span>
+                  {vehicleSizeLabel && <span className="text-sm text-neutral-500">for {vehicleSizeLabel}</span>}
                 </p>
 
                 <ul className="mt-6 flex-1 space-y-2.5 border-t border-white/10 pt-5 text-sm text-neutral-300">
-                  {pkg.features.map((feature) => (
-                    <li key={feature} className="flex gap-2.5">
+                  {pkg.features.map((feature, index) => (
+                    <li key={index} className="flex gap-2.5">
                       <svg className="mt-0.5 h-4 w-4 shrink-0 text-red-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M3 8.5l3 3 7-7" />
                       </svg>
@@ -128,7 +125,7 @@ export function PackagesTabs({ categories }: PackagesTabsProps) {
                 </ul>
 
                 <Link
-                  href={getBookingHref(category, pkg)}
+                  href={toPreviewHref(getBookingHref(category, pkg), previewBase)}
                   className={`mt-6 inline-flex min-h-11 items-center justify-center text-[0.9375rem] ${
                     featured ? 'btn-primary' : 'btn-secondary'
                   }`}

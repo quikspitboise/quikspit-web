@@ -1,16 +1,6 @@
-import type { Metadata } from 'next'
-import BookingClient from './booking-client'
+import { contentRoute } from '@/components/content/content-route'
 
-export const metadata: Metadata = {
-  title: 'Book a detail',
-  alternates: {
-    canonical: '/booking',
-  },
-  openGraph: {
-    url: '/booking',
-  },
-}
+const route = contentRoute('booking')
 
-export default function BookingPage() {
-  return <BookingClient />
-}
+export const generateMetadata = route.generateMetadata
+export default route.Page

@@ -3,69 +3,12 @@
 import { useEffect, useState } from 'react'
 import { fetchReviews, type ReviewsData } from '@/lib/reviews'
 
-const baseData = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'QuikSpit Auto Detailing',
-  image: 'https://quikspitboise.com/hero_fallback.jpg',
-  description: 'Auto detailing by appointment in Boise, ID. Exterior, interior, ceramic coating, and paint correction, done indoors in a private garage.',
-  '@id': 'https://quikspitboise.com',
-  url: 'https://quikspitboise.com',
-  telephone: '+1-208-960-4970',
-  priceRange: '$$',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Boise',
-    addressRegion: 'ID',
-    addressCountry: 'US',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 43.615,
-    longitude: -116.2023,
-  },
-  sameAs: [
-    'https://www.instagram.com/quikspitboise/',
-    'https://www.tiktok.com/@quikspitboise',
-    'https://www.facebook.com/people/QuikSpit-Auto-Detailing/61577268493375/',
-  ],
-  hasOfferCatalog: {
-    '@type': 'OfferCatalog',
-    name: 'Car Detailing Services',
-    itemListElement: [
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'Exterior Detailing',
-          description: 'Complete exterior wash, clay bar treatment, polishing, and premium wax protection',
-        },
-      },
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'Interior Cleaning',
-          description: 'Deep vacuum, steam cleaning, leather conditioning, and sanitization',
-        },
-      },
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'Premium Packages',
-          description: 'Full interior and exterior detailing with ceramic coating and paint protection',
-        },
-      },
-    ],
-  },
-}
-
 /**
- * LocalBusiness JSON-LD. The aggregate rating comes from the reviews API,
- * which the reviews section also reads (the fetch is cached and shared).
+ * LocalBusiness JSON-LD. The base data comes from published site content;
+ * the aggregate rating comes from the reviews API, which the reviews section
+ * also reads (the fetch is cached and shared).
  */
-export function HomeStructuredData() {
+export function HomeStructuredData({ baseData }: { baseData: Record<string, unknown> }) {
   const [reviews, setReviews] = useState<ReviewsData | null>(null)
 
   useEffect(() => {
@@ -93,7 +36,7 @@ export function HomeStructuredData() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }}
     />
   )
 }

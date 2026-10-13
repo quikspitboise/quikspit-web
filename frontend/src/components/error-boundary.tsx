@@ -2,6 +2,16 @@
 
 import React, { Component, createRef, ReactNode } from 'react'
 import Link from 'next/link'
+import { useSiteContent } from '@/components/content/site-content-context'
+
+function PhoneNumber() {
+  const { business } = useSiteContent()
+  return (
+    <a href={`tel:${business.phone}`} className="text-white underline underline-offset-4">
+      {business.phoneDisplay}
+    </a>
+  )
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -68,7 +78,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         >
           <h1 className="font-display text-3xl sm:text-5xl text-white uppercase">Something broke on this page</h1>
           <p className="mt-5 max-w-lg text-lg text-neutral-400 text-pretty">
-            Try loading it again. If it keeps happening, call or text (208) 960-4970 and we&apos;ll book you in by phone.
+            Try loading it again. If it keeps happening, call or text <PhoneNumber /> and we&apos;ll book you in by phone.
           </p>
 
           {process.env.NODE_ENV === 'development' && this.state.error && (

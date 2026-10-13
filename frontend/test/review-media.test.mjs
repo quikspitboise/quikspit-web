@@ -117,13 +117,24 @@ test('provider scripts share one promise and one DOM script', async () => {
 });
 
 test('booking params stay parseable without importing the scheduling embed', () => {
-  const { parseBookingParams } = loadModule('../src/lib/booking-params.ts');
+  const { parseBookingParams, buildBookingParams } = loadModule('../src/lib/booking-params.ts');
+  const catalog = {
+    addons: [{ id: 'pet-hair-removal', name: 'Pet Hair Removal' }],
+    ceramicServices: [{ id: 'graphene-coating', name: '5-7 Year Graphene Ceramic Coating' }],
+  };
+  // Older links named add-ons and ceramic services; newer ones use ids.
   const selection = parseBookingParams(new URLSearchParams(
-    'category=combo&tier=gold&size=suv&total=240&addons=Pet%20Hair',
-  ));
-  assert.equal(selection.category, 'combo');
-  assert.equal(selection.total, 240);
-  assert.equal(parseBookingParams(new URLSearchParams('category=combo')), null);
+    'category=combo&tier=gold&size=suv&total=240&addons=Pet%20Hair%20Removal,unknown&ceramic=5-7%20Year%20Graphene%20Ceramic%20Coating',
+  ), catalog);
+  assert.equal(selection.categoryId, 'combo');
+  assert.equal(selection.packageId, 'gold');
+  assert.deepEqual(selection.addonIds, ['pet-hair-removal']);
+  assert.equal(selection.coatingId, 'graphene-coating');
+  assert.equal(parseBookingParams(new URLSearchParams('utm_source=x'), catalog), null);
+  assert.equal(
+    buildBookingParams({ categoryId: 'combo', packageId: 'gold', addonIds: ['pet-hair-removal'] }).toString(),
+    'category=combo&tier=gold&addons=pet-hair-removal',
+  );
 });
 
 test('upload validation rejects unsupported and oversized files before XHR', () => {

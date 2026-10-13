@@ -1,24 +1,28 @@
 'use client'
 
-import type { SizeAdjustment } from './booking-data'
+import { useBookingCopy } from './booking-copy'
+
+import type { VehicleSize } from '@/lib/content/types'
+import { formatCents } from '@/lib/content/catalog'
 import { optionCardClass } from './option-card'
 
 interface VehicleStepProps {
-  sizeAdjustments: SizeAdjustment[]
-  vehicleSize: string
+  sizes: VehicleSize[]
+  vehicleSizeId: string
   onSelect: (sizeId: string) => void
 }
 
-export function VehicleStep({ sizeAdjustments, vehicleSize, onSelect }: VehicleStepProps) {
+export function VehicleStep({ sizes, vehicleSizeId, onSelect }: VehicleStepProps) {
+  const text = useBookingCopy()
   return (
     <div>
-      <h3 className="text-white font-semibold text-xl mb-1">What are we detailing?</h3>
+      <h3 className="text-white font-semibold text-xl mb-1">{text('vehicleHeading')}</h3>
       <p className="text-neutral-400 mb-6">
-        Bigger vehicles take longer, so the price goes up a little with size.
+        {text('vehicleDescription')}
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Vehicle size">
-        {sizeAdjustments.map((size) => {
-          const active = size.id === vehicleSize
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label={text('vehicleGroupLabel')}>
+        {sizes.map((size) => {
+          const active = size.id === vehicleSizeId
           return (
             <label
               key={size.id}
@@ -34,7 +38,7 @@ export function VehicleStep({ sizeAdjustments, vehicleSize, onSelect }: VehicleS
               />
               <span className="font-medium text-white">{size.label}</span>
               <span className={`text-sm tabular ${active ? 'text-red-300' : 'text-neutral-500'}`}>
-                {size.add > 0 ? `+$${size.add}` : 'Base price'}
+                {size.surchargeCents > 0 ? `+${formatCents(size.surchargeCents)}` : text('basePriceLabel')}
               </span>
             </label>
           )

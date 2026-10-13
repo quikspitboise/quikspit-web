@@ -5,21 +5,18 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Logo } from './logo'
-
-const navItems = [
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-]
-
-const BOOK_HREF = '/booking#design-your-detail'
+import { siteCopy } from '@/lib/content/fields'
+import { toPreviewHref, type SiteContent } from '@/lib/content/types'
 
 function isActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`)
+  const path = href.split('#')[0]
+  return pathname === path || pathname.startsWith(`${path}/`)
 }
 
-export function Navigation() {
+export function Navigation({ site, previewBase }: { site: SiteContent; previewBase?: string }) {
+  const navItems = site.navigation.map((item) => ({ ...item, href: toPreviewHref(item.href, previewBase) }))
+  const bookingLink = { ...site.bookingLink, href: toPreviewHref(site.bookingLink.href, previewBase) }
+  const { business } = site
   const pathname = usePathname()
   const [menuState, setMenuState] = useState({ open: false, pathname })
   const [scrolled, setScrolled] = useState(false)
@@ -54,7 +51,7 @@ export function Navigation() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [menuOpen])
 
-  const bookingActive = pathname === '/booking'
+  const bookingActive = isActive(pathname, bookingLink.href)
 
   return (
     <>
@@ -76,7 +73,7 @@ export function Navigation() {
 
         <div className="relative container mx-auto px-5 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[var(--nav-bar-height)]">
-            <Link href="/" className="flex items-center rounded-md" aria-label="QuikSpit Auto Detailing, home">
+            <Link href={toPreviewHref('/', previewBase)} className="flex items-center rounded-md" aria-label={`${business.name}, home`}>
               <Logo responsive />
             </Link>
 
@@ -85,7 +82,7 @@ export function Navigation() {
                 const active = isActive(pathname, item.href)
                 return (
                   <Link
-                    key={item.href}
+                    key={`${item.href}-${item.label}`}
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
                     className={`relative px-4 py-2 text-[0.9375rem] font-medium transition-colors duration-200 ${
@@ -103,11 +100,11 @@ export function Navigation() {
                 )
               })}
               <Link
-                href={BOOK_HREF}
+                href={bookingLink.href}
                 aria-current={bookingActive ? 'page' : undefined}
                 className="btn-primary ml-4 inline-flex min-h-10 items-center px-4 text-sm"
               >
-                Book a detail
+                {bookingLink.label}
               </Link>
             </div>
 
@@ -115,7 +112,7 @@ export function Navigation() {
               ref={menuButtonRef}
               type="button"
               className="lg:hidden -mr-2 flex h-11 w-11 items-center justify-center rounded-md text-white"
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={menuOpen ? siteCopy(site, 'closeMenu', 'Close menu') : siteCopy(site, 'openMenu', 'Open menu')}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -152,7 +149,7 @@ export function Navigation() {
                     const active = isActive(pathname, item.href)
                     return (
                       <motion.li
-                        key={item.href}
+                        key={`${item.href}-${item.label}`}
                         initial={prefersReducedMotion ? false : { opacity: 0, y: -6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.04 * index + 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
@@ -174,14 +171,14 @@ export function Navigation() {
                   })}
                 </ul>
                 <Link
-                  href={BOOK_HREF}
+                  href={bookingLink.href}
                   onClick={() => setMenuOpen(false)}
                   className="btn-primary mt-6 flex min-h-12 w-full items-center justify-center"
                 >
-                  Book a detail
+                  {bookingLink.label}
                 </Link>
-                <a href="tel:+12089604970" className="mt-4 block py-2 text-center text-neutral-400">
-                  Or call (208) 960-4970
+                <a href={`tel:${business.phone}`} className="mt-4 block py-2 text-center text-neutral-400">
+                  Or call {business.phoneDisplay}
                 </a>
               </div>
             </motion.div>

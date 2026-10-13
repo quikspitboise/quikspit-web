@@ -2,16 +2,21 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import { toBookingSelection, type BookingSelection } from './booking-data'
 import {
-  type Package,
-  type BookingSelection,
-  allPackagesFlat,
-  sizeAdjustments,
-  addons,
-  ceramicServices,
-  isCeramicEligible,
-} from './booking-data'
-import { calculatePricing, normalizePaintCorrection } from './pricing-utils'
+  calculateQuote,
+  correctionOptions,
+  defaultVehicleSize,
+  normalizeSelection,
+  publicAddons,
+  publicCategories,
+  publicCeramicServices,
+  publicVehicleSizes,
+  type CatalogSelection,
+} from '@/lib/content/catalog'
+import { requestQuote, type QuoteResult } from '@/lib/content/quote-client'
+import type { InitialBookingSelection } from '@/lib/booking-params'
+import type { CatalogContent } from '@/lib/content/types'
 import { hasBookingDeposit } from '@/lib/booking-settings'
 import { StepIndicator } from './step-indicator'
 import { BookingSummary } from './booking-summary'
@@ -20,16 +25,22 @@ import { PackageStep } from './package-step'
 import { AddonsStep } from './addons-step'
 import { CeramicStep } from './ceramic-step'
 import { ConfirmationStep } from './confirmation-step'
+import { useBookingCopy } from './booking-copy'
+
+function CalendarLoading() {
+  const text = useBookingCopy()
+  return (
+    <div className="flex min-h-[600px] items-center justify-center rounded-lg text-neutral-400" role="status">
+      {text('calendarLoading')}
+    </div>
+  )
+}
 
 const CalEmbed = dynamic(
   () => import('@/components/cal-embed').then((module) => module.CalEmbed),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex min-h-[600px] items-center justify-center rounded-lg text-neutral-400" role="status">
-        Loading the calendar…
-      </div>
-    ),
+    loading: CalendarLoading,
   },
 )
 
@@ -38,13 +49,19 @@ const CalEmbed = dynamic(
 // ============================================================================
 
 interface BookingWizardProps {
+  catalog: CatalogContent
+  /** Published catalog revision; quotes against an older one are rejected. */
+  catalogRevisionId: string | null
   /** Pre-populate from URL params (deep-link from pricing page) */
-  initialSelection?: BookingSelection | null
-  initialPackageSelection?: { categoryId: string; packageId: string } | null
+  initialSelection?: InitialBookingSelection | null
   depositAmount: number
+  /** Deposit sentence with the amount already filled in. */
+  depositPolicy: string
+  /** Admin draft preview: prices are unpublished, so skip the live quote. */
+  preview?: boolean
 }
 
-type StepId = 'vehicle' | 'package' | 'addons' | 'ceramic' | 'schedule' | 'confirmation'
+type StepId = 'vehicle' | 'package' | 'addons' | 'ceramic' | 'schedule'
 
 interface StepDef {
   id: StepId
@@ -52,50 +69,63 @@ interface StepDef {
   shortLabel: string
 }
 
+type PackageRef = { categoryId: string; packageId: string }
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
 export function BookingWizard({
+  catalog,
+  catalogRevisionId,
   initialSelection,
-  initialPackageSelection,
   depositAmount,
+  depositPolicy,
+  preview = false,
 }: BookingWizardProps) {
-  // ---- State ----
-  const [vehicleSize, setVehicleSize] = useState('car')
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null)
-  const [selectedAddons, setSelectedAddons] = useState<Set<string>>(new Set())
-  const [ceramicCoatingSelected, setCeramicCoatingSelected] = useState(false)
-  const [selectedPaintCorrection, setSelectedPaintCorrection] = useState<string | null>(null)
+  const text = useBookingCopy()
+  const categories = useMemo(() => publicCategories(catalog), [catalog])
+  const sizes = useMemo(() => publicVehicleSizes(catalog), [catalog])
+  const addons = useMemo(() => publicAddons(catalog), [catalog])
+  const hasCeramicServices = publicCeramicServices(catalog).length > 0
+
+  // ---- State (seeded once from the deep link, then normalized) ----
+  const [selection, setSelection] = useState<CatalogSelection>(() => {
+    const vehicleSizeId = sizes.some((size) => size.id === initialSelection?.vehicleSizeId)
+      ? initialSelection!.vehicleSizeId!
+      : (defaultVehicleSize(catalog)?.id ?? '')
+    return normalizeSelection(catalog, {
+      categoryId: initialSelection?.categoryId ?? '',
+      packageId: initialSelection?.packageId ?? '',
+      vehicleSizeId,
+      addonIds: initialSelection?.addonIds ?? [],
+      coatingId: initialSelection?.coatingId,
+      correctionId: initialSelection?.correctionId,
+    })
+  })
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [bookingConfirmed, setBookingConfirmed] = useState(false)
   const wizardRef = useRef<HTMLDivElement>(null)
-  const initialValues = useRef({ initialSelection, initialPackageSelection })
 
   // ---- Derived ----
-  const ceramicEnabled = isCeramicEligible(selectedPackage)
+  const selectedPackage = categories
+    .find((category) => category.id === selection.categoryId)
+    ?.packages.find((pkg) => pkg.id === selection.packageId)
+  const packageRef: PackageRef | null = selectedPackage
+    ? { categoryId: selection.categoryId, packageId: selection.packageId }
+    : null
+  const ceramicEnabled = Boolean(selectedPackage?.ceramicEligible) && hasCeramicServices
 
-  // Clear ceramic when package changes to ineligible
-  useEffect(() => {
-    if (!ceramicEnabled) {
-      setCeramicCoatingSelected(false)
-      setSelectedPaintCorrection(null)
-    }
-  }, [ceramicEnabled])
-
-  // Build dynamic step list
   const steps = useMemo<StepDef[]>(() => {
     const base: StepDef[] = [
-      { id: 'vehicle', label: 'Vehicle', shortLabel: 'Vehicle' },
-      { id: 'package', label: 'Package', shortLabel: 'Package' },
-      { id: 'addons', label: 'Add-ons', shortLabel: 'Extras' },
+      { id: 'vehicle', label: text('vehicleLabel'), shortLabel: text('vehicleLabel') },
+      { id: 'package', label: text('packageLabel'), shortLabel: text('packageLabel') },
     ]
-    if (ceramicEnabled) {
-      base.push({ id: 'ceramic', label: 'Paint protection', shortLabel: 'Paint' })
-    }
-    base.push({ id: 'schedule', label: 'Date and time', shortLabel: 'Time' })
+    if (addons.length > 0) base.push({ id: 'addons', label: text('addonsLabel'), shortLabel: text('extrasShortLabel') })
+    if (ceramicEnabled) base.push({ id: 'ceramic', label: text('ceramicLabel'), shortLabel: text('paintShortLabel') })
+    base.push({ id: 'schedule', label: text('scheduleLabel'), shortLabel: text('timeShortLabel') })
     return base
-  }, [ceramicEnabled])
+  }, [addons.length, ceramicEnabled, text])
 
   // If the ceramic step disappears and we were on it (or past it), clamp.
   useEffect(() => {
@@ -105,89 +135,32 @@ export function BookingWizard({
   }, [steps.length, currentStepIndex])
 
   const currentStep = steps[currentStepIndex]
+  const quote = useMemo(() => calculateQuote(catalog, selection), [catalog, selection])
+  const currentSelection = useMemo<BookingSelection | null>(() => (quote ? toBookingSelection(quote) : null), [quote])
+  const vehicleLabel = sizes.find((size) => size.id === selection.vehicleSizeId)?.label
 
-  // Pricing breakdown
-  const pricing = useMemo(
-    () =>
-      calculatePricing({
-        selectedPackage,
-        vehicleSize,
-        selectedAddons,
-        ceramicCoatingSelected,
-        selectedPaintCorrection,
-      }),
-    [selectedPackage, vehicleSize, selectedAddons, ceramicCoatingSelected, selectedPaintCorrection]
-  )
+  // ---- Confirm the price with the backend before scheduling ----
+  const quoteKey = JSON.stringify(selection)
+  const [serverQuote, setServerQuote] = useState<{ key: string; result: QuoteResult } | null>(null)
+  const onScheduleStep = currentStep?.id === 'schedule'
 
-  // Current selection for summary / cal embed
-  const currentSelection = useMemo<BookingSelection | null>(() => {
-    if (!selectedPackage) return null
-
-    const ceramicName = ceramicCoatingSelected
-      ? ceramicServices.find((s) => s.id === 'graphene-coating')?.name
-      : undefined
-
-    const paintCorrectionName = selectedPaintCorrection
-      ? ceramicServices.find((s) => s.id === selectedPaintCorrection)?.name ??
-        (selectedPaintCorrection === 'paint-correction-2-upgrade'
-          ? ceramicServices.find((s) => s.id === 'paint-correction-2')?.name
-          : undefined)
-      : undefined
-
-    const sizeLabel = sizeAdjustments.find((s) => s.id === vehicleSize)?.label
-
-    return {
-      category: selectedPackage.categoryId,
-      tier: selectedPackage.id,
-      size: vehicleSize,
-      sizeLabel,
-      addons: Array.from(selectedAddons).join(','),
-      ceramic: ceramicName,
-      paintCorrection: paintCorrectionName,
-      total: pricing.grandTotal,
-      packageName: `${selectedPackage.name} (${selectedPackage.categoryLabel})`,
-    }
-  }, [selectedPackage, vehicleSize, selectedAddons, ceramicCoatingSelected, selectedPaintCorrection, pricing.grandTotal])
-
-  // ---- Initialize from URL params ----
   useEffect(() => {
-    const { initialSelection, initialPackageSelection } = initialValues.current
-    if (initialSelection) {
-      setVehicleSize(sizeAdjustments.some((size) => size.id === initialSelection.size) ? initialSelection.size : 'car')
-
-      const pkg = allPackagesFlat.find(
-        (p) => p.categoryId === initialSelection.category && p.id === initialSelection.tier
-      )
-      if (pkg) setSelectedPackage(pkg)
-
-      setSelectedAddons(
-        new Set(
-          initialSelection.addons
-            .split(',')
-            .map((a) => a.trim())
-            .filter((name) => addons.some((addon) => addon.name === name))
-        )
-      )
-
-      const eligible = isCeramicEligible(pkg ?? null)
-      const hasCeramic = eligible && ceramicServices.some(
-        (service) => service.id === 'graphene-coating' && service.name === initialSelection.ceramic
-      )
-      setCeramicCoatingSelected(hasCeramic)
-
-      if (eligible && initialSelection.paintCorrection) {
-        const match = ceramicServices.find((s) => s.name === initialSelection.paintCorrection)
-        setSelectedPaintCorrection(normalizePaintCorrection(match?.id ?? null, hasCeramic))
-      }
-    } else if (initialPackageSelection) {
-      const pkg = allPackagesFlat.find(
-        (p) =>
-          p.categoryId === initialPackageSelection.categoryId &&
-          p.id === initialPackageSelection.packageId
-      )
-      if (pkg) setSelectedPackage(pkg)
+    if (!onScheduleStep || !quote || preview) return
+    let cancelled = false
+    requestQuote(quote.selection, catalogRevisionId).then((result) => {
+      if (!cancelled) setServerQuote({ key: quoteKey, result })
+    })
+    return () => {
+      cancelled = true
     }
-  }, []) // Run once on mount
+  }, [onScheduleStep, quote, quoteKey, catalogRevisionId, preview])
+
+  const quoteResult = preview ? null : serverQuote?.key === quoteKey ? serverQuote.result : undefined
+  // The backend total wins; the local one only stands in when it is unreachable.
+  const scheduledSelection =
+    currentSelection && quoteResult?.status === 'ok'
+      ? { ...currentSelection, totalCents: quoteResult.quote.totalCents, calLink: quoteResult.quote.calLink }
+      : currentSelection
 
   // ---- Navigation ----
   // Bring the top of the wizard into view below the fixed nav, but only when
@@ -226,81 +199,44 @@ export function BookingWizard({
     }
   }, [currentStepIndex, scrollToTop])
 
-  // Can advance from current step?
-  const canAdvance = useMemo(() => {
-    if (!currentStep) return false
-    switch (currentStep.id) {
-      case 'vehicle':
-        return Boolean(vehicleSize)
-      case 'package':
-        return Boolean(selectedPackage)
-      case 'addons':
-        return true // optional
-      case 'ceramic':
-        return true // optional
-      case 'schedule':
-        return false // handled by Cal.com
-      default:
-        return false
-    }
-  }, [currentStep, vehicleSize, selectedPackage])
+  const canAdvance = currentStep?.id === 'vehicle'
+    ? Boolean(selection.vehicleSizeId)
+    : currentStep?.id === 'package'
+      ? Boolean(selectedPackage)
+      : currentStep?.id === 'addons' || currentStep?.id === 'ceramic'
 
-  // Handle addon toggle
-  const toggleAddon = useCallback((name: string) => {
-    setSelectedAddons((prev) => {
-      const next = new Set(prev)
-      if (next.has(name)) next.delete(name)
-      else next.add(name)
-      return next
-    })
+  const update = useCallback(
+    (changes: Partial<CatalogSelection>) => setSelection((prev) => normalizeSelection(catalog, { ...prev, ...changes })),
+    [catalog]
+  )
+
+  const toggleAddon = useCallback((id: string) => {
+    setSelection((prev) => ({
+      ...prev,
+      addonIds: prev.addonIds.includes(id) ? prev.addonIds.filter((addonId) => addonId !== id) : [...prev.addonIds, id],
+    }))
   }, [])
 
-  const toggleCeramic = useCallback(() => {
-    const nextCoatingSelected = !ceramicCoatingSelected
-    setCeramicCoatingSelected(nextCoatingSelected)
-    setSelectedPaintCorrection((current) => normalizePaintCorrection(current, nextCoatingSelected))
-  }, [ceramicCoatingSelected])
-
-  const selectPaintCorrection = useCallback(
-    (id: string | null) => {
-      if (selectedPaintCorrection === id) {
-        setSelectedPaintCorrection(null)
-      } else {
-        setSelectedPaintCorrection(id)
-      }
-    },
-    [selectedPaintCorrection]
-  )
-
-  // Handle summary edit navigation
-  const handleEditStep = useCallback(
-    (stepIndex: number) => {
-      goToStep(stepIndex)
-    },
-    [goToStep]
-  )
-
-  // Handle Cal.com booking success
   const handleBookingSuccess = useCallback(() => {
     setBookingConfirmed(true)
     scrollToTop()
   }, [scrollToTop])
 
   // ---- Render ----
-  if (bookingConfirmed && currentSelection) {
+  if (bookingConfirmed && scheduledSelection) {
     return (
       <div ref={wizardRef}>
         <div className="max-w-2xl mx-auto">
-          <ConfirmationStep selection={currentSelection} depositAmount={depositAmount} />
+          <ConfirmationStep selection={scheduledSelection} depositAmount={depositAmount} />
         </div>
       </div>
     )
   }
 
-  const sizeAdd = sizeAdjustments.find((s) => s.id === vehicleSize)?.add ?? 0
+  const sizeAddCents = sizes.find((size) => size.id === selection.vehicleSizeId)?.surchargeCents ?? 0
   const showDeposit = hasBookingDeposit(depositAmount)
-
   const nextStep = steps[currentStepIndex + 1]
+  const coating = publicCeramicServices(catalog, 'coating').find((service) => service.id === selection.coatingId)
 
   return (
     <div ref={wizardRef}>
@@ -315,60 +251,85 @@ export function BookingWizard({
           <div key={currentStep?.id} className="animate-step-in">
             {currentStep?.id === 'vehicle' && (
               <VehicleStep
-                sizeAdjustments={sizeAdjustments}
-                vehicleSize={vehicleSize}
-                onSelect={setVehicleSize}
+                sizes={sizes}
+                vehicleSizeId={selection.vehicleSizeId}
+                onSelect={(vehicleSizeId) => update({ vehicleSizeId })}
               />
             )}
 
             {currentStep?.id === 'package' && (
               <PackageStep
-                packages={allPackagesFlat}
-                selectedPackage={selectedPackage}
-                sizeAdd={sizeAdd}
-                onSelect={setSelectedPackage}
+                categories={categories}
+                selected={packageRef}
+                sizeAddCents={sizeAddCents}
+                onSelect={(ref) => update(ref)}
               />
             )}
 
             {currentStep?.id === 'addons' && (
               <AddonsStep
                 addons={addons}
-                selectedAddons={selectedAddons}
+                selectedAddonIds={selection.addonIds}
                 onToggle={toggleAddon}
               />
             )}
 
             {currentStep?.id === 'ceramic' && (
               <CeramicStep
-                ceramicServices={ceramicServices}
-                ceramicCoatingSelected={ceramicCoatingSelected}
-                selectedPaintCorrection={selectedPaintCorrection}
-                onToggleCeramic={toggleCeramic}
-                onSelectPaintCorrection={selectPaintCorrection}
+                coatings={publicCeramicServices(catalog, 'coating')}
+                corrections={correctionOptions(catalog, coating)}
+                includedCorrection={coating?.includedCorrectionId
+                  ? catalog.ceramicServices.find((service) => service.id === coating.includedCorrectionId)
+                  : undefined}
+                coatingId={selection.coatingId}
+                correctionId={selection.correctionId}
+                onSelectCoating={(coatingId) => update({ coatingId })}
+                onSelectCorrection={(correctionId) => update({ correctionId })}
               />
             )}
 
             {currentStep?.id === 'schedule' && (
               <div>
-                <h3 className="text-white font-semibold text-xl mb-1">Pick a time</h3>
+                <h3 className="text-white font-semibold text-xl mb-1">{text('scheduleHeading')}</h3>
                 <p className="text-neutral-400 mb-6">
-                  {showDeposit
-                    ? `A $${depositAmount} deposit holds the slot. It is refunded in full if you cancel at least 24 hours ahead.`
-                    : 'Choose a day and time that works. You pay when the job is done.'}
+                  {showDeposit && depositPolicy
+                    ? depositPolicy
+                    : text('scheduleDescription')}
                 </p>
-                <div className="-mx-2 sm:mx-0 min-h-[600px]">
-                  <CalEmbed
-                    selection={currentSelection ?? undefined}
-                    depositAmount={depositAmount}
-                    onBookingSuccessful={handleBookingSuccess}
-                  />
+                <div className="-mx-2 sm:mx-0">
+                  {preview ? (
+                    <div className="flex min-h-[600px] items-center justify-center rounded-lg border border-dashed border-white/15 p-6 text-center text-neutral-400">
+                      {text('calendarPreview')}
+                    </div>
+                  ) : quoteResult === undefined ? (
+                    <div className="flex min-h-[600px] items-center justify-center rounded-lg text-neutral-400" role="status">
+                      {text('checkingPrice')}
+                    </div>
+                  ) : quoteResult?.status === 'stale' || quoteResult?.status === 'rejected' ? (
+                    <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center" role="alert">
+                      <p className="max-w-md text-amber-100">
+                        {quoteResult.status === 'stale'
+                          ? text('stalePriceMessage')
+                          : text('rejectedSelectionMessage')}
+                      </p>
+                      <button type="button" onClick={() => window.location.reload()} className="btn-primary inline-flex min-h-11 items-center px-5 text-sm">
+                        {text('reloadPricesLabel')}
+                      </button>
+                    </div>
+                  ) : (
+                    <CalEmbed
+                      selection={scheduledSelection ?? undefined}
+                      depositAmount={depositAmount}
+                      onBookingSuccessful={handleBookingSuccess}
+                    />
+                  )}
                 </div>
                 <button
                   type="button"
                   onClick={goBack}
                   className="mt-6 min-h-11 rounded-lg px-3 -ml-3 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
                 >
-                  Back to {steps[currentStepIndex - 1]?.label.toLowerCase()}
+                  {text('backToLabel', { step: steps[currentStepIndex - 1]?.label.toLowerCase() ?? '' })}
                 </button>
               </div>
             )}
@@ -382,7 +343,7 @@ export function BookingWizard({
                   onClick={goBack}
                   className="min-h-11 rounded-lg px-3 -ml-3 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
                 >
-                  Back
+                  {text('backLabel')}
                 </button>
               ) : (
                 <span />
@@ -390,7 +351,7 @@ export function BookingWizard({
 
               <div className="flex items-center gap-4">
                 {!canAdvance && currentStep?.id === 'package' && (
-                  <span className="hidden sm:inline text-sm text-neutral-500">Choose a package to continue</span>
+                  <span className="hidden sm:inline text-sm text-neutral-500">{text('choosePackageHint')}</span>
                 )}
                 <button
                   type="button"
@@ -398,7 +359,7 @@ export function BookingWizard({
                   disabled={!canAdvance}
                   className="btn-primary inline-flex min-h-11 items-center px-5 text-sm disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
                 >
-                  {nextStep ? `Continue to ${nextStep.label.toLowerCase()}` : 'Continue'}
+                  {nextStep ? text('continueToLabel', { step: nextStep.label.toLowerCase() }) : text('continueLabel')}
                 </button>
               </div>
             </div>
@@ -406,10 +367,10 @@ export function BookingWizard({
         </div>
 
         <BookingSummary
-          selection={currentSelection}
-          vehicleLabel={sizeAdjustments.find((s) => s.id === vehicleSize)?.label}
+          selection={scheduledSelection}
+          vehicleLabel={vehicleLabel}
           depositAmount={depositAmount}
-          onEditStep={handleEditStep}
+          onEditStep={goToStep}
           containerRef={wizardRef}
         />
       </div>

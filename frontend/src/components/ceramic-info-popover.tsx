@@ -2,11 +2,23 @@
 
 import { useCallback, useId, useState, useRef, useEffect } from 'react'
 
-const INFO_COPY = `A ceramic coating is a liquid protection layer that's applied to your vehicle's paint and then chemically bonds to the surface. Think of it as a long-lasting shield that sits on top of your clear coat, helping guard against everyday damage like dirt, road grime, water spots, and even light scratches, all while enhancing the depth and shine. Unlike waxes or sealants that wear off after a few weeks or months, a ceramic coating is designed to last for years with proper care, giving it that freshly detailed look all the time.
+const DEFAULT_TITLE = 'What is Ceramic Coating?'
+const DEFAULT_BODY = `A ceramic coating is a liquid protection layer that's applied to your vehicle's paint and then chemically bonds to the surface. Think of it as a long-lasting shield that sits on top of your clear coat, helping guard against everyday damage like dirt, road grime, water spots, and even light scratches, all while enhancing the depth and shine. Unlike waxes or sealants that wear off after a few weeks or months, a ceramic coating is designed to last for years with proper care, giving it that freshly detailed look all the time.
 
 Dirt, mud, and contaminants have a harder time sticking, so your car stays cleaner longer and washes up quicker. For anyone who wants their vehicle to look better, stay protected, and require less effort to maintain, a ceramic coating is one of the best upgrades you can invest in.`
 
-export function CeramicInfoPopover({ className = '' }: { className?: string }) {
+export function CeramicInfoPopover({
+  className = '',
+  title,
+  body,
+}: {
+  className?: string
+  /** Shared copy from the site content; blank values use the defaults. */
+  title?: string
+  body?: string
+}) {
+  const heading = title || DEFAULT_TITLE
+  const paragraphs = (body || DEFAULT_BODY).split(/\n\s*\n/).filter((paragraph) => paragraph.trim())
   const [open, setOpen] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -125,7 +137,7 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
               tabIndex={-1}
             >
               <div className="flex items-start justify-between mb-3">
-                <h4 id={mobileTitleId} className="text-white font-semibold text-base">What is Ceramic Coating?</h4>
+                <h4 id={mobileTitleId} className="text-white font-semibold text-base">{heading}</h4>
                 <button
                   type="button"
                   ref={mobileCloseButtonRef}
@@ -139,7 +151,7 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
                 </button>
               </div>
               <div className="text-neutral-300 text-sm leading-relaxed space-y-3 overflow-y-auto pr-1 custom-scrollbar">
-                {INFO_COPY.split('\n\n').map((paragraph, i) => (
+                {paragraphs.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
               </div>
@@ -154,7 +166,7 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
               aria-labelledby={desktopTitleId}
             >
               <div className="flex items-start justify-between mb-3">
-                <h4 id={desktopTitleId} className="text-white font-semibold text-sm">What is Ceramic Coating?</h4>
+                <h4 id={desktopTitleId} className="text-white font-semibold text-sm">{heading}</h4>
                 <button
                   type="button"
                   ref={desktopCloseButtonRef}
@@ -168,7 +180,7 @@ export function CeramicInfoPopover({ className = '' }: { className?: string }) {
                 </button>
               </div>
               <div className="text-neutral-300 text-sm leading-relaxed space-y-3">
-                {INFO_COPY.split('\n\n').map((paragraph, i) => (
+                {paragraphs.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
               </div>

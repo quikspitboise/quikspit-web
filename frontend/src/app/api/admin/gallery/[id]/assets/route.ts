@@ -1,4 +1,4 @@
-import { proxyAdminRequest } from '@/lib/server/gallery-api';
+import { proxyGalleryMutation } from '@/lib/server/gallery-revalidation';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +11,7 @@ type RouteContext = {
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  return proxyAdminRequest(request, `/gallery/admin/items/${encodeURIComponent(id)}/assets`, {
+  return proxyGalleryMutation(request, `/gallery/admin/items/${encodeURIComponent(id)}/assets`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

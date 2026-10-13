@@ -10,6 +10,22 @@ const AUTO_ROTATE_INTERVAL = 5000;
 const REVIEWS_REFRESH_INTERVAL = 5 * 60 * 1000;
 const GOOGLE_REVIEWS_URL = 'https://www.google.com/search?q=QuikSpit+Auto+Detailing+Boise';
 
+export type ReviewsLabels = {
+  heading: string;
+  unavailable: string;
+  readLabel: string;
+  /** Where to send readers when the API has no review link. */
+  fallbackUrl?: string;
+  leaveLabel: string;
+};
+
+const DEFAULT_LABELS: ReviewsLabels = {
+  heading: 'Google reviews',
+  unavailable: 'Reviews could not be loaded here.',
+  readLabel: 'Read them on Google',
+  leaveLabel: 'Leave a review',
+};
+
 function GoogleIcon({ className = '' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -71,7 +87,13 @@ function ArrowButton({ direction, onClick, disabled }: { direction: 'left' | 'ri
   );
 }
 
-export function ReviewsSection({ className = '' }: { className?: string }) {
+export function ReviewsSection({
+  className = '',
+  labels = DEFAULT_LABELS,
+}: {
+  className?: string;
+  labels?: ReviewsLabels;
+}) {
   const [data, setData] = useState<ReviewsData | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
@@ -230,15 +252,15 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
       <div className={className}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 border-y border-white/10 py-8 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-display text-3xl sm:text-4xl text-white uppercase">Google reviews</h2>
-            <p className="text-sm text-neutral-400">Reviews could not be loaded here.</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-white uppercase">{labels.heading}</h2>
+            <p className="text-sm text-neutral-400">{labels.unavailable}</p>
             <a
-              href={data.reviewLink || GOOGLE_REVIEWS_URL}
+              href={data.reviewLink || labels.fallbackUrl || GOOGLE_REVIEWS_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex text-sm text-red-400 underline underline-offset-4 hover:text-red-300"
             >
-              Read them on Google
+              {labels.readLabel}
             </a>
           </div>
         </div>
@@ -251,7 +273,7 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div>
           <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-display text-4xl sm:text-5xl text-white uppercase">Google reviews</h2>
+            <h2 className="font-display text-4xl sm:text-5xl text-white uppercase">{labels.heading}</h2>
             <AggregateHeader rating={rating} totalReviews={totalReviews} />
           </div>
 
@@ -334,7 +356,7 @@ export function ReviewsSection({ className = '' }: { className?: string }) {
           {reviewLink && (
             <div className="text-center mt-8">
               <MagneticButton href={reviewLink} variant="secondary" size="md">
-                Leave a review
+                {labels.leaveLabel}
               </MagneticButton>
             </div>
           )}

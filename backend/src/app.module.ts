@@ -14,6 +14,7 @@ import { GalleryModule } from './gallery/gallery.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SettingsModule } from './settings/settings.module';
+import { ContentModule } from './content/content.module';
 import { HealthController } from './health.controller';
 import {
   getDatabaseConnectionOptions,
@@ -61,6 +62,7 @@ import { PostgresThrottlerStorage } from './runtime/postgres-throttler.storage';
     InvoiceModule,
     ReviewsModule,
     SettingsModule,
+    ContentModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

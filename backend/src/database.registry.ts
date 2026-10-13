@@ -6,16 +6,22 @@ import { CreateGalleryItemsTable1740000000000 } from './migrations/1740000000000
 import { CreateAppSettingsTable1740000001000 } from './migrations/1740000001000-CreateAppSettingsTable';
 import { AddGalleryCloudinaryMetadata1740000002000 } from './migrations/1740000002000-AddGalleryCloudinaryMetadata';
 import { CreateRuntimeState1788652800000 } from './migrations/1788652800000-CreateRuntimeState';
+import { CreateSiteContent1791763200000 } from './migrations/1791763200000-CreateSiteContent';
+import { ContentDocumentEntity } from './content/entities/content-document.entity';
+import { ContentRevisionEntity } from './content/entities/content-revision.entity';
 
 export const DATABASE_ENTITIES = [
   GalleryItemEntity,
   AppSettingEntity,
   ProviderCacheEntity,
   RequestLimitEntity,
+  ContentDocumentEntity,
+  ContentRevisionEntity,
 ];
 export const DATABASE_MIGRATIONS = [
   CreateGalleryItemsTable1740000000000,
   CreateAppSettingsTable1740000001000,
   AddGalleryCloudinaryMetadata1740000002000,
   CreateRuntimeState1788652800000,
+  CreateSiteContent1791763200000,
 ];
