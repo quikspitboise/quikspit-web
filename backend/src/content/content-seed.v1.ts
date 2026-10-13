@@ -86,7 +86,15 @@ export const INITIAL_CONTENT_V1: {
       },
       copy: {
         seo: {
-          keywords: ['car detailing', 'auto detailing', 'car wash', 'vehicle cleaning', 'paint protection', 'ceramic coating', 'Boise car detailing'],
+          keywords: [
+            'car detailing',
+            'auto detailing',
+            'car wash',
+            'vehicle cleaning',
+            'paint protection',
+            'ceramic coating',
+            'Boise car detailing',
+          ],
         },
         skipToContent: 'Skip to content',
         openMenu: 'Open menu',
@@ -783,7 +791,7 @@ export const INITIAL_CONTENT_V1: {
           fields: {
             submitLabel: 'Send message',
             sendingLabel: 'Sending…',
-            successMessage: 'Message sent. We\'ll reply within a day.',
+            successMessage: "Message sent. We'll reply within a day.",
             photoLabel: 'Photo',
             formCopy: {
               nameLabel: 'Name',
@@ -798,10 +806,14 @@ export const INITIAL_CONTENT_V1: {
               messageRequired: 'Tell us what you need',
               imageTooLarge: 'Image must be 5MB or smaller',
               imageTypeInvalid: 'Use a JPG, PNG, or GIF image',
-              validationMessage: 'Some fields need attention. Check the messages next to them.',
-              responseError: 'The message didn\'t send (error {status}). Try again, or call {phone}.',
-              timeoutError: 'Sending took too long. Check your connection and try again.',
-              connectionError: 'The message didn\'t send. Check your connection and try again, or call {phone}.',
+              validationMessage:
+                'Some fields need attention. Check the messages next to them.',
+              responseError:
+                "The message didn't send (error {status}). Try again, or call {phone}.",
+              timeoutError:
+                'Sending took too long. Check your connection and try again.',
+              connectionError:
+                "The message didn't send. Check your connection and try again, or call {phone}.",
             },
             phoneLabel: 'Phone, call or text',
             emailLabel: 'Email',
@@ -853,29 +865,37 @@ export const INITIAL_CONTENT_V1: {
               progressLabel: 'Booking progress',
               stepCount: 'Step {current} of {total}',
               vehicleHeading: 'What are we detailing?',
-              vehicleDescription: 'Bigger vehicles take longer, so the price goes up a little with size.',
+              vehicleDescription:
+                'Bigger vehicles take longer, so the price goes up a little with size.',
               vehicleGroupLabel: 'Vehicle size',
               basePriceLabel: 'Base price',
               packageHeading: 'Choose a package',
-              packageDescription: 'Prices below already include your vehicle size.',
+              packageDescription:
+                'Prices below already include your vehicle size.',
               hideDetailsLabel: 'Hide details',
               compareDetailsLabel: 'Compare what’s included',
-              showDetailsLabel: 'What\'s included?',
+              showDetailsLabel: "What's included?",
               addonsHeading: 'Anything extra?',
-              addonsDescription: 'Optional. Pick as many as you like, or continue without any.',
+              addonsDescription:
+                'Optional. Pick as many as you like, or continue without any.',
               ceramicHeading: 'Protect the paint?',
-              ceramicDescription: 'Optional. Your package qualifies for ceramic coating and paint correction.',
+              ceramicDescription:
+                'Optional. Your package qualifies for ceramic coating and paint correction.',
               includedCorrectionMessage: '{service} comes with the coating.',
               upgradeLabel: 'Optional upgrade',
               correctionChoiceHint: '(choose one, or none)',
               upgradeServiceLabel: 'Upgrade to {service}',
               scheduleHeading: 'Pick a time',
-              scheduleDescription: 'Choose a day and time that works. You pay when the job is done.',
+              scheduleDescription:
+                'Choose a day and time that works. You pay when the job is done.',
               calendarLoading: 'Loading the calendar…',
-              calendarPreview: 'The Cal.com calendar appears here on the live site.',
+              calendarPreview:
+                'The Cal.com calendar appears here on the live site.',
               checkingPrice: 'Checking the price…',
-              stalePriceMessage: 'Our prices were just updated. Reload the page to see the current price before you pick a time.',
-              rejectedSelectionMessage: 'Part of this selection is no longer offered. Reload the page to see what is available.',
+              stalePriceMessage:
+                'Our prices were just updated. Reload the page to see the current price before you pick a time.',
+              rejectedSelectionMessage:
+                'Part of this selection is no longer offered. Reload the page to see what is available.',
               reloadPricesLabel: 'Reload prices',
               backToLabel: 'Back to {step}',
               backLabel: 'Back',
@@ -891,21 +911,26 @@ export const INITIAL_CONTENT_V1: {
               estimatedTotalLabel: 'Estimated total',
               depositTodayLabel: 'Deposit today',
               dueAtAppointmentLabel: 'Due at the appointment',
-              finalPriceMessage: 'The final price can change if the car needs more work than expected.',
+              finalPriceMessage:
+                'The final price can change if the car needs more work than expected.',
               choosePackageMessage: 'Choose a package to see the total.',
               hideSummaryLabel: 'Hide',
               showSummaryLabel: 'Details',
-              confirmationHeading: 'You\'re booked',
-              confirmationDescription: 'A confirmation email with the time and the garage address is on its way.',
+              confirmationHeading: "You're booked",
+              confirmationDescription:
+                'A confirmation email with the time and the garage address is on its way.',
               totalLabel: 'Total',
               bookingDepositLabel: 'Booking deposit',
               paidAmountLabel: '{amount} paid',
               balanceLabel: 'Balance at service',
               prepHeading: 'Before your appointment',
-              prepAddress: 'Check your email for the garage address. We don\'t publish it anywhere else.',
+              prepAddress:
+                "Check your email for the garage address. We don't publish it anywhere else.",
               prepValuables: 'Take any valuables out of the car.',
-              prepArrival: 'Arrive on time so the detail can start on schedule.',
-              prepReschedule: 'Need to move it? Reschedule for free up to 24 hours ahead.',
+              prepArrival:
+                'Arrive on time so the detail can start on schedule.',
+              prepReschedule:
+                'Need to move it? Reschedule for free up to 24 hours ahead.',
               questionsLabel: 'Questions? Call or text',
             },
             heading: 'Design your detail',
