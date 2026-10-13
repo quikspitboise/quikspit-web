@@ -8,6 +8,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "tsc --noEmit -p tsconfig.eslint.json && nest build",
+    "build:vercel": "node scripts/build-vercel.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.eslint.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -17,6 +18,7 @@
     "serve:backend": "pnpm start:prod",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:deployment": "node --test test/build-vercel.test.mjs",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r ts-node/register ./node_modules/jest/bin/jest.js --runInBand",

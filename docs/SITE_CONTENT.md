@@ -4,7 +4,9 @@ The content module stores editable business details, page copy, links, metadata,
 
 ## Deployment
 
-Enter the Nix dev shell and run the existing backend migration command against the intended deployment database before releasing the backend:
+The backend's Vercel production build compiles the application and then applies pending migrations using the project's production database environment. A migration failure fails the deployment. Preview and local builds skip this step, and runtime startup keeps `migrationsRun: false`.
+
+For deployments outside Vercel, enter the Nix dev shell and run the existing backend migration command against the intended deployment database before releasing the backend:
 
 ```bash
 nix develop path:.
