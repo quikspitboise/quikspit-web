@@ -18,13 +18,13 @@ const ASPECT = 265 / 120;
 export function Logo({ className = "", size = 56, responsive = true }: LogoProps) {
   if (responsive) {
     return (
-      <span className={`relative block h-12 w-[106px] lg:h-14 lg:w-[124px] shrink-0 ${className}`}>
+      <span className={`relative block h-16 w-[142px] shrink-0 ${className}`}>
         <Image
           src="/logo.svg"
           alt=""
           fill
           priority
-          sizes="124px"
+          sizes="142px"
           className="object-contain select-none"
         />
       </span>
