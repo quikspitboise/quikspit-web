@@ -38,9 +38,6 @@ auditConfig:
   ignoreGhsas:
     # deepmerge has no patched release; reachable only via backend jest (dev-only), low severity.
     - GHSA-gcqx-w48m-w2h4
-    # zod 3 has no patched release; next-cloudinary 6 (url-loader 5) only safeParses short
-    # flag strings against enums, never oversized collections. Drop once on next-cloudinary 7.
-    - GHSA-mrhx-c7xc-m3w5
 packageExtensions:
   '@next/eslint-plugin-next@16.3.8':
     dependencies:
@@ -122,6 +119,8 @@ minimumReleaseAgeExclude:
   - libphonenumber-js@1.13.13
   - next@16.3.5
   - next-cloudinary@6.19.0
+  # v7 drops url-loader 5's unpatched zod 3 dependency (GHSA-mrhx-c7xc-m3w5).
+  - next-cloudinary@7.0.0
   - nodemailer@10.0.8
   - pnpm@12.4.1
   - posthog-js@1.430.2
